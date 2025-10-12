@@ -4,9 +4,6 @@ jspm_packages/
 
 # TypeScript build output
 dist/
-out/
-build/
-lib/
 *.tsbuildinfo
 
 # Test coverage output
