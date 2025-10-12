@@ -2,8 +2,8 @@
   "name": "lucidlines",
   "version": "0.0.0",
   "description": "Concurently: with browser",
-  "bin": { 
-    "lucidlines": "dist/cli.cjs" 
+  "bin": {
+    "lucidlines": "dist/cli.cjs"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -34,6 +34,7 @@
     "build": "tsup"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.5",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^24.7.2",
     "husky": "^9.1.7",
