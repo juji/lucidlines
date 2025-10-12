@@ -1,4 +1,4 @@
-# LucidLines
+# Boilerplate
 
 A minimal TypeScript-based boilerplate for creating Node.js CLI applications with dual ESM/CommonJS support.
 
@@ -23,7 +23,7 @@ This project provides a straightforward starting point for building command-line
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/juji/lucidlines.git my-cli
+   git clone https://github.com/juji/nodejs-cli-boilerplate my-cli
    cd my-cli
    ```
 
