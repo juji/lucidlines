@@ -48,8 +48,11 @@ const transformStream = new Transform({
         // Remove ANSI escape sequences only from the beginning of the output
         const cleanOutput = output.replace(/^\s*\u001b\[\d+m/, '');
 
+        // Use a distinctive three-character combination as a delimiter
+        const DELIMITER = '§¶≈';  // Section sign, paragraph sign, and approximately equal sign
+        
         this.push(
-          JSON.stringify({ name, output: cleanOutput }) + '\n'
+          JSON.stringify({ name, output: cleanOutput }) + DELIMITER
         );
 
       }
