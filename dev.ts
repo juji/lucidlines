@@ -18,39 +18,46 @@ const normalTransformStream = new Transform({
 normalTransformStream.pipe(process.stdout);
 
 // Set to store already processed lines
-const processedLines = new Set();
+let buffer = '';
 
 // Create a custom writable stream that transforms output to JSON
 const transformStream = new Transform({
   transform(chunk, _, callback) {
     try {
-      // Get the text and split by newlines
-      const lines = chunk.toString().split('\n');
-      
-      for (const line of lines) {
-        if (!line.trim()) continue;  // Skip empty lines
+
+      buffer += chunk.toString();
+      let line = ''
+
+      // check if buffer contains new line
+      if (!buffer.includes('\n')) {
+        callback();
+        return;
+      }
         
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      
+      for (line of lines) {
+
         // Simplest possible extraction - just get the command name between brackets
         const match = line.match(/\[([A-Z]+)\]/);
-        
-        if (match) {
-          const name = match[1];
-          // Get content after the bracket
-          const output = line.substring(line.indexOf(']') + 1).trim();
-          
-          // Skip duplicates and empty outputs
-          const key = `${name}:${output}`;
-          if (!output || processedLines.has(key)) continue;
-          
-          processedLines.add(key);
-          // Output clean JSON
-          this.push(`{"name":"${name}","output":"${output.replace(/"/g, '\\"')}"}\n`);
-        }
+        if(!match) continue;
+
+        const name = match[1];
+        const output = line.substring(line.indexOf(']') + 1);
+
+        // Remove ANSI escape sequences only from the beginning of the output
+        const cleanOutput = output.replace(/^\s*\u001b\[\d+m/, '');
+
+        this.push(
+          JSON.stringify({ name, output: cleanOutput }) + '\n'
+        );
+
       }
-      
+
       callback();
-    } catch (err) {
-      callback();
+    } catch (error) {
+      callback(error as Error);
     }
   }
 });
