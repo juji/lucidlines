@@ -65,3 +65,19 @@ This boilerplate outputs:
 - `dist/index.mjs` - ES Module
 - Type declarations for library usage
 
+## Libs to consider when building a CLI
+
+### Consola
+https://www.npmjs.com/package/consola
+
+### Ora
+https://www.npmjs.com/package/ora
+
+### PicoColors
+https://www.npmjs.com/package/picocolors
+
+### comand-line-args
+https://www.npmjs.com/package/command-line-args
+
+### Clack
+https://www.npmjs.com/package/@clack/prompts
