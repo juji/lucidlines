@@ -26,7 +26,6 @@ const transformStream = new Transform({
     try {
 
       buffer += chunk.toString();
-      let line = ''
 
       // check if buffer contains new line
       if (!buffer.includes('\n')) {
@@ -37,7 +36,7 @@ const transformStream = new Transform({
       const lines = buffer.split('\n');
       buffer = lines.pop() || '';
       
-      for (line of lines) {
+      for (const line of lines) {
 
         // Simplest possible extraction - just get the command name between brackets
         const match = line.match(/\[([A-Z]+)\]/);
