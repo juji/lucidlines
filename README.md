@@ -1,4 +1,4 @@
-# CLI Boilerplate
+# LucidLines
 
 A minimal TypeScript-based boilerplate for creating Node.js CLI applications with dual ESM/CommonJS support.
 
@@ -8,12 +8,16 @@ This project provides a straightforward starting point for building command-line
 
 ## Features
 
-- **TypeScript with Node 22**: Built for the latest Node.js LTS
-- **Dual Module Format**: Outputs both CommonJS and ES Modules
-- **CLI Ready**: Preconfigured binary setup with proper entry points
-- **Modern Build System**: Uses tsup for optimized bundling
-- **Code Quality**: Biome for formatting and linting
-- **Git Hooks**: Husky and lint-staged for pre-commit checks
+- **TypeScript with Node 22**: Uses TypeScript 5.9.3 with @tsconfig/node22 base configuration
+- **Dual Module Format**: Outputs both CommonJS and ES Modules via tsup configuration
+- **CLI Ready**: Preconfigured binary setup with entry point in dist/cli.cjs
+- **Development Tools**:
+  - **tsup** (v8.5.0): For bundling TypeScript with minimal configuration
+  - **tsx** (v4.20.6): For running TypeScript files directly
+  - **@biomejs/biome** (v2.2.5): Modern linting and formatting
+  - **husky** (v9.1.7): Git hooks management
+  - **lint-staged** (v16.2.4): Run linters against staged files
+- **Type Definitions**: @types/node v24.7.2
 
 ## Getting Started
 
@@ -46,7 +50,11 @@ lucidlines/
 │   ├── cli.ts       # CLI entry point
 │   └── index.ts     # Library entry point
 ├── dist/            # Compiled output (generated)
-└── ... configuration files
+├── .husky/          # Git hooks configuration
+├── biome.json       # Biome configuration
+├── .lintstagedrc.json # Lint-staged configuration
+├── tsconfig.json    # TypeScript configuration
+└── tsup.config.ts   # Build configuration
 ```
 
 ## Output Formats
