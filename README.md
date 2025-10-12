@@ -45,7 +45,7 @@ This project provides a straightforward starting point for building command-line
 ## Project Structure
 
 ```
-lucidlines/
+./
 ├── src/
 │   ├── cli.ts       # CLI entry point
 │   └── index.ts     # Library entry point
@@ -65,6 +65,3 @@ This boilerplate outputs:
 - `dist/index.mjs` - ES Module
 - Type declarations for library usage
 
-## License
-
-MIT
