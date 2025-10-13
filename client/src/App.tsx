@@ -4,6 +4,7 @@ import Terminal from './components/Terminal'
 import useWebSocket from './hooks/useWebSocket'
 import { useTerminalStore } from './store/terminalStore'
 import { useShallow } from 'zustand/react/shallow'
+import HeaderControls from './components/HeaderControls'
 
 // Memoize the component to prevent unnecessary re-renders
 const App = function App() {
@@ -17,7 +18,6 @@ const App = function App() {
   
   // All terminals are active by default (can be toggled)
   const [activeTerminals, setActiveTerminals] = useState<Record<string, boolean>>({});
-  const [fontSize, setFontSize] = useState(14);
   
   // Initialize WebSocket connection
   useWebSocket('ws://localhost:8080/ws');
@@ -43,16 +43,6 @@ const App = function App() {
     }));
   };
 
-  const adjustFontSize = (delta: number) => {
-    setFontSize(prev => {
-      const next = prev + delta;
-      return Math.min(24, Math.max(10, next));
-    });
-  };
-
-  const decreaseFont = () => adjustFontSize(-1);
-  const increaseFont = () => adjustFontSize(1);
-  
   return (
     <div className="app-container">
       <header className="app-header">
@@ -67,26 +57,7 @@ const App = function App() {
             </button>
           ))}
         </div>
-        <div className="header-controls">
-          <span className="font-label">Text</span>
-          <button 
-            type="button"
-            className="font-button"
-            onClick={decreaseFont}
-            aria-label="Decrease text size"
-          >
-            -
-          </button>
-          <span className="font-size-display">{fontSize}px</span>
-          <button 
-            type="button"
-            className="font-button"
-            onClick={increaseFont}
-            aria-label="Increase text size"
-          >
-            +
-          </button>
-        </div>
+        <HeaderControls />
       </header>
       <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
         {logTypes.map((type) => (
@@ -103,7 +74,6 @@ const App = function App() {
               </div>
               <Terminal 
                 logType={type}
-                fontSize={fontSize}
                 log={type === 'REACT'}
               />
             </div>

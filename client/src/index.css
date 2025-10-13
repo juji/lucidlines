@@ -11,6 +11,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --terminal-font-size: 14px;
+  --terminal-hue: 0.585;
+  --terminal-saturation: 0.22;
+  --terminal-lightness: 0.16;
 }
 
 a {
