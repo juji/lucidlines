@@ -1,7 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { Terminal as XTerm } from '@xterm/xterm';
-import { FitAddon } from '@xterm/addon-fit';
-import '@xterm/xterm/css/xterm.css';
+import { useEffect, useMemo, useRef } from 'react';
+import { AnsiUp } from 'ansi_up';
 import { useTerminalStore } from '../store/terminalStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -14,10 +12,7 @@ const Terminal: React.FC<TerminalProps> = ({
   logType,
   log 
 }) => {
-  const terminalRef = useRef<HTMLDivElement>(null);
-  const terminalInstance = useRef<XTerm | null>(null);
-  const fitAddonRef = useRef<FitAddon | null>(null);
-  const processedMessages = useRef<Set<number>>(new Set());
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Get logs from the Zustand store based on logType with useShallow for efficient updates
   const logs = useTerminalStore(
@@ -27,139 +22,54 @@ const Terminal: React.FC<TerminalProps> = ({
   // don't change!
   if(log){}
 
-  // Initialize terminal
-  useEffect(() => {
-    if (!terminalRef.current) return;
-
-    const term = new XTerm({
-      cursorBlink: true,
-      convertEol: true, // Convert '\n' to '\r\n'
-      fontFamily: 'monospace',
-      fontSize: 14,
-      lineHeight: 1.2, // Increase line height for better readability
-      theme: {
-        background: '#1e1e1e',
-        foreground: '#ffffff', // Brighter white text for better contrast
-        brightWhite: '#ffffff', // Make sure bright white is also fully bright
-        // Increase brightness for all ANSI colors
-        black: '#000000',
-        red: '#ff5555',
-        green: '#55ff55',
-        yellow: '#ffff55',
-        blue: '#5555ff',
-        magenta: '#ff55ff',
-        cyan: '#55ffff',
-        white: '#f0f0f0',
-        brightBlack: '#555555',
-        brightRed: '#ff8888',
-        brightGreen: '#88ff88',
-        brightYellow: '#ffff88',
-        brightBlue: '#8888ff',
-        brightMagenta: '#ff88ff',
-        brightCyan: '#88ffff',
-      },
-      allowTransparency: false, // Disable transparency for better text rendering
-    });
-
-    const fitAddon = new FitAddon();
-    term.loadAddon(fitAddon);
-    fitAddonRef.current = fitAddon;
-    terminalInstance.current = term;
-
-    term.open(terminalRef.current);
-
-    // Fit the terminal to its container
-    fitAddon.fit();
-
-    // Handle window resize
-    const handleResize = () => {
-      fitAddon.fit();
-    };
-    
-    window.addEventListener('resize', handleResize);
-
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      term.dispose();
-    };
+  const ansi = useMemo(() => {
+    const instance = new AnsiUp();
+    instance.use_classes = true;
+    return instance;
   }, []);
-  
-  // Process logs from Zustand store and display in terminal
-  const refEffect = useRef<ReturnType<typeof setTimeout> | number>(0);
-  useEffect(() => {
-    if (!terminalInstance.current) return;
-    
-    // Get only the new logs we haven't processed yet
-    const newLogs = logs.filter(log => {
-      const logId = log.hash
-      return !processedMessages.current.has(logId);
-    });
-
-    // why does useEffect and Refs not work well together?
-    // Throttle updates to avoid processedMessages being filled too quickly
-    refEffect.current && clearTimeout(refEffect.current);
-    refEffect.current = setTimeout(() => {
-      
-      // Process only new logs
-      newLogs.forEach(log => {
-        // Create a unique ID for this log to avoid duplicates
-        const logId = log.hash
-        processedMessages.current.add(logId);
-        
-        // The log data structure is simple: { type, data, timestamp }
-        // Just write the data to the terminal
-        if (log.data) {
-          const content = log.data.toString();
-          terminalInstance.current?.write(content.endsWith('\r\n') ? content : content + '\r\n');
-        } else {
-          // Fallback: For any unexpected format, display as string
-          terminalInstance.current?.write(JSON.stringify(log) + '\r\n');
-        }
-      });
-
-    }, 20);
-
-
-    // terminalInstance.current.scrollToBottom();
-  }, [logs]); // useShallow ensures this only runs when actual log content changes
-
-  // Call fit on terminal resize
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      if (fitAddonRef.current) {
-        setTimeout(() => {
-          fitAddonRef.current?.fit();
-        }, 0);
-      }
-    });
-    
-    if (terminalRef.current) {
-      resizeObserver.observe(terminalRef.current);
+  const combined = useMemo(() => {
+    if (!logs.length) {
+      return '';
     }
-    
-    return () => {
-      if (terminalRef.current) {
-        resizeObserver.unobserve(terminalRef.current);
-      }
-    };
-  }, []);
+
+    return logs
+      .map(entry => {
+        const text = (entry.data ?? '').toString();
+        return text.endsWith('\n') ? text : `${text}\n`;
+      })
+      .join('');
+  }, [logs]);
+  const html = useMemo(() => ansi.ansi_to_html(combined), [ansi, combined]);
+
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    node.scrollTop = node.scrollHeight;
+  }, [html]);
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: 'relative',
         width: '100%',
         height: '100%',
         minHeight: '300px',
+        overflow: 'auto',
+  background: '#1e1e1e',
+  color: '#ffffff',
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        lineHeight: 1.2,
+        padding: '0.75rem',
+        boxSizing: 'border-box',
       }}
     >
       <div
-        ref={terminalRef}
         style={{
-          width: '100%',
-          height: '100%',
+          whiteSpace: 'pre-wrap',
         }}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>
   );
