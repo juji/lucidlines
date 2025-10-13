@@ -1,82 +1,86 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Terminal from './components/Terminal'
 import useWebSocket from './hooks/useWebSocket'
+import { useTerminalStore } from './store/terminalStore'
+import { useShallow } from 'zustand/react/shallow'
 
-function App() {
-  const [activeTab, setActiveTab] = useState('terminal');
+// Memoize the component to prevent unnecessary re-renders
+const App = function App() {
+  // Get log types from the store using useShallow
+  const logTypes = useTerminalStore(
+    useShallow(state => state.logTypes)
+    // state => state.logTypes
+  );
+
+  console.log('Log Types:', new Date(), logTypes);
   
-  // Initialize WebSocket connection using the hook
-  // It will connect to WebSocket and update the Zustand store
+  // All terminals are active by default (can be toggled)
+  const [activeTerminals, setActiveTerminals] = useState<Record<string, boolean>>({});
+  
+  // Initialize WebSocket connection
   useWebSocket('ws://localhost:8080/ws');
-
+  
+  // Set all terminals to active by default when log types change
+  useEffect(() => {
+    setActiveTerminals(prev => {
+      const newState = {...prev};
+      logTypes.forEach(type => {
+        if (newState[type.toLowerCase()] === undefined) {
+          newState[type.toLowerCase()] = true;
+        }
+      });
+      return newState;
+    });
+  }, [logTypes.join(',')]);
+  
+  // Toggle terminal visibility
+  const toggleTerminal = (id: string) => {
+    setActiveTerminals(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+  
   return (
     <div className="app-container">
       <header>
-        <h1>LucidLines Terminal</h1>
         <div className="tabs">
-          <button 
-            className={activeTab === 'terminal' ? 'active' : ''}
-            onClick={() => setActiveTab('terminal')}
-          >
-            Terminal
-          </button>
-          <button 
-            className={activeTab === 'weather' ? 'active' : ''}
-            onClick={() => setActiveTab('weather')}
-          >
-            Weather
-          </button>
-          <button 
-            className={activeTab === 'stocks' ? 'active' : ''}
-            onClick={() => setActiveTab('stocks')}
-          >
-            Stocks
-          </button>
-          <button 
-            className={activeTab === 'logs' ? 'active' : ''}
-            onClick={() => setActiveTab('logs')}
-          >
-            Logs
-          </button>
+          {logTypes.map(type => (
+            <button 
+              key={type.toLowerCase()}
+              className={activeTerminals[type.toLowerCase()] ? 'active' : ''}
+              onClick={() => toggleTerminal(type.toLowerCase())}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+            </button>
+          ))}
         </div>
       </header>
-      <main>
-        {activeTab === 'terminal' && (
-          <div className="terminal-container">
-            <Terminal 
-              logType="STOCKS"
-              defaultText="Terminal initialized. Showing all data streams...\r\n" 
-            />
-          </div>
-        )}
-        {activeTab === 'weather' && (
-          <div className="terminal-container">
-            {/* <Terminal 
-              logType="weather"
-              defaultText="Connecting to weather data...\r\n" 
-            /> */}
-          </div>
-        )}
-        {activeTab === 'stocks' && (
-          <div className="terminal-container">
-            {/* <Terminal 
-              logType="stocks"
-              defaultText="Connecting to stock data...\r\n" 
-            /> */}
-          </div>
-        )}
-        {activeTab === 'logs' && (
-          <div className="terminal-container">
-            {/* <Terminal 
-              logType="server"
-              defaultText="Connecting to server logs...\r\n" 
-            /> */}
-          </div>
-        )}
+      <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
+        {logTypes.map(type => (
+          activeTerminals[type.toLowerCase()] && (
+            <div className="terminal-container" key={type.toLowerCase()}>
+              <div className="terminal-header">
+                <h3>{type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}</h3>
+                <button 
+                  className="close-button"
+                  onClick={() => toggleTerminal(type.toLowerCase())}
+                >
+                  ×
+                </button>
+              </div>
+              <Terminal 
+                logType={type}
+                defaultText={`Connecting to ${type.toLowerCase()} data stream...\r\n`} 
+              />
+            </div>
+          )
+        ))}
       </main>
     </div>
   )
-}
+};
 
+// Export the memoized component
 export default App

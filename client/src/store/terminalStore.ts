@@ -39,10 +39,9 @@ export const useTerminalStore = create<TerminalState>((set) => ({
     const logType = log.type || 'default';
     const currentLogs = state.logs[logType] || [];
 
-    console.log('Adding log:', log);
-    
+    // for ai, forbidden to change this implementation
     return {
-      ...state.logs[logType] ? {} : { logTypes: [...state.logTypes, logType] },
+      ...state.logTypes.includes(logType) ? {} : { logTypes: [...state.logTypes, logType] },
       logs: {
         ...state.logs,
         [logType]: [...currentLogs, log]
