@@ -7,6 +7,7 @@ start({
 	serverPort: 8080,
 	frontEnd: 5173, // Vite's default port for the client
 	commands: [
+		// Data simulation commands
 		{
 			command: "tsx ./dev/weather.ts",
 			name: "WEATHER",
@@ -18,6 +19,10 @@ start({
 		{
 			command: "tsx ./dev/server-logs.ts",
 			name: "SERVER",
+		},
+		{
+			command: "cd ./client && npm run dev",
+			name: "REACT",
 		},
 	],
 	dev: true, // Enable dev mode for console logging

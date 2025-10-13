@@ -7,8 +7,7 @@ import {
 } from "node:http";
 import { extname, join } from "node:path";
 import { createProxyServer } from "http-proxy";
-import { type WebSocket, WebSocketServer } from "ws";
-import databank from "./databank";
+import { createWebSocketManager, type WebSocketManager } from "./websocket";
 
 // MIME types for common file extensions
 const MIME_TYPES: Record<string, string> = {
@@ -43,12 +42,6 @@ export function start({
 	// Create HTTP server
 	const server = createServer();
 
-	// Create WebSocket server with specific path
-	const wss = new WebSocketServer({
-		server,
-		path: wsPath,
-	});
-
 	// Create proxy server for development mode
 	const frontendPort = typeof frontEnd === "number" ? frontEnd : null;
 	const frontEndDir = typeof frontEnd === "string" ? frontEnd : null;
@@ -60,91 +53,10 @@ export function start({
 			})
 		: null;
 
-	// Track connected clients
-	const clients = new Map();
-
-	// Handle WebSocket connections
-	wss.on("connection", function connection(ws, _req) {
-		const clientId = `client_${Math.random().toString(36).substring(2, 10)}`;
-		console.log(`WebSocket client connected: ${clientId}`);
-
-		// Store client information
-		clients.set(clientId, {
-			id: clientId,
-			socket: ws,
-			lastActivity: Date.now(),
-		});
-
-		// Send welcome message with client ID
-		ws.send(
-			JSON.stringify({
-				type: "connection",
-				clientId,
-				message: "Connected to LucidLines server",
-			}),
-		);
-
-		// Send recent messages from the databank to new client
-		const recentMessages = databank.getRecentMessages();
-		if (recentMessages.length > 0) {
-			ws.send(
-				JSON.stringify({
-					type: "history",
-					messages: recentMessages,
-				}),
-			);
-		}
-
-		// Subscribe this client to databank events
-		const unsubscribe = databank.subscribe(
-			(data: { type: string; data: string; timestamp: number }) => {
-				if (ws.readyState === ws.OPEN) {
-					ws.send(JSON.stringify(data));
-				}
-			},
-		);
-
-		// Handle incoming messages
-		ws.on("message", function message(data) {
-			try {
-				console.log("Received: %s", data);
-				const message = JSON.parse(data.toString());
-
-				// Process message (you can extend this with your logic)
-				ws.send(
-					JSON.stringify({
-						type: "response",
-						originalMessage: message,
-						timestamp: Date.now(),
-					}),
-				);
-
-				// Add message to databank if needed
-				// databank.addData('client-message', JSON.stringify(message));
-			} catch (error) {
-				console.error("Error processing message:", error);
-				ws.send(
-					JSON.stringify({
-						type: "error",
-						message: "Invalid message format",
-					}),
-				);
-			}
-		});
-
-		// Handle disconnection
-		ws.on("close", () => {
-			console.log(`WebSocket client disconnected: ${clientId}`);
-			clients.delete(clientId);
-			unsubscribe(); // Clean up databank subscription
-		});
-
-		// Handle errors
-		ws.on("error", (error) => {
-			console.error(`WebSocket error for client ${clientId}:`, error);
-			clients.delete(clientId);
-			unsubscribe(); // Clean up databank subscription
-		});
+	// Initialize WebSocket manager
+	const wsManager = createWebSocketManager({
+		httpServer: server,
+		wsPath,
 	});
 
 	// Handle HTTP requests
@@ -202,20 +114,13 @@ export function start({
 	return {
 		server,
 		stop: () => {
-			// Close all WebSocket connections
-			for (const client of clients.values()) {
-				// Use a more specific type for WebSocket
-				(client.socket as WebSocket).terminate();
-			}
-			clients.clear();
+			// Close WebSocket connections
+			wsManager.close();
 
 			// Close proxy if it exists
 			if (proxy) {
 				proxy.close();
 			}
-
-			// Close WebSocket server
-			wss.close();
 
 			// Close HTTP server
 			server.close();
