@@ -7,26 +7,24 @@ import { useTerminalStore } from '../store/terminalStore';
 export function useWebSocket(url: string) {
   const socketRef = useRef<WebSocket | null>(null);
   
-  // Don't destructure store actions to avoid dependency issues
-  // Instead, we'll access them directly via getState() in the effect
+  // Get actions from the terminal store
+  const { addLog, setConnected, setConnectionError } = useTerminalStore();
 
   useEffect(() => {
     // Create WebSocket connection
     const socket = new WebSocket(url);
     socketRef.current = socket;
-    
-    // Get store actions via getState to prevent stale closures and dependencies
-    const getStoreActions = () => useTerminalStore.getState();
 
     // Connection opened
     socket.addEventListener('open', () => {
-      getStoreActions().setConnected(true);
+      setConnected(true);
     });
 
     // Listen for messages
     socket.addEventListener('message', (event) => {
       try {
         const data = JSON.parse(event.data);
+        
         
         // Only store messages with type 'log' in Zustand
         if (data.type === 'log' && data.messages) {
@@ -35,8 +33,8 @@ export function useWebSocket(url: string) {
           
           // Only store if it has the required fields
           if (logData.type && logData.data !== undefined) {
-            // Add to store directly using getState to get fresh reference
-            getStoreActions().addLog(logData);
+            // Add to store directly
+            addLog(logData);
           }
         } else {
           // Log other message types but don't store them
@@ -44,18 +42,18 @@ export function useWebSocket(url: string) {
         }
       } catch (e) {
         console.error('Error parsing WebSocket message:', e);
-        getStoreActions().setConnectionError('Failed to parse WebSocket message');
+        setConnectionError('Failed to parse WebSocket message');
       }
     });
 
     // Connection closed
     socket.addEventListener('close', () => {
-      getStoreActions().setConnected(false);
+      setConnected(false);
     });
     
     // Handle errors
     socket.addEventListener('error', () => {
-      getStoreActions().setConnectionError('WebSocket error occurred');
+      setConnectionError('WebSocket error occurred');
     });
 
     // Clean up on unmount
