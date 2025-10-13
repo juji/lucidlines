@@ -1,8 +1,5 @@
-/* Simple fix for terminal alignment */
-/* .terminal-container {
-  text-align: left;
-} */
 
-/* .xterm {
+
+.xterm {
   padding-left: 4px;
-} */
+}

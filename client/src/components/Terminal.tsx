@@ -1,28 +1,28 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
+import { useTerminalStore } from '../store/terminalStore';
 
 interface TerminalProps {
-  websocketUrl?: string;
   defaultText?: string;
-  dataType?: string;
-  showAllData?: boolean;
+  logType: string;
 }
 
 const Terminal: React.FC<TerminalProps> = ({ 
-  websocketUrl = 'ws://localhost:3000', 
   defaultText = 'Terminal initialized...\r\n',
-  dataType = '',
-  showAllData = false
+  logType,
 }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
-  const [terminal, setTerminal] = useState<XTerm | null>(null);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const terminalInstance = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+  const processedMessages = useRef<Set<string>>(new Set());
+  
+  // Get logs from the Zustand store based on logType
+  const logs = useTerminalStore(state => state.logs[logType] || []);
 
+  // Initialize terminal
   useEffect(() => {
-    // Initialize terminal
     if (!terminalRef.current) return;
 
     const term = new XTerm({
@@ -58,73 +58,13 @@ const Terminal: React.FC<TerminalProps> = ({
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     fitAddonRef.current = fitAddon;
+    terminalInstance.current = term;
 
     term.open(terminalRef.current);
-    setTerminal(term);
 
     // Write default text
     // Ensure default text ends with proper line termination
     term.write(defaultText.endsWith('\r\n') ? defaultText : defaultText + '\r\n');
-
-    // Connect to WebSocket
-    const ws = new WebSocket(websocketUrl);
-    
-    ws.onopen = () => {
-      term.write('WebSocket connected\r\n');
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        // Filter messages by data type if specified
-        if (dataType && data.name && data.name !== dataType && !showAllData) {
-          return; // Skip messages not matching our dataType
-        }
-        
-        // Handle different message types
-        if (data.type === 'terminal' && data.content) {
-          // Ensure terminal content gets proper line termination
-          const content = data.content.toString();
-          term.write(content.endsWith('\r\n') ? content : content + '\r\n');
-        } else if (data.type === 'connection') {
-          term.write(`Connected: ${data.message}\r\n`);
-        } else if (data.type === 'history') {
-          if (Array.isArray(data.messages)) {
-            data.messages.forEach((msg: any) => {
-              // Filter history messages by data type if specified
-              if (dataType && msg.type && msg.type !== dataType && !showAllData) {
-                return;
-              }
-              if (msg.data) {
-                // Ensure each history message gets a carriage return and line feed
-                term.write(msg.data + '\r\n');
-              }
-            });
-          }
-        } else if (data.data) {
-          // Handle normal data messages from the databank
-          // Force a carriage return and line feed after each write
-          term.write(data.data + '\r\n');
-        } else {
-          // For other types of JSON data, display as string
-          term.write(JSON.stringify(data) + '\r\n');
-        }
-      } catch (e) {
-        // If not JSON, write directly
-        term.write(event.data);
-      }
-    };
-
-    ws.onclose = () => {
-      term.write('\r\nWebSocket connection closed\r\n');
-    };
-
-    ws.onerror = (error) => {
-      term.write(`\r\nWebSocket error: ${error}\r\n`);
-    };
-
-    setSocket(ws);
 
     // Fit the terminal to its container
     fitAddon.fit();
@@ -139,10 +79,34 @@ const Terminal: React.FC<TerminalProps> = ({
     // Clean up
     return () => {
       window.removeEventListener('resize', handleResize);
-      ws.close();
       term.dispose();
     };
-  }, [websocketUrl, defaultText]);
+  }, [defaultText]);
+  
+  // Process logs from Zustand store and display in terminal
+  useEffect(() => {
+    if (!terminalInstance.current || !logs.length) return;
+    
+    // Process only new logs
+    logs.forEach((log) => {
+      // Create a unique ID for this log to avoid duplicates
+      const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
+      
+      // Skip if already processed
+      if (processedMessages.current.has(logId)) return;
+      processedMessages.current.add(logId);
+      
+      // The log data structure is simple: { type, data, timestamp }
+      // Just write the data to the terminal
+      if (log.data) {
+        const content = log.data.toString();
+        terminalInstance.current?.write(content.endsWith('\r\n') ? content : content + '\r\n');
+      } else {
+        // Fallback: For any unexpected format, display as string
+        terminalInstance.current?.write(JSON.stringify(log) + '\r\n');
+      }
+    });
+  }, [logs]);
 
   // Call fit on terminal resize
   useEffect(() => {

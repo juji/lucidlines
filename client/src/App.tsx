@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import './App.css'
 import Terminal from './components/Terminal'
+import useWebSocket from './hooks/useWebSocket'
 
 function App() {
   const [activeTab, setActiveTab] = useState('terminal');
+  
+  // Initialize WebSocket connection using the hook
+  // It will connect to WebSocket and update the Zustand store
+  useWebSocket('ws://localhost:8080/ws');
 
   return (
     <div className="app-container">
@@ -40,37 +45,33 @@ function App() {
         {activeTab === 'terminal' && (
           <div className="terminal-container">
             <Terminal 
-              websocketUrl="ws://localhost:8080/ws" 
-              showAllData={true}
+              logType="STOCKS"
               defaultText="Terminal initialized. Showing all data streams...\r\n" 
             />
           </div>
         )}
         {activeTab === 'weather' && (
           <div className="terminal-container">
-            <Terminal 
-              websocketUrl="ws://localhost:8080/ws" 
-              dataType="WEATHER"
+            {/* <Terminal 
+              logType="weather"
               defaultText="Connecting to weather data...\r\n" 
-            />
+            /> */}
           </div>
         )}
         {activeTab === 'stocks' && (
           <div className="terminal-container">
-            <Terminal 
-              websocketUrl="ws://localhost:8080/ws" 
-              dataType="STOCKS"
+            {/* <Terminal 
+              logType="stocks"
               defaultText="Connecting to stock data...\r\n" 
-            />
+            /> */}
           </div>
         )}
         {activeTab === 'logs' && (
           <div className="terminal-container">
-            <Terminal 
-              websocketUrl="ws://localhost:8080/ws" 
-              dataType="SERVER"
+            {/* <Terminal 
+              logType="server"
               defaultText="Connecting to server logs...\r\n" 
-            />
+            /> */}
           </div>
         )}
       </main>

@@ -57,7 +57,12 @@ export class WebSocketManager {
 		const unsubscribe = databank.subscribe(
 			(data: { type: string; data: string; timestamp: number }) => {
 				if (ws.readyState === ws.OPEN) {
-					ws.send(JSON.stringify(data));
+					ws.send(
+						JSON.stringify({
+							type: "log",
+							messages: data,
+						}),
+					);
 				}
 			},
 		);
