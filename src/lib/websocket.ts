@@ -38,14 +38,14 @@ export class WebSocketManager {
 		const recentMessages = databank.getRecentMessages();
 		if (recentMessages.length > 0) {
 			// Loop through each message and send it individually
-			recentMessages.forEach((message) => {
+			for (let i = recentMessages.length - 1; i >= 0; i--) {
 				ws.send(
 					JSON.stringify({
 						type: "log",
-						messages: message,
+						messages: recentMessages[i],
 					}),
 				);
-			});
+			}
 		}
 
 		// Subscribe this client to databank events
