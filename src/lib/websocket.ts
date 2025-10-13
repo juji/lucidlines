@@ -13,14 +13,6 @@ export interface WebSocketManagerOptions {
 
 export class WebSocketManager {
 	private wss: WebSocketServer;
-	private clients = new Map<
-		string,
-		{
-			id: string;
-			socket: WebSocket;
-			lastActivity: number;
-		}
-	>();
 
 	constructor(options: WebSocketManagerOptions) {
 		const { httpServer, wsPath } = options;
@@ -40,21 +32,12 @@ export class WebSocketManager {
 	}
 
 	private handleConnection(ws: WebSocket): void {
-		const clientId = `client_${Math.random().toString(36).substring(2, 10)}`;
-		console.log(`WebSocket client connected: ${clientId}`);
+		console.log("WebSocket client connected");
 
-		// Store client information
-		this.clients.set(clientId, {
-			id: clientId,
-			socket: ws,
-			lastActivity: Date.now(),
-		});
-
-		// Send welcome message with client ID
+		// Send welcome message
 		ws.send(
 			JSON.stringify({
 				type: "connection",
-				clientId,
 				message: "Connected to LucidLines server",
 			}),
 		);
@@ -109,15 +92,13 @@ export class WebSocketManager {
 
 		// Handle disconnection
 		ws.on("close", () => {
-			console.log(`WebSocket client disconnected: ${clientId}`);
-			this.clients.delete(clientId);
+			console.log("WebSocket client disconnected");
 			unsubscribe(); // Clean up databank subscription
 		});
 
 		// Handle errors
 		ws.on("error", (error) => {
-			console.error(`WebSocket error for client ${clientId}:`, error);
-			this.clients.delete(clientId);
+			console.error("WebSocket error:", error);
 			unsubscribe(); // Clean up databank subscription
 		});
 	}
@@ -126,13 +107,7 @@ export class WebSocketManager {
 	 * Close all WebSocket connections and clean up resources
 	 */
 	public close(): void {
-		// Close all client connections
-		for (const client of this.clients.values()) {
-			client.socket.terminate();
-		}
-		this.clients.clear();
-
-		// Close WebSocket server
+		// Close WebSocket server (this will terminate all connections)
 		this.wss.close();
 	}
 
@@ -141,13 +116,6 @@ export class WebSocketManager {
 	 */
 	public getServer(): WebSocketServer {
 		return this.wss;
-	}
-
-	/**
-	 * Get the count of connected clients
-	 */
-	public getClientCount(): number {
-		return this.clients.size;
 	}
 }
 
