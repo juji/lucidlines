@@ -38,11 +38,20 @@ export const useTerminalStore = create<TerminalState>((set) => ({
   addLog: (log: LogMessage) => set((state) => {
     const logType = log.type || 'default';
     const currentLogs = state.logs[logType] || [];
+    
+    // Check if this is a new log type to update logTypes array
+    const newLogTypes = !state.logs[logType] 
+      ? [...state.logTypes, logType]  
+      : state.logTypes;
 
     console.log('Adding log:', log);
     
     return {
-      ...state.logs[logType] ? {} : { logTypes: [...state.logTypes, logType] },
+      // Keep all existing state
+      ...state,
+      // Update logTypes if needed
+      logTypes: newLogTypes,
+      // Update logs with new log
       logs: {
         ...state.logs,
         [logType]: [...currentLogs, log]

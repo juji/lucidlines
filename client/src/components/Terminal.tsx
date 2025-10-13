@@ -3,6 +3,7 @@ import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { useTerminalStore } from '../store/terminalStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface TerminalProps {
   defaultText?: string;
@@ -18,8 +19,10 @@ const Terminal: React.FC<TerminalProps> = ({
   const fitAddonRef = useRef<FitAddon | null>(null);
   const processedMessages = useRef<Set<string>>(new Set());
   
-  // Get logs from the Zustand store based on logType
-  const logs = useTerminalStore(state => state.logs[logType] || []);
+  // Get logs from the Zustand store based on logType with useShallow for efficient updates
+  const logs = useTerminalStore(
+    useShallow(state => state.logs[logType] || [])
+  );
 
   // Initialize terminal
   useEffect(() => {
@@ -87,13 +90,16 @@ const Terminal: React.FC<TerminalProps> = ({
   useEffect(() => {
     if (!terminalInstance.current || !logs.length) return;
     
+    // Get only the new logs we haven't processed yet
+    const newLogs = logs.filter(log => {
+      const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
+      return !processedMessages.current.has(logId);
+    });
+    
     // Process only new logs
-    logs.forEach((log) => {
+    newLogs.forEach(log => {
       // Create a unique ID for this log to avoid duplicates
       const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
-      
-      // Skip if already processed
-      if (processedMessages.current.has(logId)) return;
       processedMessages.current.add(logId);
       
       // The log data structure is simple: { type, data, timestamp }
@@ -106,7 +112,7 @@ const Terminal: React.FC<TerminalProps> = ({
         terminalInstance.current?.write(JSON.stringify(log) + '\r\n');
       }
     });
-  }, [logs]);
+  }, [logs]); // useShallow ensures this only runs when actual log content changes
 
   // Call fit on terminal resize
   useEffect(() => {
