@@ -32,7 +32,8 @@
   "scripts": {
     "prepare": "husky",
     "build": "tsup",
-    "dev": "tsx ./dev.ts"
+    "dev": "tsx ./dev.ts",
+    "test": "echo \"Error: no test specified\""
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
