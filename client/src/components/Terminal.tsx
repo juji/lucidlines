@@ -6,20 +6,14 @@ import { useTerminalStore } from '../store/terminalStore';
 import { useShallow } from 'zustand/react/shallow';
 
 interface TerminalProps {
-  defaultText?: string;
   logType: string;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ 
-  defaultText = 'Terminal initialized...\r\n',
-  logType,
-}) => {
+const Terminal: React.FC<TerminalProps> = ({ logType }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminalInstance = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const processedMessages = useRef<Set<string>>(new Set());
-  // Flag to track if default text has been shown
-  const hasRealData = useRef<boolean>(false);
   
   // Get logs from the Zustand store based on logType with useShallow for efficient updates
   const logs = useTerminalStore(
@@ -67,12 +61,6 @@ const Terminal: React.FC<TerminalProps> = ({
 
     term.open(terminalRef.current);
 
-    // Write default text only if we don't have real data yet
-    // This check needs to happen each render cycle
-    if (!hasRealData.current && logs.length === 0) {
-      term.write(defaultText.endsWith('\r\n') ? defaultText : defaultText + '\r\n');
-    }
-
     // Fit the terminal to its container
     fitAddon.fit();
 
@@ -88,23 +76,17 @@ const Terminal: React.FC<TerminalProps> = ({
       window.removeEventListener('resize', handleResize);
       term.dispose();
     };
-  }, [defaultText]);
+  }, []);
   
   // Process logs from Zustand store and display in terminal
   useEffect(() => {
-    if (!terminalInstance.current || !logs.length) return;
+    if (!terminalInstance.current) return;
     
     // Get only the new logs we haven't processed yet
     const newLogs = logs.filter(log => {
       const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
       return !processedMessages.current.has(logId);
     });
-    
-    // If we have new logs and this is our first real data, clear the terminal
-    if (!hasRealData.current && newLogs.length > 0) {
-      terminalInstance.current.clear();
-      hasRealData.current = true; // Set flag to indicate we now have real data
-    }
     
     // Process only new logs
     newLogs.forEach(log => {
@@ -146,15 +128,22 @@ const Terminal: React.FC<TerminalProps> = ({
   }, []);
 
   return (
-    <div 
-      ref={terminalRef} 
-      style={{ 
-        width: '100%', 
-        height: '100%', 
-        minHeight: '300px',
+    <div
+      style={{
         position: 'relative',
+        width: '100%',
+        height: '100%',
+        minHeight: '300px',
       }}
-    />
+    >
+      <div
+        ref={terminalRef}
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+      />
+    </div>
   );
 };
 

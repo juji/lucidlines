@@ -72,7 +72,6 @@ const App = function App() {
               </div>
               <Terminal 
                 logType={type}
-                defaultText={`Connecting to ${type.toLowerCase()} data stream...\r\n`} 
               />
             </div>
           )
