@@ -18,6 +18,8 @@ const Terminal: React.FC<TerminalProps> = ({
   const terminalInstance = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const processedMessages = useRef<Set<string>>(new Set());
+  // Flag to track if default text has been shown
+  const hasRealData = useRef<boolean>(false);
   
   // Get logs from the Zustand store based on logType with useShallow for efficient updates
   const logs = useTerminalStore(
@@ -65,9 +67,11 @@ const Terminal: React.FC<TerminalProps> = ({
 
     term.open(terminalRef.current);
 
-    // Write default text
-    // Ensure default text ends with proper line termination
-    term.write(defaultText.endsWith('\r\n') ? defaultText : defaultText + '\r\n');
+    // Write default text only if we don't have real data yet
+    // This check needs to happen each render cycle
+    if (!hasRealData.current && logs.length === 0) {
+      term.write(defaultText.endsWith('\r\n') ? defaultText : defaultText + '\r\n');
+    }
 
     // Fit the terminal to its container
     fitAddon.fit();
@@ -95,6 +99,12 @@ const Terminal: React.FC<TerminalProps> = ({
       const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
       return !processedMessages.current.has(logId);
     });
+    
+    // If we have new logs and this is our first real data, clear the terminal
+    if (!hasRealData.current && newLogs.length > 0) {
+      terminalInstance.current.clear();
+      hasRealData.current = true; // Set flag to indicate we now have real data
+    }
     
     // Process only new logs
     newLogs.forEach(log => {
