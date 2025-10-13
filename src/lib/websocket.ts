@@ -34,23 +34,18 @@ export class WebSocketManager {
 	private handleConnection(ws: WebSocket): void {
 		console.log("WebSocket client connected");
 
-		// Send welcome message
-		ws.send(
-			JSON.stringify({
-				type: "connection",
-				message: "Connected to LucidLines server",
-			}),
-		);
-
 		// Send recent messages from the databank to new client
 		const recentMessages = databank.getRecentMessages();
 		if (recentMessages.length > 0) {
-			ws.send(
-				JSON.stringify({
-					type: "history",
-					messages: recentMessages,
-				}),
-			);
+			// Loop through each message and send it individually
+			recentMessages.forEach((message) => {
+				ws.send(
+					JSON.stringify({
+						type: "log",
+						messages: message,
+					}),
+				);
+			});
 		}
 
 		// Subscribe this client to databank events
