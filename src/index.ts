@@ -1,6 +1,29 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { start as startConcurrentlyStream } from "./lib/concurrently-stream";
 import databank from "./lib/databank";
 import { start as startServer } from "./lib/server";
+
+// get current directory for esm and cjs
+const moduleDirname = (() => {
+	// CommonJS environment - __dirname is available
+	if (typeof __dirname !== "undefined") {
+		return __dirname;
+	}
+
+	// ESM environment - use import.meta.url if available
+	try {
+		// Check if we're in an ESM context by checking if import.meta exists
+		const metaUrl = (globalThis as any).import?.meta?.url;
+		if (metaUrl) {
+			return path.dirname(fileURLToPath(metaUrl));
+		}
+	} catch {
+		// Ignore errors in CommonJS context
+	}
+
+	throw new Error("Cannot determine module directory");
+})();
 
 /**
  * Main entry point for LucidLines
@@ -18,7 +41,7 @@ export function start(options: {
 }) {
 	const {
 		serverPort = 8080,
-		frontEnd,
+		frontEnd = path.join(moduleDirname, "./client"),
 		wsPath = "/ws",
 		commands = [],
 		dev = false,

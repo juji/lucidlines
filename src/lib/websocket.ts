@@ -66,19 +66,9 @@ export class WebSocketManager {
 		ws.on("message", (data) => {
 			try {
 				console.log("Received: %s", data);
-				const message = JSON.parse(data.toString());
 
-				// Process message (you can extend this with your logic)
-				ws.send(
-					JSON.stringify({
-						type: "response",
-						originalMessage: message,
-						timestamp: Date.now(),
-					}),
-				);
-
-				// Add message to databank if needed
-				// databank.addData('client-message', JSON.stringify(message));
+				// not implemented yet,
+				// will be used for getting historical data
 			} catch (error) {
 				console.error("Error processing message:", error);
 				ws.send(
