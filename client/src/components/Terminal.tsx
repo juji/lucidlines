@@ -5,11 +5,13 @@ import { useShallow } from 'zustand/react/shallow';
 
 interface TerminalProps {
   logType: string;
-  log?: boolean
+  fontSize: number;
+  log?: boolean;
 }
 
 const Terminal: React.FC<TerminalProps> = ({ 
   logType,
+  fontSize,
   log 
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,14 +57,17 @@ const Terminal: React.FC<TerminalProps> = ({
         width: '100%',
         height: '100%',
         minHeight: '300px',
-    overflow: 'auto',
-  background: '#232323',
-  color: '#d0d0d0',
+        overflow: 'auto',
+        background: '#232323',
+        color: '#d0d0d0',
         fontFamily: 'monospace',
-        fontSize: '14px',
+        fontSize: `${fontSize}px`,
         lineHeight: 1.2,
         padding: '0.75rem',
         boxSizing: 'border-box',
+        textRendering: 'optimizeLegibility',
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
       }}
     >
       <div
