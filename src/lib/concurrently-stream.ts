@@ -10,11 +10,9 @@ export function start(commands: CommandInput[]) {
 	// Set to store already processed lines
 	let buffer = "";
 
-	// Use a distinctive three-character combination as a delimiter
-	const DELIMITER = "§¶≈"; // Section sign, paragraph sign, and approximately equal sign
-
 	// Create a custom writable stream that transforms output to JSON
 	const transformStream = new Transform({
+		objectMode: true,
 		transform(chunk, _, callback) {
 			try {
 				buffer += chunk.toString();
@@ -41,7 +39,7 @@ export function start(commands: CommandInput[]) {
 					const ansiPattern = /^\s*\[\d+m/;
 					const cleanOutput = output.replace(ansiPattern, "");
 
-					this.push(JSON.stringify({ name, output: cleanOutput }) + DELIMITER);
+					this.push({ name, output: cleanOutput });
 				}
 
 				callback();
@@ -69,7 +67,6 @@ export function start(commands: CommandInput[]) {
 	return {
 		result,
 		transformStream,
-		delimiter: DELIMITER,
 		stop() {
 			processedCommands.forEach((cmd) => {
 				try {

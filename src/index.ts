@@ -38,46 +38,34 @@ export function start(options: {
 	if (commands.length > 0) {
 		concurrentlyStream = startConcurrentlyStream(commands);
 
-		// Set up the piping based on dev mode
-		if (dev) {
-			// In dev mode, pipe to both stdout and dataReceiver
-			// This will display output in the console and broadcast to WebSocket clients
-			concurrentlyStream.transformStream
-				.pipe(process.stdout)
-				.pipe(server.dataReceiver);
-		} else {
-			// In production mode, only pipe to dataReceiver (no console output)
-			concurrentlyStream.transformStream.pipe(server.dataReceiver);
-		}
+		// Set up the handling for object mode transform stream
+		concurrentlyStream.transformStream.on("data", (data) => {
+			// Use the name as the type and output as the data for databank
+			databank.addData(data.name, data.output);
 
-		// Setup process termination handler
-		process.on("SIGINT", () => {
-			console.log("\nShutting down processes...");
-			concurrentlyStream?.stop();
-			server.stop();
-			databank.cleanup();
-			process.exit(0);
-		});
-	} else {
-		// Setup process termination handler for server only
-		process.on("SIGINT", () => {
-			console.log("\nShutting down server...");
-			server.stop();
-			databank.cleanup();
-			process.exit(0);
+			// In dev mode, also log to console
+			if (dev) {
+				console.log(`[${data.name}] ${data.output}`);
+			}
 		});
 	}
+
+	function stop() {
+		concurrentlyStream?.stop();
+		server.stop();
+		databank.cleanup();
+	}
+
+	// Setup process termination handler
+	process.on("SIGINT", () => {
+		stop();
+		process.exit(0);
+	});
 
 	return {
 		server,
 		concurrentlyStream,
 		databank,
-		stop: () => {
-			if (concurrentlyStream) {
-				concurrentlyStream.stop();
-			}
-			server.stop();
-			databank.cleanup();
-		},
+		stop,
 	};
 }

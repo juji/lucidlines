@@ -1,5 +1,4 @@
 import { EventEmitter } from "node:events";
-import { Writable } from "node:stream";
 import Loki, { type Collection } from "lokijs";
 import * as tmp from "tmp";
 
@@ -7,7 +6,7 @@ import * as tmp from "tmp";
  * DataBank - A central store for streaming data that decouples
  * data producers from consumers (WebSocket clients).
  *
- * - Collects data from any writable stream
+ * - Stores and manages data with a simple API
  * - Buffers recent messages for new clients using LokiJS (in-memory DB)
  * - Provides a clean event-based API for consumers
  * - Uses temporary file storage for large datasets that's cleaned up on exit
@@ -23,7 +22,6 @@ interface LogEntry {
 export class DataBank extends EventEmitter {
 	private buffer: Array<LogEntry> = [];
 	private maxBufferSize: number;
-	private writable: Writable;
 	private db: Loki;
 	private collection: Collection<LogEntry>;
 	private tempFile: tmp.FileResult | null = null;
@@ -51,40 +49,6 @@ export class DataBank extends EventEmitter {
 		this.collection = this.db.addCollection("logs", {
 			indices: ["timestamp"],
 			disableMeta: true, // Disable metadata for better performance
-		});
-
-		// Create a writable stream endpoint
-		this.writable = new Writable({
-			write: (
-				chunk: Buffer,
-				_encoding: BufferEncoding,
-				callback: (error?: Error | null) => void,
-			) => {
-				try {
-					const data = chunk.toString();
-
-					// Store in buffer
-					this.addToBuffer("stream", data);
-
-					// Emit to all listeners
-					this.emit("data", {
-						type: "stream",
-						data,
-						timestamp: Date.now(),
-					});
-
-					callback();
-				} catch (error) {
-					console.error("Error processing data in DataBank:", error);
-					callback(error as Error);
-				}
-			},
-		});
-
-		// Handle errors on the writable stream
-		this.writable.on("error", (error: Error) => {
-			console.error("DataBank writable stream error:", error);
-			this.emit("error", error);
 		});
 	}
 
@@ -128,12 +92,7 @@ export class DataBank extends EventEmitter {
 		}
 	}
 
-	/**
-	 * Get the writable stream to pipe data into
-	 */
-	getWritable(): Writable {
-		return this.writable;
-	}
+	// getWritable method removed as we're using addData directly
 
 	/**
 	 * Get recent messages for a newly connected client

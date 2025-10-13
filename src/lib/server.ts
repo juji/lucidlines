@@ -199,12 +199,8 @@ export function start({
 		);
 	});
 
-	// Get the writable stream from databank for receiving data
-	const dataReceiver = databank.getWritable();
-
 	return {
 		server,
-		dataReceiver,
 		stop: () => {
 			// Close all WebSocket connections
 			for (const client of clients.values()) {
