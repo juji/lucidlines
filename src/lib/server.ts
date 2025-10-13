@@ -1,9 +1,14 @@
-import { existsSync, statSync } from "fs";
-import { readFile } from "fs/promises";
-import { createServer, type IncomingMessage, type ServerResponse } from "http";
+import { existsSync, statSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import {
+	createServer,
+	type IncomingMessage,
+	type ServerResponse,
+} from "node:http";
+import { extname, join } from "node:path";
 import { createProxyServer } from "http-proxy";
-import { extname, join } from "path";
-import { WebSocketServer } from "ws";
+import { type WebSocket, WebSocketServer } from "ws";
+import databank from "./databank";
 
 // MIME types for common file extensions
 const MIME_TYPES: Record<string, string> = {
@@ -26,15 +31,13 @@ const MIME_TYPES: Record<string, string> = {
 
 export interface ServerOptions {
 	port: number;
-	frontendPort?: number;
-	frontEndDir?: string;
+	frontEnd?: string | number;
 	wsPath?: string;
 }
 
 export function start({
 	port = 8080,
-	frontendPort,
-	frontEndDir,
+	frontEnd,
 	wsPath = "/ws",
 }: ServerOptions) {
 	// Create HTTP server
@@ -47,6 +50,9 @@ export function start({
 	});
 
 	// Create proxy server for development mode
+	const frontendPort = typeof frontEnd === "number" ? frontEnd : null;
+	const frontEndDir = typeof frontEnd === "string" ? frontEnd : null;
+
 	const proxy = frontendPort
 		? createProxyServer({
 				target: `http://localhost:${frontendPort}`,
@@ -58,7 +64,7 @@ export function start({
 	const clients = new Map();
 
 	// Handle WebSocket connections
-	wss.on("connection", function connection(ws, req) {
+	wss.on("connection", function connection(ws, _req) {
 		const clientId = `client_${Math.random().toString(36).substring(2, 10)}`;
 		console.log(`WebSocket client connected: ${clientId}`);
 
@@ -78,6 +84,26 @@ export function start({
 			}),
 		);
 
+		// Send recent messages from the databank to new client
+		const recentMessages = databank.getRecentMessages();
+		if (recentMessages.length > 0) {
+			ws.send(
+				JSON.stringify({
+					type: "history",
+					messages: recentMessages,
+				}),
+			);
+		}
+
+		// Subscribe this client to databank events
+		const unsubscribe = databank.subscribe(
+			(data: { type: string; data: string; timestamp: number }) => {
+				if (ws.readyState === ws.OPEN) {
+					ws.send(JSON.stringify(data));
+				}
+			},
+		);
+
 		// Handle incoming messages
 		ws.on("message", function message(data) {
 			try {
@@ -93,8 +119,8 @@ export function start({
 					}),
 				);
 
-				// Broadcast to other clients if needed
-				// broadcastMessage(clientId, message);
+				// Add message to databank if needed
+				// databank.addData('client-message', JSON.stringify(message));
 			} catch (error) {
 				console.error("Error processing message:", error);
 				ws.send(
@@ -110,12 +136,14 @@ export function start({
 		ws.on("close", () => {
 			console.log(`WebSocket client disconnected: ${clientId}`);
 			clients.delete(clientId);
+			unsubscribe(); // Clean up databank subscription
 		});
 
 		// Handle errors
 		ws.on("error", (error) => {
 			console.error(`WebSocket error for client ${clientId}:`, error);
 			clients.delete(clientId);
+			unsubscribe(); // Clean up databank subscription
 		});
 	});
 
@@ -171,13 +199,17 @@ export function start({
 		);
 	});
 
+	// Get the writable stream from databank for receiving data
+	const dataReceiver = databank.getWritable();
+
 	return {
 		server,
-		wss,
+		dataReceiver,
 		stop: () => {
 			// Close all WebSocket connections
 			for (const client of clients.values()) {
-				(client.socket as any).terminate();
+				// Use a more specific type for WebSocket
+				(client.socket as WebSocket).terminate();
 			}
 			clients.clear();
 

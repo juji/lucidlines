@@ -1,0 +1,195 @@
+import { EventEmitter } from "node:events";
+import { Writable } from "node:stream";
+import Loki, { type Collection } from "lokijs";
+import * as tmp from "tmp";
+
+/**
+ * DataBank - A central store for streaming data that decouples
+ * data producers from consumers (WebSocket clients).
+ *
+ * - Collects data from any writable stream
+ * - Buffers recent messages for new clients using LokiJS (in-memory DB)
+ * - Provides a clean event-based API for consumers
+ * - Uses temporary file storage for large datasets that's cleaned up on exit
+ */
+
+// Define the type for log entries
+interface LogEntry {
+	type: string;
+	data: string;
+	timestamp: number;
+}
+
+export class DataBank extends EventEmitter {
+	private buffer: Array<LogEntry> = [];
+	private maxBufferSize: number;
+	private writable: Writable;
+	private db: Loki;
+	private collection: Collection<LogEntry>;
+	private tempFile: tmp.FileResult | null = null;
+
+	constructor(options: { maxBufferSize?: number } = {}) {
+		super();
+		this.maxBufferSize = options.maxBufferSize || 10_000; // Default buffer size for in-memory recent messages
+
+		// Create temp file for LokiJS that will be auto-deleted when the process exits
+		this.tempFile = tmp.fileSync({
+			prefix: "lucidlines-db-",
+			postfix: ".json",
+			keep: false,
+		});
+
+		// Initialize LokiJS with the temp file
+		this.db = new Loki(this.tempFile.name, {
+			autoload: false,
+			autosave: true,
+			autosaveInterval: 5000, // Save every 5 seconds
+			verbose: false,
+		});
+
+		// Create a collection for log entries
+		this.collection = this.db.addCollection("logs", {
+			indices: ["timestamp"],
+			disableMeta: true, // Disable metadata for better performance
+		});
+
+		// Create a writable stream endpoint
+		this.writable = new Writable({
+			write: (
+				chunk: Buffer,
+				_encoding: BufferEncoding,
+				callback: (error?: Error | null) => void,
+			) => {
+				try {
+					const data = chunk.toString();
+
+					// Store in buffer
+					this.addToBuffer("stream", data);
+
+					// Emit to all listeners
+					this.emit("data", {
+						type: "stream",
+						data,
+						timestamp: Date.now(),
+					});
+
+					callback();
+				} catch (error) {
+					console.error("Error processing data in DataBank:", error);
+					callback(error as Error);
+				}
+			},
+		});
+
+		// Handle errors on the writable stream
+		this.writable.on("error", (error: Error) => {
+			console.error("DataBank writable stream error:", error);
+			this.emit("error", error);
+		});
+	}
+
+	/**
+	 * Clean up resources - should be called by the user of this instance when shutting down
+	 * This ensures all data is saved and resources are properly released
+	 */
+	public cleanup(): void {
+		try {
+			// Save any pending changes to disk before closing
+			if (this.db) {
+				this.db.close();
+			}
+			// The tmp package automatically removes the temp file when the process exits
+			console.log("DataBank cleanup: temporary database file will be removed");
+		} catch (error) {
+			console.error("Error cleaning up DataBank resources:", error);
+		}
+	}
+
+	/**
+	 * Add data to the buffer and manage buffer size
+	 * Uses splice for in-place array modification - most memory efficient approach
+	 */
+	private addToBuffer(type: string, data: string): void {
+		const timestamp = Date.now();
+		const entry: LogEntry = { type, data, timestamp };
+
+		// Insert into LokiJS collection for long-term storage
+		this.collection.insert(entry);
+
+		// Add new entry to the end
+		this.buffer.push(entry);
+
+		// If buffer exceeds max capacity, remove oldest items from the beginning
+		if (this.buffer.length > this.maxBufferSize) {
+			// Remove excess items from the beginning (most memory efficient)
+			// Calculate how many items to remove
+			const removeCount = this.buffer.length - this.maxBufferSize;
+			this.buffer.splice(0, removeCount);
+		}
+	}
+
+	/**
+	 * Get the writable stream to pipe data into
+	 */
+	getWritable(): Writable {
+		return this.writable;
+	}
+
+	/**
+	 * Get recent messages for a newly connected client
+	 * @param limit Optional limit of messages to return (defaults to maxBufferSize)
+	 */
+	getRecentMessages(limit?: number): Array<LogEntry> {
+		const requestedLimit = limit || this.maxBufferSize;
+
+		// For small requests within buffer size, use the in-memory buffer for best performance
+		if (requestedLimit <= this.buffer.length) {
+			return [...this.buffer].slice(-requestedLimit);
+		}
+
+		// For larger requests, query the LokiJS collection
+		return this.collection
+			.chain()
+			.find()
+			.simplesort("timestamp", true) // Sort by timestamp in descending order
+			.limit(requestedLimit)
+			.data();
+	}
+
+	/**
+	 * Get all available messages (may be a very large dataset)
+	 * Use with caution!
+	 */
+	getAllMessages(): Array<LogEntry> {
+		return this.collection.chain().find().simplesort("timestamp", true).data();
+	}
+
+	/**
+	 * Add custom data to the databank (not from the stream)
+	 */
+	addData(type: string, data: string): void {
+		this.addToBuffer(type, data);
+		this.emit("data", {
+			type,
+			data,
+			timestamp: Date.now(),
+		});
+	}
+
+	/**
+	 * Subscribe to data events
+	 */
+	subscribe(
+		callback: (data: { type: string; data: string; timestamp: number }) => void,
+	): () => void {
+		this.on("data", callback);
+		return () => this.off("data", callback);
+	}
+}
+
+// Export a singleton instance for the application
+const databank = new DataBank({
+	maxBufferSize: 10_000, // Keep a reasonable number of entries in memory for fast access
+	// LokiJS will handle storage of millions of entries in the temp file
+});
+export default databank;
