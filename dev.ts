@@ -8,8 +8,16 @@ start({
 	frontEnd: 5173, // Vite's default port for the client
 	commands: [
 		{
-			command: "cd client && npm run dev",
-			name: "CLIENT",
+			command: "tsx ./dev/weather.ts",
+			name: "WEATHER",
+		},
+		{
+			command: "tsx ./dev/stocks.ts",
+			name: "STOCKS",
+		},
+		{
+			command: "tsx ./dev/server-logs.ts",
+			name: "SERVER",
 		},
 	],
 	dev: true, // Enable dev mode for console logging
