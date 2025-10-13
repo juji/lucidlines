@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import Loki, { type Collection } from "lokijs";
+import { hash } from "object-code";
 import * as tmp from "tmp";
 
 /**
@@ -16,6 +17,7 @@ import * as tmp from "tmp";
 interface LogEntry {
 	type: string;
 	data: string;
+	hash: number;
 	timestamp: number;
 }
 
@@ -73,9 +75,13 @@ export class DataBank extends EventEmitter {
 	 * Add data to the buffer and manage buffer size
 	 * Uses splice for in-place array modification - most memory efficient approach
 	 */
-	private addToBuffer(type: string, data: string): void {
-		const timestamp = Date.now();
-		const entry: LogEntry = { type, data, timestamp };
+	private addToBuffer(
+		type: string,
+		data: string,
+		timestamp: number,
+		hash: number,
+	): void {
+		const entry: LogEntry = { type, data, timestamp, hash };
 
 		// Insert into LokiJS collection for long-term storage
 		this.collection.insert(entry);
@@ -127,11 +133,14 @@ export class DataBank extends EventEmitter {
 	 * Add custom data to the databank (not from the stream)
 	 */
 	addData(type: string, data: string): void {
-		this.addToBuffer(type, data);
+		const timestamp = Date.now();
+		const entryHash = hash({ type, data, timestamp });
+		this.addToBuffer(type, data, timestamp, entryHash);
 		this.emit("data", {
 			type,
 			data,
-			timestamp: Date.now(),
+			timestamp,
+			hash: entryHash,
 		});
 	}
 

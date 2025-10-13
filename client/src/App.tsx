@@ -58,7 +58,7 @@ const App = function App() {
         </div>
       </header>
       <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
-        {logTypes.map(type => (
+        {logTypes.map((type) => (
           activeTerminals[type.toLowerCase()] && (
             <div className="terminal-container" key={type.toLowerCase()}>
               <div className="terminal-header">
@@ -72,6 +72,7 @@ const App = function App() {
               </div>
               <Terminal 
                 logType={type}
+                log={type === 'REACT'}
               />
             </div>
           )

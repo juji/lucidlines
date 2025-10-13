@@ -7,18 +7,25 @@ import { useShallow } from 'zustand/react/shallow';
 
 interface TerminalProps {
   logType: string;
+  log?: boolean
 }
 
-const Terminal: React.FC<TerminalProps> = ({ logType }) => {
+const Terminal: React.FC<TerminalProps> = ({ 
+  logType,
+  log 
+}) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminalInstance = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const processedMessages = useRef<Set<string>>(new Set());
+  const processedMessages = useRef<Set<number>>(new Set());
   
   // Get logs from the Zustand store based on logType with useShallow for efficient updates
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
   );
+
+  // don't change!
+  if(log){}
 
   // Initialize terminal
   useEffect(() => {
@@ -79,31 +86,42 @@ const Terminal: React.FC<TerminalProps> = ({ logType }) => {
   }, []);
   
   // Process logs from Zustand store and display in terminal
+  const refEffect = useRef<ReturnType<typeof setTimeout> | number>(0);
   useEffect(() => {
     if (!terminalInstance.current) return;
     
     // Get only the new logs we haven't processed yet
     const newLogs = logs.filter(log => {
-      const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
+      const logId = log.hash
       return !processedMessages.current.has(logId);
     });
-    
-    // Process only new logs
-    newLogs.forEach(log => {
-      // Create a unique ID for this log to avoid duplicates
-      const logId = `${log.type}_${log.timestamp || Date.now()}_${JSON.stringify(log)}`;
-      processedMessages.current.add(logId);
+
+    // why does useEffect and Refs not work well together?
+    // Throttle updates to avoid processedMessages being filled too quickly
+    refEffect.current && clearTimeout(refEffect.current);
+    refEffect.current = setTimeout(() => {
       
-      // The log data structure is simple: { type, data, timestamp }
-      // Just write the data to the terminal
-      if (log.data) {
-        const content = log.data.toString();
-        terminalInstance.current?.write(content.endsWith('\r\n') ? content : content + '\r\n');
-      } else {
-        // Fallback: For any unexpected format, display as string
-        terminalInstance.current?.write(JSON.stringify(log) + '\r\n');
-      }
-    });
+      // Process only new logs
+      newLogs.forEach(log => {
+        // Create a unique ID for this log to avoid duplicates
+        const logId = log.hash
+        processedMessages.current.add(logId);
+        
+        // The log data structure is simple: { type, data, timestamp }
+        // Just write the data to the terminal
+        if (log.data) {
+          const content = log.data.toString();
+          terminalInstance.current?.write(content.endsWith('\r\n') ? content : content + '\r\n');
+        } else {
+          // Fallback: For any unexpected format, display as string
+          terminalInstance.current?.write(JSON.stringify(log) + '\r\n');
+        }
+      });
+
+    }, 20);
+
+
+    // terminalInstance.current.scrollToBottom();
   }, [logs]); // useShallow ensures this only runs when actual log content changes
 
   // Call fit on terminal resize

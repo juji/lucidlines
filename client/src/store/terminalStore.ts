@@ -5,6 +5,7 @@ export interface LogMessage {
   type: string;   // Message type (e.g. 'stdout', 'stderr', etc.)
   data: string;   // The actual log content
   timestamp: number; // When the log was created
+  hash: number; // Unique hash to identify the log message
 }
 
 // Interface for the terminal store
