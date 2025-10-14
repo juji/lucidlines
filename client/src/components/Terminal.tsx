@@ -3,6 +3,7 @@ import { AnsiUp } from 'ansi_up';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 import { useTerminalStore } from '../store/terminalStore';
+import { useDebounce } from 'use-simple-debounce';
 
 type RowData = Array<{
   html: string;
@@ -14,14 +15,16 @@ interface TerminalProps {
   log?: boolean;
   title: string;
   onClose?: () => void;
+  requestHistory?: (logType: string, lastTimestamp?: number) => void;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => {
+const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, requestHistory }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
   const isResizingRef = useRef(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const requestingHistoryRef = useRef(false);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -35,6 +38,11 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
   const [items, setItems] = useState<RowData>([]);
   const debouncedLogs = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
+    
+    if(requestingHistoryRef.current && logs.length > 0) {
+      requestingHistoryRef.current = false;
+    }
+
     if(debouncedLogs.current) clearTimeout(debouncedLogs.current);
     debouncedLogs.current = setTimeout(() => {
 
@@ -108,11 +116,29 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
     prevItemsLengthRef.current = items.length;
   }, [items.length, virtualizer, isAutoScrollEnabled]);
 
+
+  const debouncedHistoryRequest = useDebounce(300);
+
   const handleScroll = () => {
     if (!scrollRef.current || isResizingRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
     setIsAutoScrollEnabled(isAtBottom);
+
+    // Request history when scrolled to within 50% of the top and auto-scroll is disabled
+    if (
+      !isAutoScrollEnabled && requestHistory && 
+      scrollTop <= scrollHeight * 0.5 && !requestingHistoryRef.current
+    ) {
+      requestingHistoryRef.current = true;
+      const oldestLog = logs[0];
+      if (oldestLog) {
+        debouncedHistoryRequest(() => {
+          console.log('Requesting history for', logType, 'before', oldestLog.timestamp);
+          requestHistory(logType, oldestLog.timestamp);
+        });
+      }
+    }
   };
 
   

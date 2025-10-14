@@ -20,7 +20,7 @@ const App = function App() {
   const [activeTerminals, setActiveTerminals] = useState<Record<string, boolean>>({});
   
   // Initialize WebSocket connection
-  useWebSocket('ws://localhost:8080/ws');
+  const { requestHistory } = useWebSocket('ws://localhost:8080/ws');
   
   // Set all terminals to active by default when log types change
   useEffect(() => {
@@ -68,6 +68,7 @@ const App = function App() {
               log={type === 'REACT'}
               title={type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
               onClose={() => toggleTerminal(type.toLowerCase())}
+              requestHistory={requestHistory}
             />
           )
         ))}
