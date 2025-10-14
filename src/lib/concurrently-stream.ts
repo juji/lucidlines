@@ -13,6 +13,44 @@ export function start(commands: CommandInput[]) {
 	console.log(`Starting ${commands.length} commands concurrently...`);
 	console.log(JSON.stringify(commands, null, 2));
 
+	// Create set of valid command names for validation
+	const validCommandNames = new Set(commands.map((cmd) => cmd.name));
+
+	// Function to extract name from bracketed output
+	function extractBracketedName(
+		line: string,
+	): { name: string; afterBracket: string } | null {
+		// Find all complete bracketed sections
+		const bracketRegex = /\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]/g;
+		const matches: Array<{ content: string; endPos: number }> = [];
+		let match: RegExpExecArray | null;
+
+		match = bracketRegex.exec(line);
+		while (match !== null) {
+			matches.push({
+				content: match[1],
+				endPos: match.index + match[0].length - 1, // Position of closing ]
+			});
+			match = bracketRegex.exec(line);
+		}
+
+		if (matches.length === 0) return null;
+
+		// Find the bracketed section that matches a known command name
+		for (const match of matches.reverse()) {
+			// Check from right to left (most likely to be command name)
+			if (validCommandNames.has(match.content)) {
+				const afterBracket = line.substring(match.endPos + 1);
+				return { name: match.content, afterBracket };
+			}
+		}
+
+		// Fallback: use the rightmost bracketed section
+		const lastMatch = matches[matches.length - 1];
+		const afterBracket = line.substring(lastMatch.endPos + 1);
+		return { name: lastMatch.content, afterBracket };
+	}
+
 	// Create a custom writable stream that transforms output to JSON
 	const transformStream = new Transform({
 		objectMode: true,
@@ -30,19 +68,14 @@ export function start(commands: CommandInput[]) {
 				buffer = lines.pop() || "";
 
 				for (const line of lines) {
-					// Simplest possible extraction - just get the command name between brackets
-					const match = line.match(/\[([^[\]]+)\]/);
-					if (!match) continue;
+					// Extract command name from [NAME] prefix, handling nested brackets
+					const bracketMatch = extractBracketedName(line);
+					if (!bracketMatch) continue;
 
-					const name = match[1];
-					const output = line.substring(line.indexOf("]") + 1);
+					const { name, afterBracket } = bracketMatch;
+					const output = afterBracket;
 
-					// Remove ANSI escape sequences only from the beginning of the output
-					// Using a safer approach without control characters
-					const ansiPattern = /^\s*\[\d+m/;
-					const cleanOutput = output.replace(ansiPattern, "");
-
-					this.push({ name, output: cleanOutput });
+					this.push({ name, output });
 				}
 
 				callback();

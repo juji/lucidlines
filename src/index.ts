@@ -14,7 +14,8 @@ const moduleDirname = (() => {
 	// ESM environment - use import.meta.url if available
 	try {
 		// Check if we're in an ESM context by checking if import.meta exists
-		const metaUrl = (globalThis as any).import?.meta?.url;
+		const metaUrl = (globalThis as { import?: { meta?: { url?: string } } })
+			.import?.meta?.url;
 		if (metaUrl) {
 			return path.dirname(fileURLToPath(metaUrl));
 		}
@@ -24,6 +25,12 @@ const moduleDirname = (() => {
 
 	throw new Error("Cannot determine module directory");
 })();
+
+// check for validity of command names
+function validateCommandName(name: string): boolean {
+	// Prevent names that would break parsing or cause issues
+	return name.length > 0 && !name.includes("\n") && !name.includes("\r");
+}
 
 /**
  * Main entry point for LucidLines
@@ -39,6 +46,17 @@ export function start(options: {
 	}>;
 	dev?: boolean;
 }) {
+	// Validate command names
+	if (options.commands) {
+		for (const cmd of options.commands) {
+			if (!validateCommandName(cmd.name)) {
+				throw new Error(
+					`Invalid command name "${cmd.name}". Command names cannot be empty and cannot contain newlines.`,
+				);
+			}
+		}
+	}
+
 	const {
 		serverPort = 8080,
 		frontEnd = path.join(moduleDirname, "./client"),
