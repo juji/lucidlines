@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 import { useTerminalStore } from '../store/terminalStore';
 
@@ -11,11 +12,15 @@ type RowData = Array<{
 interface TerminalProps {
   logType: string;
   log?: boolean;
+  title: string;
+  onClose?: () => void;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
+const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -76,17 +81,98 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
     };
   }, []);
 
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 20,
+    measureElement: (element) => element.getBoundingClientRect().height,
+    overscan: 5,
+  });
+
+  const prevItemsLengthRef = useRef(items.length);
+  useEffect(() => {
+    if (items.length > prevItemsLengthRef.current && isAutoScrollEnabled) {
+      requestAnimationFrame(() => {
+        virtualizer.scrollToOffset(virtualizer.getTotalSize());
+      });
+    }
+    prevItemsLengthRef.current = items.length;
+  }, [items.length, virtualizer, isAutoScrollEnabled]);
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+    setIsAutoScrollEnabled(isAtBottom);
+  };
+
   return (
-    <div ref={containerRef} className="terminal-viewer">
-      {items.length === 0 ? (
-        <div className="terminal-empty">Waiting for output…</div>
-      ) : (
-        <div className="terminal-list" style={{ height: viewportHeight, overflow: 'auto' }}>
-          {items.map((item, index) => (
-            <div key={index} className="terminal-row" dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }} />
-          ))}
+    <div className="terminal-container">
+      <div className="terminal-header">
+        <h3>{title}</h3>
+        <div className="terminal-controls">
+          <button
+            className={`auto-scroll-button ${isAutoScrollEnabled ? 'active' : ''}`}
+            onClick={() => {
+              setIsAutoScrollEnabled(true);
+              requestAnimationFrame(() => {
+                virtualizer.scrollToOffset(virtualizer.getTotalSize());
+              });
+            }}
+            title={isAutoScrollEnabled ? 'Auto-scroll enabled' : 'Click to enable auto-scroll'}
+          >
+            ↓
+          </button>
+          {onClose && (
+            <button className="close-button" onClick={onClose}>
+              ×
+            </button>
+          )}
         </div>
-      )}
+      </div>
+      <div ref={containerRef} className="terminal-viewer">
+        {items.length === 0 ? (
+          <div className="terminal-empty">Waiting for output…</div>
+        ) : (
+          <div
+            ref={scrollRef}
+            className="terminal-list"
+            style={{
+              height: viewportHeight,
+              overflow: 'auto',
+            }}
+            onScroll={handleScroll}
+          >
+            <div
+              style={{
+                height: virtualizer.getTotalSize(),
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const item = items[virtualItem.index];
+                return (
+                  <div
+                    key={virtualItem.index}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualItem.index}
+                    className="terminal-row"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                    dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

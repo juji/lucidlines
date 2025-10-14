@@ -62,21 +62,13 @@ const App = function App() {
       <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
         {logTypes.map((type) => (
           activeTerminals[type.toLowerCase()] && (
-            <div className="terminal-container" key={type.toLowerCase()}>
-              <div className="terminal-header">
-                <h3>{type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}</h3>
-                <button 
-                  className="close-button"
-                  onClick={() => toggleTerminal(type.toLowerCase())}
-                >
-                  ×
-                </button>
-              </div>
-              <Terminal 
-                logType={type}
-                log={type === 'REACT'}
-              />
-            </div>
+            <Terminal
+              key={type.toLowerCase()}
+              logType={type}
+              log={type === 'REACT'}
+              title={type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+              onClose={() => toggleTerminal(type.toLowerCase())}
+            />
           )
         ))}
       </main>
