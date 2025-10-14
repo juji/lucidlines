@@ -36,16 +36,14 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   }
 
   const [items, setItems] = useState<RowData>([]);
-  const debouncedLogs = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedLogProcessing = useDebounce(32);
+
   useEffect(() => {
-    
     if(requestingHistoryRef.current && logs.length > 0) {
       requestingHistoryRef.current = false;
     }
 
-    if(debouncedLogs.current) clearTimeout(debouncedLogs.current);
-    debouncedLogs.current = setTimeout(() => {
-
+    debouncedLogProcessing(() => {
       if (!logs.length) {
         setItems([]);
         return;
@@ -65,8 +63,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           lineCount,
         } satisfies RowData[number];
       }));
-    }, 32);
-  }, [logs]);
+    });
+  }, [logs, debouncedLogProcessing]);
 
   useEffect(() => {
     const node = containerRef.current;
