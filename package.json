@@ -33,7 +33,6 @@
     "prepare": "husky",
     "build": "tsup",
     "dev": "tsx ./dev.ts",
-    "dev-full": "tsx ./dev-full.ts",
     "test": "echo \"Error: no test specified\""
   },
   "devDependencies": {
