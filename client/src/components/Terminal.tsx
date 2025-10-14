@@ -67,12 +67,12 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
     const updateDimensions = () => {
       isResizingRef.current = true;
       setViewportHeight(Math.max(1, node.clientHeight));
+      if (isAutoScrollEnabled) {
+        virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
+      }
       // Reset the flag after a longer delay to account for measurement
       setTimeout(() => {
         isResizingRef.current = false;
-        if (isAutoScrollEnabled) {
-          virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
-        }
       }, 500);
     };
 
