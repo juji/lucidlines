@@ -158,6 +158,28 @@ export class DataBank extends EventEmitter {
 	}
 
 	/**
+	 * Get messages by type with an optional limit
+	 */
+	getMessageByType(
+		type: string,
+		lastTimestamp?: number,
+		limit?: number,
+	): Array<LogEntry> {
+		const requestedLimit = limit || this.maxBufferSize;
+		const query = this.collection.chain().find({ type });
+
+		if (lastTimestamp) {
+			query.where((obj) => obj.timestamp < lastTimestamp);
+		}
+
+		return query
+			.simplesort("timestamp", true) // Sort by timestamp in descending order (newest first)
+			.limit(requestedLimit)
+			.data()
+			.sort((a, b) => a.timestamp - b.timestamp); // Return in ascending order
+	}
+
+	/**
 	 * Add custom data to the databank (not from the stream)
 	 */
 	addData(type: string, data: string): void {

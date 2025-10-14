@@ -36,12 +36,22 @@ export class WebSocketManager {
 
 		// get total length of messages in databank
 		// this includes data in loki and in-memory
-		// send this to the client
 		const totalMessages = databank.getTotalMessageCount();
+		const types = databank.getAvailableTypes();
+		const totalByTypes = types.map((type) => ({
+			type,
+			count: databank.getMessageCountByType(type),
+		}));
+
+		// send this to the client
 		ws.send(
 			JSON.stringify({
 				type: "info",
-				message: `{"count": ${totalMessages}}`,
+				message: {
+					types: types,
+					total: totalMessages,
+					byType: totalByTypes,
+				},
 			}),
 		);
 
