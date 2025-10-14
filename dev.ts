@@ -28,9 +28,13 @@ start({
 			command: "tsx ./dev/server-logs.ts",
 			name: "SERVER",
 		},
+		// {
+		// 	command: "cd ./client && npm run dev",
+		// 	name: "REACT",
+		// },
 		{
-			command: "cd ./client && npm run dev",
-			name: "REACT",
+			command: "cd ./app2 && npm run dev",
+			name: "SVELTE",
 		},
 	],
 	dev: true, // Enable dev mode for console logging
