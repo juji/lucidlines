@@ -4,6 +4,8 @@
   import { terminalStore } from '$lib/stores/terminal-store.svelte';
   import { websocketStore } from '$lib/stores/websocket-store.svelte';
   import { useDebounce } from '$lib/utils/use-debounce';
+  import { tick } from 'svelte';
+  import type { VirtualItem } from '@tanstack/svelte-virtual';
 
   interface TerminalProps {
     logType: string;
@@ -23,9 +25,9 @@
   let isResizing = $state(false);
 
   // Get logs and process into items
+  let logs = $derived(terminalStore.logs[logType] || []);
   let items = $state<Array<{ html: string; lineCount: number; }>>([]);
   $effect(() => {
-    const logs = terminalStore.logs[logType] || [];
     if (!logs.length) {
       items = [];
       return;
@@ -47,15 +49,26 @@
   });
 
   // Virtualizer setup - reactive to items changes
-  let virtualizer = $derived(createVirtualizer({
-    count: items.length,
+  let virtualizer = $state(createVirtualizer({
+    count: 0,
     getScrollElement: () => virtualListEl ?? null,
     estimateSize: () => 20,
     overscan: 5,
     measureElement: (el) => el.getBoundingClientRect().height,
   }));
 
-  let virtualItems = $derived($virtualizer.getVirtualItems());
+  let virtualItems = $state<VirtualItem[]>([]);
+
+  $effect(() => {
+    $virtualizer.setOptions({
+      count: items.length,
+      getScrollElement: () => virtualListEl ?? null,
+      estimateSize: () => 20,
+      overscan: 5,
+      measureElement: (el) => el.getBoundingClientRect().height,
+    });
+    virtualItems = $virtualizer.getVirtualItems();
+  });
 
   // Measure elements when they change
   $effect(() => {
@@ -66,7 +79,7 @@
 
   // Auto-scroll to bottom when new items arrive
   let prevLength = $state(0);
-  import { tick } from 'svelte';
+  
 
   $effect(() => {
     const currentLength = items.length;
@@ -76,6 +89,7 @@
       }
       prevLength = currentLength;
     });
+    
   });
 
   // Handle history loading
@@ -85,11 +99,10 @@
     if (!virtualListEl || isResizing) return;
     const { scrollTop, scrollHeight, clientHeight } = virtualListEl;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
-    isAutoScrollEnabled = isAtBottom;
 
     // Request history when scrolled to within 50% of the top and auto-scroll is disabled
     if (
-      !isAutoScrollEnabled &&
+      !isAtBottom &&
       scrollTop <= scrollHeight * 0.5 &&
       !requestingHistory
     ) {
@@ -103,6 +116,8 @@
         });
       }
     }
+
+    isAutoScrollEnabled = isAtBottom;
   }
   // Resize observer logic
   $effect(() => {
@@ -111,6 +126,7 @@
       isResizing = true;
       viewportHeight = Math.max(1, containerRef?.clientHeight ?? 300);
       if (isAutoScrollEnabled) {
+        console.log('scrolling to bottom due to resize');
         $virtualizer.scrollToOffset($virtualizer.getTotalSize() + 9999);
       }
       setTimeout(() => {
@@ -172,7 +188,8 @@
           style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
         >
           {#each virtualItems as virtualItem, idx (virtualItem.index)}
-            <div bind:this={virtualItemEls[idx]} data-index={virtualItem.index} class="terminal-row" style="position: absolute; top: 0; left: 0; width: 100%; transform: translateY({virtualItem.start}px);">
+            <div bind:this={virtualItemEls[idx]} data-index={virtualItem.index} class="terminal-row" 
+              style="position: absolute; top: 0; left: 0; width: 100%; transform: translateY({virtualItem.start}px);">
               {@html items[virtualItem.index]?.html ?? '&nbsp;'}
             </div>
           {/each}
