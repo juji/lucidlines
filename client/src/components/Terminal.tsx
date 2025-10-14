@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
@@ -70,6 +70,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
       // Reset the flag after a longer delay to account for measurement
       setTimeout(() => {
         isResizingRef.current = false;
+        virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
       }, 500);
     };
 
@@ -99,27 +100,20 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
   useEffect(() => {
     if (items.length > prevItemsLengthRef.current && isAutoScrollEnabled) {
       requestAnimationFrame(() => {
-        virtualizer.scrollToOffset(virtualizer.getTotalSize());
+        virtualizer.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
       });
     }
     prevItemsLengthRef.current = items.length;
   }, [items.length, virtualizer, isAutoScrollEnabled]);
 
-  // Initial scroll to bottom on mount if there are items
-  useLayoutEffect(() => {
-    if (items.length > 0 && isAutoScrollEnabled) {
-      requestAnimationFrame(() => {
-        virtualizer.scrollToOffset(virtualizer.getTotalSize());
-      });
-    }
-  }, [virtualizer]); // Depend on virtualizer to ensure it's ready
-
   const handleScroll = () => {
     if (!scrollRef.current || isResizingRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
     setIsAutoScrollEnabled(isAtBottom);
   };
+
+  
 
   return (
     <div className="terminal-container">
