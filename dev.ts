@@ -8,30 +8,30 @@ start({
 	frontEnd: 5173, // Vite's default port for the client
 	commands: [
 		// Data simulation commands
-		// {
-		// 	command: "tsx ./dev/weather.ts",
-		// 	name: "WEATHER",
-		// },
-		// {
-		// 	command: "tsx ./dev/stocks.ts asdf",
-		// 	name: "STOCKS",
-		// },
 		{
-			command: "tsx ./dev/stocks.ts wqer",
-			name: "af-asf@lass",
+			command: "tsx ./dev/weather.ts",
+			name: "WEATHER",
 		},
 		{
-			command: "tsx ./dev/stocks.ts wqer",
-			name: "[][][]@)_+!~!~@#$%^&*()_+{}[]:\";'<>?,./",
+			command: "tsx ./dev/stocks.ts",
+			name: "STOCKS",
 		},
 		// {
-		// 	command: "tsx ./dev/server-logs.ts",
-		// 	name: "SERVER",
+		// 	command: "tsx ./dev/stocks.ts wqer",
+		// 	name: "af-asf@lass",
 		// },
 		// {
-		// 	command: "cd ./client && npm run dev",
-		// 	name: "REACT",
+		// 	command: "tsx ./dev/stocks.ts wqer",
+		// 	name: "[][][]@)_+!~!~@#$%^&*()_+{}[]:\";'<>?,./",
 		// },
+		{
+			command: "tsx ./dev/server-logs.ts",
+			name: "SERVER",
+		},
+		{
+			command: "cd ./client && npm run dev",
+			name: "REACT",
+		},
 	],
 	dev: true, // Enable dev mode for console logging
 });
