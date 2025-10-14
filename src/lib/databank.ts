@@ -24,8 +24,6 @@ export interface LogEntry {
 // Create the singleton databank object
 const databank = (() => {
 	const emitter = new EventEmitter();
-	const buffer: Array<LogEntry> = [];
-	const maxBufferSize: number = 20; // Default max buffer size
 	const availableTypes: Set<string> = new Set();
 
 	// Create temp file for LokiJS that will be auto-deleted when the process exits
@@ -50,10 +48,9 @@ const databank = (() => {
 	});
 
 	/**
-	 * Add data to the buffer and manage buffer size
-	 * Uses splice for in-place array modification - most memory efficient approach
+	 * Add data to the databank
 	 */
-	const addToBuffer = (
+	const addEntry = (
 		type: string,
 		data: string,
 		timestamp: number,
@@ -64,19 +61,15 @@ const databank = (() => {
 		// Track this type
 		availableTypes.add(type);
 
-		// Insert into LokiJS collection for long-term storage
+		// Insert into LokiJS collection for storage
 		collection.insert(entry);
 
-		// Add new entry to the end
-		buffer.push(entry);
-
-		// If buffer exceeds max capacity, remove oldest items from the beginning
-		if (buffer.length > maxBufferSize) {
-			// Remove excess items from the beginning (most memory efficient)
-			// Calculate how many items to remove
-			const removeCount = buffer.length - maxBufferSize;
-			buffer.splice(0, removeCount);
-		}
+		emitter.emit("data", {
+			type,
+			data,
+			timestamp,
+			hash,
+		});
 	};
 
 	return {
@@ -91,7 +84,6 @@ const databank = (() => {
 					db.close();
 				}
 				// Clear in-memory data
-				buffer.length = 0;
 				availableTypes.clear();
 				// The tmp package automatically removes the temp file when the process exits
 				console.log(
@@ -104,19 +96,12 @@ const databank = (() => {
 
 		/**
 		 * Get recent messages for a newly connected client
-		 * @param limit Optional limit of messages to return (defaults to maxBufferSize)
+		 * @param limit Optional limit of messages to return (defaults to 20)
 		 */
 		getRecentMessages(limit?: number): Array<LogEntry> {
-			const requestedLimit = limit || maxBufferSize;
+			const requestedLimit = limit || 20;
 
-			// For small requests within buffer size, use the in-memory buffer for best performance
-			if (requestedLimit <= buffer.length) {
-				return [...buffer]
-					.sort((a, b) => a.timestamp - b.timestamp) // Ensure chronological order
-					.slice(-requestedLimit); // Take the most recent N items
-			}
-
-			// For larger requests, query the LokiJS collection
+			// Query the LokiJS collection
 			return collection
 				.chain()
 				.find()
@@ -163,7 +148,7 @@ const databank = (() => {
 			lastTimestamp?: number,
 			limit?: number,
 		): Array<LogEntry> {
-			const requestedLimit = limit || maxBufferSize;
+			const requestedLimit = limit || 20;
 			const query = collection.chain().find({ type });
 
 			if (lastTimestamp) {
@@ -183,13 +168,7 @@ const databank = (() => {
 		addData(type: string, data: string): void {
 			const timestamp = Date.now();
 			const entryHash = hash({ type, data, timestamp });
-			addToBuffer(type, data, timestamp, entryHash);
-			emitter.emit("data", {
-				type,
-				data,
-				timestamp,
-				hash: entryHash,
-			});
+			addEntry(type, data, timestamp, entryHash);
 		},
 
 		/**
