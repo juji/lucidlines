@@ -22,7 +22,9 @@ interface TerminalProps {
 const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<VariableSizeListType<RowData>>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
+  const [isPinnedToBottom, setIsPinnedToBottom] = useState(true);
   const fontSize = useUIStore(state => state.fontSize);
   const rowHeight = useMemo(() => Math.max(12, Math.ceil(fontSize * 1.2)), [fontSize]);
 
@@ -90,9 +92,21 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
   }, [items, rowHeight]);
 
   useEffect(() => {
-    if (!listRef.current || items.length === 0) return;
+    if (!listRef.current || items.length === 0 || !isPinnedToBottom) {
+      return;
+    }
+
     listRef.current.scrollToItem(items.length - 1, 'end');
-  }, [items.length, viewportHeight]);
+  }, [isPinnedToBottom, items.length, viewportHeight]);
+
+  const handleScroll = useCallback(() => {
+    const node = outerRef.current;
+    if (!node) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = node;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    setIsPinnedToBottom(distanceFromBottom <= 8);
+  }, []);
 
   const Row = useCallback(
     ({ index, style, data }: ListChildComponentProps<RowData>) => {
@@ -141,6 +155,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
           itemSize={getItemSize}
           estimatedItemSize={rowHeight}
           width="100%"
+          outerRef={outerRef}
+          onScroll={handleScroll}
           innerElementType={InnerElement}
         >
           {Row}
