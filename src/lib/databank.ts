@@ -23,15 +23,14 @@ interface LogEntry {
 
 export class DataBank extends EventEmitter {
 	private buffer: Array<LogEntry> = [];
-	private maxBufferSize: number;
+	private maxBufferSize: number = 10_000; // Default max buffer size
 	private db: Loki;
 	private collection: Collection<LogEntry>;
 	private tempFile: tmp.FileResult | null = null;
 	private availableTypes: Set<string> = new Set();
 
-	constructor(options: { maxBufferSize?: number } = {}) {
+	constructor() {
 		super();
-		this.maxBufferSize = options.maxBufferSize || 10_000; // Default buffer size for in-memory recent messages
 
 		// Create temp file for LokiJS that will be auto-deleted when the process exits
 		this.tempFile = tmp.fileSync({
@@ -206,8 +205,5 @@ export class DataBank extends EventEmitter {
 }
 
 // Export a singleton instance for the application
-const databank = new DataBank({
-	maxBufferSize: 10_000, // Keep a reasonable number of entries in memory for fast access
-	// LokiJS will handle storage of millions of entries in the temp file
-});
+const databank = new DataBank();
 export default databank;
