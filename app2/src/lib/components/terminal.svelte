@@ -16,90 +16,117 @@
 
   let containerRef = $state<HTMLDivElement>();
   let virtualListEl = $state<HTMLDivElement>();
+  let virtualItemEls = $state<HTMLDivElement[]>([]);
   let isAutoScrollEnabled = $state(true);
   let requestingHistory = $state(false);
+  let viewportHeight = $state(300);
+  let isResizing = $state(false);
 
-  // Get logs and process into lines
-  let lines = $derived(() => {
+  // Get logs and process into items
+  let items = $state<Array<{ html: string; lineCount: number; }>>([]);
+  $effect(() => {
     const logs = terminalStore.logs[logType] || [];
-    if (!logs.length) return [];
-
+    if (!logs.length) {
+      items = [];
+      return;
+    }
     const parser = new AnsiUp();
     parser.use_classes = true;
-
-    const result = [];
+    const result: Array<{ html: string; lineCount: number; }> = [];
     for (const log of logs) {
       const raw = (log.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      const rawLines = raw.split('\n');
-
-      for (const line of rawLines) {
-        const html = parser.ansi_to_html(line);
-        result.push(html === '' ? '&nbsp;' : html);
-      }
+      const lines = raw.split('\n');
+      const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
+      const html = parser.ansi_to_html(raw);
+      result.push({
+        html: html === '' ? '&nbsp;' : html,
+        lineCount,
+      });
     }
-    return result;
+    items = result;
   });
 
-  // Virtualizer setup - reactive to lines changes
-  let virtualizer = createVirtualizer({
-    count: 0, // Will be updated in effect
+  // Virtualizer setup - reactive to items changes
+  let virtualizer = $derived(createVirtualizer({
+    count: items.length,
     getScrollElement: () => virtualListEl ?? null,
-    estimateSize: () => 18,
+    estimateSize: () => 20,
     overscan: 5,
-  });
+    measureElement: (el) => el.getBoundingClientRect().height,
+  }));
 
-  // Update virtualizer when lines change
+  let virtualItems = $derived($virtualizer.getVirtualItems());
+
+  // Measure elements when they change
   $effect(() => {
-    $virtualizer.setOptions({
-      count: lines().length,
-      getScrollElement: () => virtualListEl ?? null,
-      estimateSize: () => 18,
-      overscan: 5,
-    });
-  });
-
-  let items = $derived($virtualizer.getVirtualItems());
-
-  // Auto-scroll to bottom when new lines arrive
-  let prevLength = $state(0);
-  $effect(() => {
-    const currentLength = lines().length;
-    if (currentLength > prevLength && isAutoScrollEnabled) {
-      $virtualizer.scrollToIndex(currentLength - 1, { align: 'end' });
+    if (virtualItemEls.length) {
+      virtualItemEls.forEach((el) => $virtualizer.measureElement(el));
     }
-    prevLength = currentLength;
+  });
+
+  // Auto-scroll to bottom when new items arrive
+  let prevLength = $state(0);
+  import { tick } from 'svelte';
+
+  $effect(() => {
+    const currentLength = items.length;
+    tick().then(() => {
+      if (currentLength > prevLength && isAutoScrollEnabled) {
+        $virtualizer.scrollToOffset($virtualizer.getTotalSize() + 9999);
+      }
+      prevLength = currentLength;
+    });
   });
 
   // Handle history loading
   let debouncedHistoryRequest = useDebounce(300);
 
   function handleScroll() {
-    if (!virtualListEl) return;
+    if (!virtualListEl || isResizing) return;
+    const { scrollTop, scrollHeight, clientHeight } = virtualListEl;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+    isAutoScrollEnabled = isAtBottom;
 
-    // Check if at bottom
-    const lastItem = items[items.length - 1];
-    isAutoScrollEnabled = lastItem && lastItem.index === lines().length - 1;
-
-    // Request history when near top
-    if (!isAutoScrollEnabled && items.length > 0) {
-      const firstItem = items[0];
-      if (firstItem.index < lines().length * 0.5 && !requestingHistory) {
-        requestingHistory = true;
-        const logs = terminalStore.logs[logType] || [];
-        const oldestLog = logs[0];
-        if (oldestLog) {
-          debouncedHistoryRequest(() => {
-            websocketStore.requestHistory(logType, oldestLog.timestamp);
-            requestingHistory = false;
-          });
-        }
+    // Request history when scrolled to within 50% of the top and auto-scroll is disabled
+    if (
+      !isAutoScrollEnabled &&
+      scrollTop <= scrollHeight * 0.5 &&
+      !requestingHistory
+    ) {
+      requestingHistory = true;
+      const logs = terminalStore.logs[logType] || [];
+      const oldestLog = logs[0];
+      if (oldestLog) {
+        debouncedHistoryRequest(() => {
+          websocketStore.requestHistory(logType, oldestLog.timestamp);
+          requestingHistory = false;
+        });
       }
     }
   }
+  // Resize observer logic
+  $effect(() => {
+    if (!containerRef) return;
+    function updateDimensions() {
+      isResizing = true;
+      viewportHeight = Math.max(1, containerRef?.clientHeight ?? 300);
+      if (isAutoScrollEnabled) {
+        $virtualizer.scrollToOffset($virtualizer.getTotalSize() + 9999);
+      }
+      setTimeout(() => {
+        isResizing = false;
+      }, 500);
+    }
+    updateDimensions();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(updateDimensions);
+    observer.observe(containerRef);
+    return () => observer.disconnect();
+  });
 
   // Reset history flag when logs update
   $effect(() => {
-    if (requestingHistory && lines().length > 0) {
+    if (requestingHistory && items.length > 0) {
       requestingHistory = false;
     }
   });
@@ -118,7 +145,7 @@
         class="auto-scroll-button {isAutoScrollEnabled ? 'active' : ''}"
         onclick={() => {
           isAutoScrollEnabled = true;
-          $virtualizer.scrollToIndex(lines().length - 1, { align: 'end' });
+          $virtualizer.scrollToOffset($virtualizer.getTotalSize());
         }}
         title={isAutoScrollEnabled ? 'Auto-scroll enabled' : 'Click to enable auto-scroll'}
       >
@@ -131,27 +158,24 @@
       {/if}
     </div>
   </div>
-  <div class="terminal-viewer">
-    {#if lines().length === 0}
+  <div class="terminal-viewer" bind:this={containerRef}>
+    {#if items.length === 0}
       <div class="terminal-empty">Waiting for output…</div>
     {:else}
       <div
         class="terminal-list scroll-container"
         bind:this={virtualListEl}
         onscroll={handleScroll}
+        style="height: {viewportHeight}px"
       >
         <div
           style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
         >
-          <div
-            style="position: absolute; top: 0; left: 0; width: 100%; transform: translateY({items[0]?.start ?? 0}px);"
-          >
-            {#each items as row (row.index)}
-              <div class="terminal-row">
-                {@html lines()[row.index]}
-              </div>
-            {/each}
-          </div>
+          {#each virtualItems as virtualItem, idx (virtualItem.index)}
+            <div bind:this={virtualItemEls[idx]} data-index={virtualItem.index} class="terminal-row" style="position: absolute; top: 0; left: 0; width: 100%; transform: translateY({virtualItem.start}px);">
+              {@html items[virtualItem.index]?.html ?? '&nbsp;'}
+            </div>
+          {/each}
         </div>
       </div>
     {/if}
@@ -251,8 +275,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  .terminal-list {
-    flex: 1;
+  .scroll-container {
+    overflow-y: auto;
   }
 
   .terminal-row {
