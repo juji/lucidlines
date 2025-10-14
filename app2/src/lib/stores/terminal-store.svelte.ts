@@ -6,11 +6,19 @@ export interface LogMessage {
   hash: number; // Unique hash to identify the log message
 }
 
+const MAX_LOGS = 5000; // Maximum number of logs to keep per type
+
 // Terminal store using Svelte 5 runes
 export const terminalStore = $state({
   logs: {} as Record<string, LogMessage[]>,
+  retainHistory: {} as Record<string, boolean>,
   logTypes: [] as string[],
   connectionError: null as string | null,
+
+  // setting retain history for specific log types
+  setRetainHistory(logType: string, retain: boolean) {
+    this.retainHistory[logType] = retain;
+  },
 
   // Actions to modify state
   addLog(log: LogMessage) {
@@ -23,7 +31,11 @@ export const terminalStore = $state({
 
     // Add the log
     const currentLogs = this.logs[logType] || [];
-    this.logs[logType] = [...currentLogs, log];
+    if(this.retainHistory[logType]) {
+      this.logs[logType] = [...currentLogs, log] // Keep all
+    } else {
+      this.logs[logType] = [...currentLogs, log].slice(-MAX_LOGS); // Keep only the last
+    }
   },
 
   prependLog(log: LogMessage) {

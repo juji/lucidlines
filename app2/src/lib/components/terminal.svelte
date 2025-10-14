@@ -119,6 +119,9 @@
       console.log('Re-enabling auto-scroll');
       if (isAtBottom) {
         isAutoScrollEnabled = true;
+        terminalStore.setRetainHistory(logType, false);
+      }else{
+        terminalStore.setRetainHistory(logType, true);
       }
     });
 
