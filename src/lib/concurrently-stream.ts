@@ -93,7 +93,6 @@ export function start(commands: CommandInput[]) {
 		})),
 		{
 			prefix: "name",
-			killOthersOn: ["failure"],
 			restartTries: 0,
 			outputStream: transformStream,
 		},
