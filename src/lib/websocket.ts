@@ -59,7 +59,7 @@ export class WebSocketManager {
 		const recentMessages = databank.getRecentMessages();
 		if (recentMessages.length > 0) {
 			// Loop through each message and send it individually
-			for (let i = recentMessages.length - 1; i >= 0; i--) {
+			for (let i = 0; i < recentMessages.length; i++) {
 				ws.send(
 					JSON.stringify({
 						type: "log",

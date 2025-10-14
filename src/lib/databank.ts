@@ -120,7 +120,8 @@ const databank = (() => {
 				.find()
 				.simplesort("timestamp", true) // Sort by timestamp in descending order
 				.limit(requestedLimit)
-				.data();
+				.data()
+				.sort((a, b) => a.timestamp - b.timestamp); // Return in ascending order;
 		},
 
 		/**
