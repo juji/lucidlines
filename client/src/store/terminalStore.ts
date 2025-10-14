@@ -22,6 +22,7 @@ interface TerminalState {
   
   // Actions to modify state
   addLog: (log: LogMessage) => void;
+  prependLog: (log: LogMessage) => void;
   setConnected: (connected: boolean) => void;
   setConnectionError: (error: string | null) => void;
   clearLogs: (logType?: string) => void;
@@ -46,6 +47,20 @@ export const useTerminalStore = create<TerminalState>((set) => ({
       logs: {
         ...state.logs,
         [logType]: [...currentLogs, log]
+      }
+    };
+  }),
+
+  // Prepend a single log entry (for history messages)
+  prependLog: (log: LogMessage) => set((state) => {
+    const logType = log.type || 'default';
+    const currentLogs = state.logs[logType] || [];
+
+    return {
+      ...state.logTypes.includes(logType) ? {} : { logTypes: [...state.logTypes, logType] },
+      logs: {
+        ...state.logs,
+        [logType]: [log, ...currentLogs]
       }
     };
   }),
