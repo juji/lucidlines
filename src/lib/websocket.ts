@@ -88,6 +88,20 @@ export class WebSocketManager {
 			try {
 				console.log("Received: %s", data);
 
+				const message = JSON.parse(data.toString());
+				if (message.type === "history") {
+					const lastTimestamp = message.lastTimestamp;
+					const type = message.logType;
+					const history = databank.getMessageByType(type, lastTimestamp, 100);
+					ws.send(
+						JSON.stringify({
+							type: "history",
+							messages: history,
+						}),
+					);
+					// get history
+				}
+
 				// not implemented yet,
 				// will be used for getting historical data
 			} catch (error) {
