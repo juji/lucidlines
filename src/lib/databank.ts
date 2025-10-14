@@ -23,6 +23,8 @@ export interface LogEntry {
 
 // Create the singleton databank object
 const databank = (() => {
+	const RECENT_MESSAGE_LIMIT = 10; // Max number of recent messages to give initially
+
 	const emitter = new EventEmitter();
 	const availableTypes: Set<string> = new Set();
 
@@ -99,7 +101,7 @@ const databank = (() => {
 		 * @param limit Optional limit of messages to return (defaults to 20)
 		 */
 		getRecentMessages(limit?: number): Array<LogEntry> {
-			const requestedLimit = limit || 20;
+			const requestedLimit = limit || RECENT_MESSAGE_LIMIT;
 
 			// Query the LokiJS collection
 			return collection
