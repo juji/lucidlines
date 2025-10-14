@@ -64,7 +64,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
         } satisfies RowData[number];
       }));
     });
-  }, [logs, debouncedLogProcessing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logs]);
 
   useEffect(() => {
     const node = containerRef.current;
