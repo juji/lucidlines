@@ -13,16 +13,12 @@ start({
 			name: "WEATHER",
 		},
 		{
-			command: "tsx ./dev/weather.ts",
-			name: "WEATHER1",
-		},
-		{
-			command: "tsx ./dev/weather.ts",
-			name: "WEATHER2",
-		},
-		{
-			command: "tsx ./dev/stocks.ts",
+			command: "tsx ./dev/stocks.ts asdf",
 			name: "STOCKS",
+		},
+		{
+			command: "tsx ./dev/stocks.ts wqer",
+			name: "STOCKS2",
 		},
 		{
 			command: "tsx ./dev/server-logs.ts",

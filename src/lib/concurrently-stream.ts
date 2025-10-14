@@ -10,6 +10,9 @@ export function start(commands: CommandInput[]) {
 	// Set to store already processed lines
 	let buffer = "";
 
+	console.log(`Starting ${commands.length} commands concurrently...`);
+	console.log(JSON.stringify(commands, null, 2));
+
 	// Create a custom writable stream that transforms output to JSON
 	const transformStream = new Transform({
 		objectMode: true,
@@ -28,7 +31,7 @@ export function start(commands: CommandInput[]) {
 
 				for (const line of lines) {
 					// Simplest possible extraction - just get the command name between brackets
-					const match = line.match(/\[([A-Z]+)\]/);
+					const match = line.match(/\[([^[\]]+)\]/);
 					if (!match) continue;
 
 					const name = match[1];
