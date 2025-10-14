@@ -27,9 +27,9 @@ export function useWebSocket(url: string) {
         
         
         // Only store messages with type 'log' in Zustand
-        if (data.type === 'log' && data.messages) {
+        if (data.type === 'log' && data.message) {
           // The actual log data is in the messages field
-          const logData = data.messages;
+          const logData = data.message;
           
           // Only store if it has the required fields
           if (logData.type && logData.data !== undefined) {

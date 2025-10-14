@@ -73,7 +73,7 @@ export class WebSocketManager {
 					ws.send(
 						JSON.stringify({
 							type: "log",
-							messages: data,
+							message: data,
 						}),
 					);
 				}
