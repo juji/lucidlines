@@ -74,14 +74,18 @@ export function useWebSocket(url: string) {
     };
   }, [url]);
 
-  // Only need to return the send function
-  const send = (data: any) => {
+  // Function to request historical messages
+  const requestHistory = (logType: string, lastTimestamp?: number) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify(data));
+      socketRef.current.send(JSON.stringify({
+        type: "history",
+        logType,
+        lastTimestamp
+      }));
     }
   };
 
-  return { send };
+  return { requestHistory };
 }
 
 export default useWebSocket;
