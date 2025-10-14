@@ -20,7 +20,6 @@
   let virtualListEl = $state<HTMLDivElement>();
   let virtualItemEls = $state<HTMLDivElement[]>([]);
   let isAutoScrollEnabled = $state(true);
-  let requestingHistory = $state(false);
   let viewportHeight = $state(300);
   let isResizing = $state(false);
 
@@ -77,47 +76,54 @@
     }
   });
 
-  // Auto-scroll to bottom when new items arrive
-  let prevLength = $state(0);
   
-
+  // Auto-scroll to bottom when new items arrive
+  let prevLength = 0;
+  let requestingHistory = false;
+  
   $effect(() => {
     const currentLength = items.length;
+    requestingHistory = false;
     tick().then(() => {
       if (currentLength > prevLength && isAutoScrollEnabled) {
         $virtualizer.scrollToOffset($virtualizer.getTotalSize() + 9999);
       }
       prevLength = currentLength;
     });
-    
   });
 
   // Handle history loading
-  let debouncedHistoryRequest = useDebounce(300);
-
+  let debouncedAutoScrollActivation = useDebounce(500);
+  let lastScrollTop = -1;
+  
+  function requestHistory() {
+    if (requestingHistory) return;
+    requestingHistory = true;
+    const logs = terminalStore.logs[logType] || [];
+    const oldestLog = logs[0];
+    if (oldestLog) {
+      console.log('Requesting history for', logType, 'before', oldestLog.timestamp);
+      websocketStore.requestHistory(logType, oldestLog.timestamp);
+    }
+  }
+  
   function handleScroll() {
     if (!virtualListEl || isResizing) return;
     const { scrollTop, scrollHeight, clientHeight } = virtualListEl;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+    
+    // this needs to happen immediately on scroll
+    isAutoScrollEnabled = false;
 
-    // Request history when scrolled to within 50% of the top and auto-scroll is disabled
-    if (
-      !isAtBottom &&
-      scrollTop <= scrollHeight * 0.5 &&
-      !requestingHistory
-    ) {
-      requestingHistory = true;
-      const logs = terminalStore.logs[logType] || [];
-      const oldestLog = logs[0];
-      if (oldestLog) {
-        debouncedHistoryRequest(() => {
-          websocketStore.requestHistory(logType, oldestLog.timestamp);
-          requestingHistory = false;
-        });
+    // Re-enable auto-scroll if scrolled back to bottom
+    debouncedAutoScrollActivation(() => {
+      console.log('Re-enabling auto-scroll');
+      if (isAtBottom) {
+        isAutoScrollEnabled = true;
       }
-    }
+    });
 
-    isAutoScrollEnabled = isAtBottom;
+    lastScrollTop = scrollTop;
   }
   // Resize observer logic
   $effect(() => {
@@ -126,7 +132,6 @@
       isResizing = true;
       viewportHeight = Math.max(1, containerRef?.clientHeight ?? 300);
       if (isAutoScrollEnabled) {
-        console.log('scrolling to bottom due to resize');
         $virtualizer.scrollToOffset($virtualizer.getTotalSize() + 9999);
       }
       setTimeout(() => {
@@ -140,13 +145,6 @@
     return () => observer.disconnect();
   });
 
-  // Reset history flag when logs update
-  $effect(() => {
-    if (requestingHistory && items.length > 0) {
-      requestingHistory = false;
-    }
-  });
-
   // devtools hook
   if (log) {
     /* no-op */
@@ -157,6 +155,13 @@
   <div class="terminal-header">
     <h3>{title}</h3>
     <div class="terminal-controls">
+      <button
+        class="history-button"
+        onclick={requestHistory}
+        title="Load older logs"
+      >
+        ↑
+      </button>
       <button
         class="auto-scroll-button {isAutoScrollEnabled ? 'active' : ''}"
         onclick={() => {
@@ -271,6 +276,27 @@
   }
 
   .auto-scroll-button:focus {
+    outline: none;
+  }
+
+  .history-button {
+    background: none;
+    border: 1px solid #555555;
+    color: #888888;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .history-button:hover {
+    border-color: #777777;
+    color: #aaaaaa;
+  }
+
+  .history-button:focus {
     outline: none;
   }
 
