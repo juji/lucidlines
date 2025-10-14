@@ -25,7 +25,7 @@ export interface LogEntry {
 const databank = (() => {
 	const emitter = new EventEmitter();
 	const buffer: Array<LogEntry> = [];
-	const maxBufferSize: number = 10_000; // Default max buffer size
+	const maxBufferSize: number = 20; // Default max buffer size
 	const availableTypes: Set<string> = new Set();
 
 	// Create temp file for LokiJS that will be auto-deleted when the process exits
@@ -111,7 +111,9 @@ const databank = (() => {
 
 			// For small requests within buffer size, use the in-memory buffer for best performance
 			if (requestedLimit <= buffer.length) {
-				return [...buffer].slice(-requestedLimit);
+				return [...buffer]
+					.sort((a, b) => a.timestamp - b.timestamp) // Ensure chronological order
+					.slice(-requestedLimit); // Take the most recent N items
 			}
 
 			// For larger requests, query the LokiJS collection
