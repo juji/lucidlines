@@ -102,7 +102,6 @@
     const logs = terminalStore.logs[logType] || [];
     const oldestLog = logs[0];
     if (oldestLog) {
-      console.log('Requesting history for', logType, 'before', oldestLog.timestamp);
       websocketStore.requestHistory(logType, oldestLog.timestamp);
     }
   }
@@ -160,7 +159,7 @@
         onclick={requestHistory}
         title="Load older logs"
       >
-        ↑
+        history
       </button>
       <button
         class="auto-scroll-button {isAutoScrollEnabled ? 'active' : ''}"
