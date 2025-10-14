@@ -33,27 +33,36 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
   );
 
   // don't change!
-  if (log) {}
+  if (log) {
+    /* no-op: reserved for devtools hook */
+  }
 
-  const items = useMemo(() => {
-    if (!logs.length) {
-      return [] as RowData;
-    }
+  const [items, setItems] = useState<RowData>([]);
+  const debouncedLogs = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if(debouncedLogs.current) clearTimeout(debouncedLogs.current);
+    debouncedLogs.current = setTimeout(() => {
 
-    const parser = new AnsiUp();
-    parser.use_classes = true;
+      if (!logs.length) {
+        setItems([]);
+        return;
+      }
 
-    return logs.map(entry => {
-      const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      const normalized = raw.endsWith('\n') ? raw : `${raw}\n`;
-      const html = parser.ansi_to_html(normalized);
-      const lineCount = Math.max(1, normalized.split('\n').length);
+      const parser = new AnsiUp();
+      parser.use_classes = true;
 
-      return {
-        html: html === '' ? '&nbsp;' : html,
-        lineCount,
-      } satisfies RowData[number];
-    });
+      setItems(logs.map(entry => {
+        const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const normalized = raw.endsWith('\n') ? raw : `${raw}\n`;
+        const html = parser.ansi_to_html(normalized);
+        const lineCount = Math.max(1, normalized.split('\n').length);
+
+        return {
+          html: html === '' ? '&nbsp;' : html,
+          lineCount,
+        } satisfies RowData[number];
+      }));
+    }, 32);
   }, [logs]);
 
   const getItemSize = useCallback(
@@ -88,15 +97,32 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
   }, []);
 
   useEffect(() => {
-    listRef.current?.resetAfterIndex(0, true);
-  }, [items, rowHeight]);
+    listRef.current?.resetAfterIndex(0);
+  }, [rowHeight]);
+
+  const lastRenderedCountRef = useRef(0);
+  const lastViewportHeightRef = useRef(viewportHeight);
 
   useEffect(() => {
-    if (!listRef.current || items.length === 0 || !isPinnedToBottom) {
+    if (!listRef.current || items.length === 0) {
+      lastRenderedCountRef.current = items.length;
+      lastViewportHeightRef.current = viewportHeight;
       return;
     }
 
-    listRef.current.scrollToItem(items.length - 1, 'end');
+    const prevCount = lastRenderedCountRef.current;
+    const prevViewportHeight = lastViewportHeightRef.current;
+
+    lastRenderedCountRef.current = items.length;
+    lastViewportHeightRef.current = viewportHeight;
+
+    if (!isPinnedToBottom) {
+      return;
+    }
+
+    if (items.length !== prevCount || viewportHeight !== prevViewportHeight) {
+      listRef.current.scrollToItem(items.length - 1, 'end');
+    }
   }, [isPinnedToBottom, items.length, viewportHeight]);
 
   const handleScroll = useCallback(() => {
@@ -105,7 +131,10 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
 
     const { scrollTop, scrollHeight, clientHeight } = node;
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-    setIsPinnedToBottom(distanceFromBottom <= 8);
+    setIsPinnedToBottom(prev => {
+      const next = distanceFromBottom <= 8;
+      return prev === next ? prev : next;
+    });
   }, []);
 
   const Row = useCallback(
