@@ -130,6 +130,13 @@ export class DataBank extends EventEmitter {
 	}
 
 	/**
+	 * Get the total count of all messages stored
+	 */
+	getTotalMessageCount(): number {
+		return this.collection.count();
+	}
+
+	/**
 	 * Add custom data to the databank (not from the stream)
 	 */
 	addData(type: string, data: string): void {

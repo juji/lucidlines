@@ -34,6 +34,17 @@ export class WebSocketManager {
 	private handleConnection(ws: WebSocket): void {
 		console.log("WebSocket client connected");
 
+		// get total length of messages in databank
+		// this includes data in loki and in-memory
+		// send this to the client
+		const totalMessages = databank.getTotalMessageCount();
+		ws.send(
+			JSON.stringify({
+				type: "info",
+				message: `{"count": ${totalMessages}}`,
+			}),
+		);
+
 		// Send recent messages from the databank to new client
 		const recentMessages = databank.getRecentMessages();
 		if (recentMessages.length > 0) {
