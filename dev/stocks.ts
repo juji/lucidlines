@@ -16,7 +16,7 @@ class StockSimulator {
   private stocks: StockData[] = [];
   private tickInterval: number;
   
-  constructor(tickIntervalMs: number = 3000) {
+  constructor(tickIntervalMs: number = 1000) {
     this.tickInterval = tickIntervalMs;
     
     // Initialize with some popular tech stocks

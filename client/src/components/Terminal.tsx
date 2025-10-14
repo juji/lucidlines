@@ -70,7 +70,9 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
       // Reset the flag after a longer delay to account for measurement
       setTimeout(() => {
         isResizingRef.current = false;
-        virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
+        if (isAutoScrollEnabled) {
+          virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
+        }
       }, 500);
     };
 
@@ -86,7 +88,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose }) => 
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [isAutoScrollEnabled]);
 
   const virtualizer = useVirtualizer({
     count: items.length,
