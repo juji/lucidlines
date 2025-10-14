@@ -43,7 +43,7 @@ export class WebSocketManager {
 			count: databank.getMessageCountByType(type),
 		}));
 
-		// send this to the client
+		// send those to the client
 		ws.send(
 			JSON.stringify({
 				type: "info",
@@ -58,15 +58,12 @@ export class WebSocketManager {
 		// Send recent messages from the databank to new client
 		const recentMessages = databank.getRecentMessages();
 		if (recentMessages.length > 0) {
-			// Loop through each message and send it individually
-			for (let i = 0; i < recentMessages.length; i++) {
-				ws.send(
-					JSON.stringify({
-						type: "log",
-						messages: recentMessages[i],
-					}),
-				);
-			}
+			ws.send(
+				JSON.stringify({
+					type: "history",
+					messages: recentMessages,
+				}),
+			);
 		}
 
 		// Subscribe this client to databank events
@@ -99,7 +96,6 @@ export class WebSocketManager {
 							messages: history,
 						}),
 					);
-					// get history
 				}
 
 				// not implemented yet,
