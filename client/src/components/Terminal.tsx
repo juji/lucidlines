@@ -1,13 +1,7 @@
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
-import {
-  VariableSizeList as List,
-  type ListChildComponentProps,
-  type VariableSizeList as VariableSizeListType,
-} from 'react-window';
 import { useShallow } from 'zustand/react/shallow';
 import { useTerminalStore } from '../store/terminalStore';
-import { useUIStore } from '../store/uiStore';
 
 type RowData = Array<{
   html: string;
@@ -21,12 +15,7 @@ interface TerminalProps {
 
 const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<VariableSizeListType<RowData>>(null);
-  const outerRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
-  const [isPinnedToBottom, setIsPinnedToBottom] = useState(true);
-  const fontSize = useUIStore(state => state.fontSize);
-  const rowHeight = useMemo(() => Math.max(12, Math.ceil(fontSize * 1.2)), [fontSize]);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -53,9 +42,9 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
 
       setItems(logs.map(entry => {
         const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        const normalized = raw.endsWith('\n') ? raw : `${raw}\n`;
-        const html = parser.ansi_to_html(normalized);
-        const lineCount = Math.max(1, normalized.split('\n').length);
+        const lines = raw.split('\n');
+        const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
+        const html = parser.ansi_to_html(raw);
 
         return {
           html: html === '' ? '&nbsp;' : html,
@@ -64,15 +53,6 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
       }));
     }, 32);
   }, [logs]);
-
-  const getItemSize = useCallback(
-    (index: number) => {
-      const item = items[index];
-      const lines = item?.lineCount ?? 1;
-      return lines * rowHeight;
-    },
-    [items, rowHeight]
-  );
 
   useEffect(() => {
     const node = containerRef.current;
@@ -96,100 +76,16 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log }) => {
     };
   }, []);
 
-  useEffect(() => {
-    listRef.current?.resetAfterIndex(0);
-  }, [rowHeight]);
-
-  const lastRenderedCountRef = useRef(0);
-  const lastViewportHeightRef = useRef(viewportHeight);
-
-  useEffect(() => {
-    if (!listRef.current || items.length === 0) {
-      lastRenderedCountRef.current = items.length;
-      lastViewportHeightRef.current = viewportHeight;
-      return;
-    }
-
-    const prevCount = lastRenderedCountRef.current;
-    const prevViewportHeight = lastViewportHeightRef.current;
-
-    lastRenderedCountRef.current = items.length;
-    lastViewportHeightRef.current = viewportHeight;
-
-    if (!isPinnedToBottom) {
-      return;
-    }
-
-    if (items.length !== prevCount || viewportHeight !== prevViewportHeight) {
-      listRef.current.scrollToItem(items.length - 1, 'end');
-    }
-  }, [isPinnedToBottom, items.length, viewportHeight]);
-
-  const handleScroll = useCallback(() => {
-    const node = outerRef.current;
-    if (!node) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = node;
-    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-    setIsPinnedToBottom(prev => {
-      const next = distanceFromBottom <= 8;
-      return prev === next ? prev : next;
-    });
-  }, []);
-
-  const Row = useCallback(
-    ({ index, style, data }: ListChildComponentProps<RowData>) => {
-      const item = data[index];
-      return (
-        <div
-          style={style}
-          className="terminal-row"
-          dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }}
-        />
-      );
-    },
-    []
-  );
-
-  const InnerElement = useMemo(
-    () =>
-      forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-        ({ style, className, ...rest }, ref) => (
-          <div
-            ref={ref}
-            className={className ? `terminal-list-inner ${className}` : 'terminal-list-inner'}
-            style={{
-              ...style,
-              padding: '0.75rem',
-              boxSizing: 'border-box',
-            }}
-            {...rest}
-          />
-        )
-      ),
-    []
-  );
-
   return (
     <div ref={containerRef} className="terminal-viewer">
       {items.length === 0 ? (
         <div className="terminal-empty">Waiting for output…</div>
       ) : (
-        <List
-          ref={listRef}
-          className="terminal-list"
-          height={Math.max(1, viewportHeight)}
-          itemCount={items.length}
-          itemData={items}
-          itemSize={getItemSize}
-          estimatedItemSize={rowHeight}
-          width="100%"
-          outerRef={outerRef}
-          onScroll={handleScroll}
-          innerElementType={InnerElement}
-        >
-          {Row}
-        </List>
+        <div className="terminal-list" style={{ height: viewportHeight, overflow: 'auto' }}>
+          {items.map((item, index) => (
+            <div key={index} className="terminal-row" dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }} />
+          ))}
+        </div>
       )}
     </div>
   );
