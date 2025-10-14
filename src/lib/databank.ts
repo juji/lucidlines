@@ -27,6 +27,7 @@ export class DataBank extends EventEmitter {
 	private db: Loki;
 	private collection: Collection<LogEntry>;
 	private tempFile: tmp.FileResult | null = null;
+	private availableTypes: Set<string> = new Set();
 
 	constructor(options: { maxBufferSize?: number } = {}) {
 		super();
@@ -64,6 +65,9 @@ export class DataBank extends EventEmitter {
 			if (this.db) {
 				this.db.close();
 			}
+			// Clear in-memory data
+			this.buffer = [];
+			this.availableTypes.clear();
 			// The tmp package automatically removes the temp file when the process exits
 			console.log("DataBank cleanup: temporary database file will be removed");
 		} catch (error) {
@@ -82,6 +86,9 @@ export class DataBank extends EventEmitter {
 		hash: number,
 	): void {
 		const entry: LogEntry = { type, data, timestamp, hash };
+
+		// Track this type
+		this.availableTypes.add(type);
 
 		// Insert into LokiJS collection for long-term storage
 		this.collection.insert(entry);
@@ -134,6 +141,20 @@ export class DataBank extends EventEmitter {
 	 */
 	getTotalMessageCount(): number {
 		return this.collection.count();
+	}
+
+	/**
+	 * Get the count of messages for a specific type
+	 */
+	getMessageCountByType(type: string): number {
+		return this.collection.chain().find({ type }).count();
+	}
+
+	/**
+	 * Get all unique message types stored
+	 */
+	getAvailableTypes(): string[] {
+		return Array.from(this.availableTypes);
 	}
 
 	/**
