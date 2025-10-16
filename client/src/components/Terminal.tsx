@@ -38,17 +38,17 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     /* no-op: reserved for devtools hook */
   }
 
+  const [items, setItems] = useState<RowData>([]);
+
   const forceScrollToBottom = useCallback(() => {
     if (isAutoScrollEnabled) {
-      virtuosoRef.current?.scrollTo({ top: 999999999 });
+      virtuosoRef.current?.scrollToIndex(items.length - 1);
     }
-  }, [isAutoScrollEnabled, logType, setRetainHistory]);
+  }, [isAutoScrollEnabled, items.length]);
 
   useEffect(() => {
     setRetainHistory(logType, !isAutoScrollEnabled);
   },[isAutoScrollEnabled])
-
-  const [items, setItems] = useState<RowData>([]);
 
   // new data arrived
   useEffect(() => {
