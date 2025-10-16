@@ -399,5 +399,5 @@ class ServerLogSimulator {
 }
 
 // Create and start the log simulator with logs every 2 seconds
-const logSimulator = new ServerLogSimulator(100);
+const logSimulator = new ServerLogSimulator(200);
 logSimulator.start();
