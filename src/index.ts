@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { start as startConcurrentlyStream } from "./lib/concurrently-stream";
 import databank from "./lib/databank";
+import { start as startNodeStream } from "./lib/node-stream";
 import { start as startServer } from "./lib/server";
 
 // get current directory for esm and cjs
@@ -73,15 +73,13 @@ export function start(options: {
 		dev,
 	});
 
-	// If commands are provided, start concurrently-stream
-	let concurrentlyStream:
-		| ReturnType<typeof startConcurrentlyStream>
-		| undefined;
+	// If commands are provided, start node-stream
+	let nodeStream: ReturnType<typeof startNodeStream> | undefined;
 	if (commands.length > 0) {
-		concurrentlyStream = startConcurrentlyStream(commands, dev);
+		nodeStream = startNodeStream(commands, dev);
 
 		// Set up the handling for object mode transform stream
-		concurrentlyStream.transformStream.on("data", (data) => {
+		nodeStream.transformStream.on("data", (data: any) => {
 			// Use the name as the type and output as the data for databank
 			databank.addData(data.name, data.output);
 
@@ -93,7 +91,7 @@ export function start(options: {
 	}
 
 	function stop() {
-		concurrentlyStream?.stop();
+		nodeStream?.stop();
 		server.stop();
 		databank.cleanup();
 	}
@@ -106,7 +104,7 @@ export function start(options: {
 
 	return {
 		server,
-		concurrentlyStream,
+		nodeStream,
 		databank,
 		stop,
 	};
