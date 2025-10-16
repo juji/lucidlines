@@ -8,10 +8,15 @@ export interface LogMessage {
   hash: number; // Unique hash to identify the log message
 }
 
+const MAX_LOGS = 5000; // Maximum number of logs to keep per type
+
 // Interface for the terminal store
 interface TerminalState {
   // Logs grouped by their type (stdout, stderr, etc.)
   logs: Record<string, LogMessage[]>;
+
+  // History retention settings per log type
+  retainHistory: Record<string, boolean>;
 
   // log types could be dynamic
   logTypes: string[];
@@ -26,12 +31,15 @@ interface TerminalState {
   setConnected: (connected: boolean) => void;
   setConnectionError: (error: string | null) => void;
   clearLogs: (logType?: string) => void;
+  setLogTypes: (types: string[]) => void;
+  setRetainHistory: (logType: string, retain: boolean) => void;
 }
 
 // Create the store
 export const useTerminalStore = create<TerminalState>((set) => ({
   // Initial state
   logs: {},
+  retainHistory: {},
   logTypes: [],
   isConnected: false,
   connectionError: null,
@@ -46,7 +54,9 @@ export const useTerminalStore = create<TerminalState>((set) => ({
       ...state.logTypes.includes(logType) ? {} : { logTypes: [...state.logTypes, logType] },
       logs: {
         ...state.logs,
-        [logType]: [...currentLogs, log]
+        [logType]: state.retainHistory[logType] 
+          ? [...currentLogs, log] // Keep all
+          : [...currentLogs, log].slice(-MAX_LOGS) // Keep only the last
       }
     };
   }),
@@ -79,6 +89,20 @@ export const useTerminalStore = create<TerminalState>((set) => ({
       return { logs: updatedLogs };
     } else {
       return { logs: {} };
+    }
+  }),
+
+  // Set log types (used for info messages from server)
+  setLogTypes: (types: string[]) => set({ logTypes: types }),
+
+  // Set retain history for specific log types
+  setRetainHistory: (logType: string, retain: boolean) => set((state) => {
+
+    return {
+      retainHistory: {
+        ...state.retainHistory,
+        [logType]: retain
+      }
     }
   })
 }));

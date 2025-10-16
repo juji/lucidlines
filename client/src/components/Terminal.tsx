@@ -30,19 +30,28 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     useShallow(state => state.logs[logType] || [])
   );
 
+  const setRetainHistory = useTerminalStore(
+    useShallow(state => state.setRetainHistory)
+  );
+
   // don't change!
   if (log) {
     /* no-op: reserved for devtools hook */
   }
 
   const [items, setItems] = useState<RowData>([]);
-  const debouncedLogProcessing = useDebounce(32);
+  const debouncedLogProcessing = useDebounce();
 
+
+  // new data arrived
   useEffect(() => {
     if(requestingHistoryRef.current && logs.length > 0) {
       requestingHistoryRef.current = false;
     }
 
+    // using debouncedLogProcessing, with a low delay
+    // the log processing (setItems) is debounced (delayed)
+    // and the delay causes the component to update only once
     debouncedLogProcessing(() => {
       if (!logs.length) {
         setItems([]);
@@ -52,6 +61,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       const parser = new AnsiUp();
       parser.use_classes = true;
 
+      // setting items to virtual scroller
       setItems(logs.map(entry => {
         const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         const lines = raw.split('\n');
@@ -63,10 +73,63 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           lineCount,
         } satisfies RowData[number];
       }));
-    });
+    },32);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs]);
 
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 20,
+    measureElement: (element) => element.getBoundingClientRect().height,
+    overscan: 5,
+  });
+
+  // auto scroll when new data arrives
+  // but only when isAutoScrollEnabled is true
+  // (which is set to false when user scrolls up)
+  // also, use a ref to track previous items length
+  // to avoid triggering on every render
+  const prevItemsLengthRef = useRef(items.length);
+  useEffect(() => {
+
+    if (items.length > prevItemsLengthRef.current && isAutoScrollEnabled) {
+      requestAnimationFrame(() => {
+        virtualizer?.scrollToOffset(virtualizer?.getTotalSize() + 9999); // because why not
+      });
+    }
+    prevItemsLengthRef.current = items.length;
+  }, [items.length, virtualizer, isAutoScrollEnabled]);
+  
+  // Scroll handling
+  // because we auto scrolls
+  // it makes this handleScroll runs..
+  // with debouncedAutoScroll, the auto-scroll-button turns off and on,
+  // making it feel like its alive
+  const debouncedAutoScroll = useDebounce();
+  const handleScroll = () => {
+
+    if (!scrollRef.current || isResizingRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+    
+    // Disable auto-scroll immediately on scroll
+    setIsAutoScrollEnabled(false);
+
+    // Re-enable auto-scroll if scrolled back to bottom (with debouncing)
+    debouncedAutoScroll(() => {
+      if (isAtBottom) {
+        setIsAutoScrollEnabled(true);
+        setRetainHistory(logType, false); // Keep only recent logs
+      } else {
+        setRetainHistory(logType, true); // Keep all history
+      }
+    }, 300);
+  };
+
+  // Resize handling
+  // this one makes the terminal responsive
+  // and also triggers auto-scroll if enabled
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
@@ -97,50 +160,16 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     };
   }, [isAutoScrollEnabled]);
 
-  const virtualizer = useVirtualizer({
-    count: items.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => 20,
-    measureElement: (element) => element.getBoundingClientRect().height,
-    overscan: 5,
-  });
-
-  const prevItemsLengthRef = useRef(items.length);
-  useEffect(() => {
-    if (items.length > prevItemsLengthRef.current && isAutoScrollEnabled) {
-      requestAnimationFrame(() => {
-        virtualizer.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
-      });
-    }
-    prevItemsLengthRef.current = items.length;
-  }, [items.length, virtualizer, isAutoScrollEnabled]);
-
-
-  const debouncedHistoryRequest = useDebounce(300);
-
-  const handleScroll = () => {
-    if (!scrollRef.current || isResizingRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
-    setIsAutoScrollEnabled(isAtBottom);
-
-    // Request history when scrolled to within 50% of the top and auto-scroll is disabled
-    if (
-      !isAutoScrollEnabled && requestHistory && 
-      scrollTop <= scrollHeight * 0.5 && !requestingHistoryRef.current
-    ) {
-      requestingHistoryRef.current = true;
-      const oldestLog = logs[0];
-      if (oldestLog) {
-        debouncedHistoryRequest(() => {
-          console.log('Requesting history for', logType, 'before', oldestLog.timestamp);
-          requestHistory(logType, oldestLog.timestamp);
-        });
-      }
+  // Request history function
+  const requestHistoryLocal = () => {
+    if (requestingHistoryRef.current || !requestHistory) return;
+    requestingHistoryRef.current = true;
+    
+    const oldestLog = logs[0];
+    if (oldestLog) {
+      requestHistory(logType, oldestLog.timestamp);
     }
   };
-
-  
 
   return (
     <div className="terminal-container">
@@ -148,11 +177,18 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
         <h3>{title}</h3>
         <div className="terminal-controls">
           <button
+            className="history-button"
+            onClick={requestHistoryLocal}
+            title="Load older logs"
+          >
+            history
+          </button>
+          <button
             className={`auto-scroll-button ${isAutoScrollEnabled ? 'active' : ''}`}
             onClick={() => {
               setIsAutoScrollEnabled(true);
               requestAnimationFrame(() => {
-                virtualizer.scrollToOffset(virtualizer.getTotalSize());
+                virtualizer.scrollToOffset(virtualizer.getTotalSize() + 9999);
               });
             }}
             title={isAutoScrollEnabled ? 'Auto-scroll enabled' : 'Click to enable auto-scroll'}
@@ -172,11 +208,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
         ) : (
           <div
             ref={scrollRef}
-            className="terminal-list"
-            style={{
-              height: viewportHeight,
-              overflow: 'auto',
-            }}
+            className="terminal-list scroll-container"
+            style={{ height: viewportHeight }}
             onScroll={handleScroll}
           >
             <div

@@ -33,8 +33,8 @@ start({
 		// 	name: "REACT",
 		// },
 		{
-			command: "cd ./app2 && npm run dev",
-			name: "SVELTE",
+			command: "cd ./client && npm run dev",
+			name: "REACT",
 		},
 	],
 	dev: true, // Enable dev mode for console logging

@@ -8,7 +8,7 @@ export function useWebSocket(url: string) {
   const socketRef = useRef<WebSocket | null>(null);
   
   // Get actions from the terminal store
-  const { addLog, prependLog, setConnected, setConnectionError } = useTerminalStore();
+  const { addLog, prependLog, setConnected, setConnectionError, setLogTypes } = useTerminalStore();
 
   useEffect(() => {
     // Create WebSocket connection
@@ -27,7 +27,14 @@ export function useWebSocket(url: string) {
         
         
         // Handle different message types
-        if (data.type === 'log' && data.message) {
+        if (data.type === 'info' && data.message) {
+          // Handle info message with available types
+          const info = data.message;
+          if (info.types && Array.isArray(info.types)) {
+            // Update terminal store with available types
+            setLogTypes(info.types);
+          }
+        } else if (data.type === 'log' && data.message) {
           // The actual log data is in the message field
           const logData = data.message;
           
