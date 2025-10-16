@@ -39,6 +39,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   }
 
   const [items, setItems] = useState<RowData>([]);
+  // const [visibleRange, setVisibleRange] = useState<{ startIndex: number; endIndex: number }>({ startIndex: 0, endIndex: 0 });
 
   const forceScrollToBottom = useCallback(() => {
     if (isAutoScrollEnabled) {
@@ -49,6 +50,10 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   useEffect(() => {
     setRetainHistory(logType, !isAutoScrollEnabled);
   },[isAutoScrollEnabled])
+
+  // useEffect(() => {
+  //   console.log(visibleRange, items.length - 1)
+  // },[ visibleRange ]);
 
   // new data arrived
   useEffect(() => {
@@ -180,6 +185,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
             itemContent={itemContent}
             height={viewportHeight}
             overscan={5}
+            // rangeChanged={setVisibleRange}
             className="terminal-list scroll-container"
           />
         )}
