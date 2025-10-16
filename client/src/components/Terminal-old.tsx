@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
-import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 import { useTerminalStore } from '../store/terminalStore';
 
@@ -19,7 +19,7 @@ interface TerminalProps {
 
 const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, requestHistory }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
@@ -39,14 +39,15 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   }
 
   const forceScrollToBottom = useCallback(() => {
-    if (isAutoScrollEnabled) {
-      virtuosoRef.current?.scrollTo({ top: 999999999 });
-    }
-  }, [isAutoScrollEnabled, logType, setRetainHistory]);
 
-  useEffect(() => {
-    setRetainHistory(logType, !isAutoScrollEnabled);
-  },[isAutoScrollEnabled])
+    if (isAutoScrollEnabled) {
+      setRetainHistory(logType, false);
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    }else{
+      setRetainHistory(logType, true);
+    }
+
+  },[ isAutoScrollEnabled ])
 
   const [items, setItems] = useState<RowData>([]);
 
@@ -86,26 +87,13 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs, searchTerm]);
 
-  // Request history function
-  const requestHistoryLocal = () => {
-    if (requestingHistoryRef.current || !requestHistory) return;
-    requestingHistoryRef.current = true;
-    
-    const oldestLog = logs[0];
-    if (oldestLog) {
-      requestHistory(logType, oldestLog.timestamp);
-    }
-  };
-
-  const itemContent = useCallback((index: number) => {
-    const item = items[index];
-    return (
-      <div
-        className="terminal-row"
-        dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }}
-      />
-    );
-  }, [items]);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 20,
+    measureElement: (element) => element.getBoundingClientRect().height,
+    overscan: 5,
+  });
 
   // Resize handling
   // this one makes the terminal responsive
@@ -132,6 +120,17 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       observer.disconnect();
     };
   }, [forceScrollToBottom]);
+
+  // Request history function
+  const requestHistoryLocal = () => {
+    if (requestingHistoryRef.current || !requestHistory) return;
+    requestingHistoryRef.current = true;
+    
+    const oldestLog = logs[0];
+    if (oldestLog) {
+      requestHistory(logType, oldestLog.timestamp);
+    }
+  };
 
   return (
     <div className="terminal-container">
@@ -174,14 +173,39 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
         {items.length === 0 ? (
           <div className="terminal-empty">Waiting for output…</div>
         ) : (
-          <Virtuoso
-            ref={virtuosoRef}
-            data={items}
-            itemContent={itemContent}
-            height={viewportHeight}
-            overscan={5}
+          <div
+            ref={scrollRef}
             className="terminal-list scroll-container"
-          />
+            style={{ height: viewportHeight }}
+          >
+            <div
+              style={{
+                height: virtualizer.getTotalSize(),
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const item = items[virtualItem.index];
+                return (
+                  <div
+                    key={virtualItem.index}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualItem.index}
+                    className="terminal-row"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                    dangerouslySetInnerHTML={{ __html: item?.html ?? '&nbsp;' }}
+                  />
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
     </div>
