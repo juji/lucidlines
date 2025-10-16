@@ -3,7 +3,6 @@ import { AnsiUp } from 'ansi_up';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 import { useTerminalStore } from '../store/terminalStore';
-import { useDebounce } from 'use-simple-debounce';
 
 type RowData = Array<{
   html: string;
@@ -22,10 +21,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(300);
-  const isResizingRef = useRef(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
-  const isProgrammaticScrollRef = useRef(false);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -40,28 +37,18 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     /* no-op: reserved for devtools hook */
   }
 
-  const debouncedLogScroll = useDebounce();
   const forceScrollToBottom = useCallback(() => {
 
     if (isAutoScrollEnabled) {
-      isProgrammaticScrollRef.current = true;
-      debouncedLogScroll(() => {
-        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-        // Clear the flag after a short delay to allow scroll event to fire
-        setTimeout(() => {
-          isProgrammaticScrollRef.current = false;
-        }, 0);
-      }, 8);
+      setRetainHistory(logType, false);
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    }else{
+      setRetainHistory(logType, true);
     }
 
   },[ isAutoScrollEnabled ])
-  // function forceScrollToBottom() {
-    
-  // }
 
   const [items, setItems] = useState<RowData>([]);
-  const debouncedLogProcessing = useDebounce();
-
 
   // new data arrived
   useEffect(() => {
@@ -69,33 +56,28 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       requestingHistoryRef.current = false;
     }
 
-    // using debouncedLogProcessing, with a low delay
-    // the log processing (setItems) is debounced (delayed)
-    // and the delay causes the component to update only once
-    debouncedLogProcessing(() => {
-      if (!logs.length) {
-        setItems([]);
-        return;
-      }
+    if (!logs.length) {
+      setItems([]);
+      return;
+    }
 
-      const parser = new AnsiUp();
-      parser.use_classes = true;
+    const parser = new AnsiUp();
+    parser.use_classes = true;
 
-      // setting items to virtual scroller
-      setItems(logs.map(entry => {
-        const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        const lines = raw.split('\n');
-        const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
-        const html = parser.ansi_to_html(raw);
+    // setting items to virtual scroller
+    setItems(logs.map(entry => {
+      const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const lines = raw.split('\n');
+      const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
+      const html = parser.ansi_to_html(raw);
 
-        return {
-          html: html === '' ? '&nbsp;' : html,
-          lineCount,
-        } satisfies RowData[number];
-      }));
+      return {
+        html: html === '' ? '&nbsp;' : html,
+        lineCount,
+      } satisfies RowData[number];
+    }));
 
-      forceScrollToBottom();
-    },32);
+    forceScrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs]);
 
@@ -107,47 +89,6 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     overscan: 5,
   });
 
-  // auto scroll when new data arrives
-  // but only when isAutoScrollEnabled is true
-  // (which is set to false when user scrolls up)
-  // also, use a ref to track previous items length
-  // to avoid triggering on every render
-  const prevItemsLengthRef = useRef(items.length);
-  useEffect(() => {
-
-    if (items.length > prevItemsLengthRef.current) {
-      forceScrollToBottom();
-    }
-    prevItemsLengthRef.current = items.length;
-  }, [items.length, virtualizer, forceScrollToBottom]);
-  
-  // Scroll handling
-  // because we auto scrolls
-  // it makes this handleScroll runs..
-  // with debouncedAutoScroll, the auto-scroll-button turns off and on,
-  // making it feel like its alive
-  const debouncedAutoScroll = useDebounce();
-  const handleScroll = () => {
-    // Ignore programmatic scrolls
-    if (isProgrammaticScrollRef.current || !scrollRef.current || isResizingRef.current) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight;
-    
-    // // Disable auto-scroll immediately on user scroll
-    // setIsAutoScrollEnabled(false);
-
-    // // Re-enable auto-scroll if scrolled back to bottom (with debouncing)
-    // debouncedAutoScroll(() => {
-    //   if (isAtBottom) {
-    //     setIsAutoScrollEnabled(true);
-    //     setRetainHistory(logType, false); // Keep only recent logs
-    //   } else {
-    //     setRetainHistory(logType, true); // Keep all history
-    //   }
-    // }, 300);
-  };
-
   // Resize handling
   // this one makes the terminal responsive
   // and also triggers auto-scroll if enabled
@@ -156,13 +97,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     if (!node) return;
 
     const updateDimensions = () => {
-      isResizingRef.current = true;
       setViewportHeight(Math.max(1, node.clientHeight));
       forceScrollToBottom();
-      // Reset the flag after a longer delay to account for measurement
-      setTimeout(() => {
-        isResizingRef.current = false;
-      }, 500);
     };
 
     updateDimensions();
@@ -226,7 +162,6 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
             ref={scrollRef}
             className="terminal-list scroll-container"
             style={{ height: viewportHeight }}
-            onScroll={handleScroll}
           >
             <div
               style={{
