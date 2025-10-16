@@ -109,4 +109,44 @@ export function createConfig(): void {
 	writeFileSync(configPath, configContent, "utf-8");
 	console.log("✅ Configuration file created successfully!");
 	console.log("Edit .lucidlines.json5 to customize your LucidLines setup.");
+
+	// Also update package.json scripts
+	updatePackageJsonScripts();
+}
+
+/**
+ * Updates package.json to add lucidlines script
+ */
+function updatePackageJsonScripts(): void {
+	const packageJsonPath = join(process.cwd(), "package.json");
+
+	if (!existsSync(packageJsonPath)) {
+		console.log("ℹ️  No package.json found, skipping script addition");
+		return;
+	}
+
+	try {
+		const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
+		const packageJson = JSON.parse(packageJsonContent);
+
+		// Initialize scripts object if it doesn't exist
+		if (!packageJson.scripts) {
+			packageJson.scripts = {};
+		}
+
+		// Add lucidlines script if it doesn't exist
+		if (!packageJson.scripts.lucidlines) {
+			packageJson.scripts.lucidlines = "lucidlines";
+			writeFileSync(
+				packageJsonPath,
+				JSON.stringify(packageJson, null, 2) + "\n",
+				"utf-8",
+			);
+			console.log("✅ Added 'lucidlines' script to package.json");
+		} else {
+			console.log("ℹ️  'lucidlines' script already exists in package.json");
+		}
+	} catch (error) {
+		console.log(`⚠️  Could not update package.json: ${error}`);
+	}
 }
