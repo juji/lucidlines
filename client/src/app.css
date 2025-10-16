@@ -212,6 +212,31 @@ main.multi-terminal .terminal-container {
   color: #f0f0f0;
 }
 
+.terminal-search {
+  background-color: #1f1f1f;
+  padding: 4px 10px;
+  border-bottom: 1px solid #2e2e2e;
+}
+
+.search-input {
+  width: 100%;
+  background-color: #2a2a2a;
+  border: 1px solid #555555;
+  color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #777777;
+}
+
+.search-input::placeholder {
+  color: #888888;
+}
+
 .close-button {
   background: none;
   border: none;

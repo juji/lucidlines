@@ -32,6 +32,14 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     useShallow(state => state.setRetainHistory)
   );
 
+  const searchTerm = useTerminalStore(
+    useShallow(state => state.searchTerms[logType] || '')
+  );
+
+  const setSearchTerm = useTerminalStore(
+    useShallow(state => state.setSearchTerm)
+  );
+
   // don't change!
   if (log) {
     /* no-op: reserved for devtools hook */
@@ -64,8 +72,13 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     const parser = new AnsiUp();
     parser.use_classes = true;
 
+    // Filter logs based on search term
+    const filteredLogs = searchTerm
+      ? logs.filter(log => log.data.toLowerCase().includes(searchTerm.toLowerCase()))
+      : logs;
+
     // setting items to virtual scroller
-    setItems(logs.map(entry => {
+    setItems(filteredLogs.map(entry => {
       const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const lines = raw.split('\n');
       const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));
@@ -79,7 +92,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
 
     forceScrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logs]);
+  }, [logs, searchTerm]);
 
   const virtualizer = useVirtualizer({
     count: items.length,
@@ -153,6 +166,15 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
             </button>
           )}
         </div>
+      </div>
+      <div className="terminal-search">
+        <input
+          type="text"
+          placeholder="Search logs..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(logType, e.target.value)}
+          className="search-input"
+        />
       </div>
       <div ref={containerRef} className="terminal-viewer">
         {items.length === 0 ? (

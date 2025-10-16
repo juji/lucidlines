@@ -18,6 +18,9 @@ interface TerminalState {
   // History retention settings per log type
   retainHistory: Record<string, boolean>;
 
+  // Search terms per log type
+  searchTerms: Record<string, string>;
+
   // log types could be dynamic
   logTypes: string[];
 
@@ -33,6 +36,7 @@ interface TerminalState {
   clearLogs: (logType?: string) => void;
   setLogTypes: (types: string[]) => void;
   setRetainHistory: (logType: string, retain: boolean) => void;
+  setSearchTerm: (logType: string, term: string) => void;
 }
 
 // Create the store
@@ -40,6 +44,7 @@ export const useTerminalStore = create<TerminalState>((set) => ({
   // Initial state
   logs: {},
   retainHistory: {},
+  searchTerms: {},
   logTypes: [],
   isConnected: false,
   connectionError: null,
@@ -104,5 +109,13 @@ export const useTerminalStore = create<TerminalState>((set) => ({
         [logType]: retain
       }
     }
-  })
+  }),
+
+  // Set search term for specific log types
+  setSearchTerm: (logType: string, term: string) => set((state) => ({
+    searchTerms: {
+      ...state.searchTerms,
+      [logType]: term
+    }
+  }))
 }));
