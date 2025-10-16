@@ -8,7 +8,7 @@ export interface LogMessage {
   hash: number; // Unique hash to identify the log message
 }
 
-const MAX_LOGS = 5000; // Maximum number of logs to keep per type
+const MAX_LOGS = 1000; // Maximum number of logs to keep per type
 
 // Interface for the terminal store
 interface TerminalState {
