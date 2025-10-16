@@ -32,12 +32,14 @@ export interface ServerOptions {
 	port: number;
 	frontEnd?: string | number;
 	wsPath?: string;
+	dev?: boolean;
 }
 
 export function start({
 	port = 8080,
 	frontEnd,
 	wsPath = "/ws",
+	dev,
 }: ServerOptions) {
 	// Create HTTP server
 	const server = createServer();
@@ -71,7 +73,10 @@ export function start({
 		try {
 			// Development mode: Proxy to frontend dev server
 			if (frontendPort) {
-				console.log(`Proxying request to frontend dev server: ${url.pathname}`);
+				if (dev)
+					console.log(
+						`Proxying request to frontend dev server: ${url.pathname}`,
+					);
 				proxy?.web(req, res, {}, (err: Error) => {
 					console.error("Proxy error:", err);
 					res.statusCode = 500;
@@ -96,19 +101,24 @@ export function start({
 
 	// Start the server
 	server.listen(port, () => {
-		console.log(`LucidLines server running on port ${port}`);
+		if (dev) console.log(`LucidLines server running on port ${port}`);
 
 		if (frontendPort) {
-			console.log(
-				`Development mode: Proxying requests to http://localhost:${frontendPort}`,
-			);
+			if (dev)
+				console.log(
+					`Development mode: Proxying requests to http://localhost:${frontendPort}`,
+				);
 		} else if (frontEndDir) {
-			console.log(`Production mode: Serving static files from ${frontEndDir}`);
+			if (dev)
+				console.log(
+					`Production mode: Serving static files from ${frontEndDir}`,
+				);
 		}
 
-		console.log(
-			`WebSocket server available at ws://localhost:${port}${wsPath}`,
-		);
+		if (dev)
+			console.log(
+				`WebSocket server available at ws://localhost:${port}${wsPath}`,
+			);
 	});
 
 	return {

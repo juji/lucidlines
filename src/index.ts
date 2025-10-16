@@ -70,6 +70,7 @@ export function start(options: {
 		port: serverPort,
 		frontEnd,
 		wsPath,
+		dev,
 	});
 
 	// If commands are provided, start concurrently-stream
@@ -77,7 +78,7 @@ export function start(options: {
 		| ReturnType<typeof startConcurrentlyStream>
 		| undefined;
 	if (commands.length > 0) {
-		concurrentlyStream = startConcurrentlyStream(commands);
+		concurrentlyStream = startConcurrentlyStream(commands, dev);
 
 		// Set up the handling for object mode transform stream
 		concurrentlyStream.transformStream.on("data", (data) => {

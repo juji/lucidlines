@@ -6,12 +6,14 @@ type CommandInput = {
 	name: string;
 };
 
-export function start(commands: CommandInput[]) {
+export function start(commands: CommandInput[], dev?: boolean) {
 	// Set to store already processed lines
 	let buffer = "";
 
-	console.log(`Starting ${commands.length} commands concurrently...`);
-	console.log(JSON.stringify(commands, null, 2));
+	if (dev) {
+		console.log(`Starting ${commands.length} commands concurrently...`);
+		console.log(JSON.stringify(commands, null, 2));
+	}
 
 	// Create set of valid command names for validation
 	const validCommandNames = new Set(commands.map((cmd) => cmd.name));
