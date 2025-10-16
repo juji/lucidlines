@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
@@ -41,7 +41,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   }
 
   const debouncedLogScroll = useDebounce();
-  function forceScrollToBottom() {
+  const forceScrollToBottom = useCallback(() => {
+
     if (isAutoScrollEnabled) {
       isProgrammaticScrollRef.current = true;
       debouncedLogScroll(() => {
@@ -52,7 +53,11 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
         }, 0);
       }, 8);
     }
-  }
+
+  },[ isAutoScrollEnabled ])
+  // function forceScrollToBottom() {
+    
+  // }
 
   const [items, setItems] = useState<RowData>([]);
   const debouncedLogProcessing = useDebounce();
@@ -114,7 +119,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       forceScrollToBottom();
     }
     prevItemsLengthRef.current = items.length;
-  }, [items.length, virtualizer, isAutoScrollEnabled]);
+  }, [items.length, virtualizer, forceScrollToBottom]);
   
   // Scroll handling
   // because we auto scrolls
@@ -129,18 +134,18 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight;
     
-    // Disable auto-scroll immediately on user scroll
-    setIsAutoScrollEnabled(false);
+    // // Disable auto-scroll immediately on user scroll
+    // setIsAutoScrollEnabled(false);
 
-    // Re-enable auto-scroll if scrolled back to bottom (with debouncing)
-    debouncedAutoScroll(() => {
-      if (isAtBottom) {
-        setIsAutoScrollEnabled(true);
-        setRetainHistory(logType, false); // Keep only recent logs
-      } else {
-        setRetainHistory(logType, true); // Keep all history
-      }
-    }, 16);
+    // // Re-enable auto-scroll if scrolled back to bottom (with debouncing)
+    // debouncedAutoScroll(() => {
+    //   if (isAtBottom) {
+    //     setIsAutoScrollEnabled(true);
+    //     setRetainHistory(logType, false); // Keep only recent logs
+    //   } else {
+    //     setRetainHistory(logType, true); // Keep all history
+    //   }
+    // }, 300);
   };
 
   // Resize handling
@@ -172,7 +177,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     return () => {
       observer.disconnect();
     };
-  }, [isAutoScrollEnabled]);
+  }, [forceScrollToBottom]);
 
   // Request history function
   const requestHistoryLocal = () => {
@@ -200,12 +205,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           <button
             className={`auto-scroll-button ${isAutoScrollEnabled ? 'active' : ''}`}
             onClick={() => {
-              setIsAutoScrollEnabled(true);
-              isProgrammaticScrollRef.current = true;
-              scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-              setTimeout(() => {
-                isProgrammaticScrollRef.current = false;
-              }, 0);
+              setIsAutoScrollEnabled(!isAutoScrollEnabled);
             }}
             title={isAutoScrollEnabled ? 'Auto-scroll enabled' : 'Click to enable auto-scroll'}
           >
