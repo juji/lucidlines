@@ -25,6 +25,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const isResizingRef = useRef(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -37,6 +38,20 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   // don't change!
   if (log) {
     /* no-op: reserved for devtools hook */
+  }
+
+  const debouncedLogScroll = useDebounce();
+  function forceScrollToBottom() {
+    if (isAutoScrollEnabled) {
+      isProgrammaticScrollRef.current = true;
+      debouncedLogScroll(() => {
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+        // Clear the flag after a short delay to allow scroll event to fire
+        setTimeout(() => {
+          isProgrammaticScrollRef.current = false;
+        }, 0);
+      }, 8);
+    }
   }
 
   const [items, setItems] = useState<RowData>([]);
@@ -73,6 +88,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           lineCount,
         } satisfies RowData[number];
       }));
+
+      forceScrollToBottom();
     },32);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs]);
@@ -93,10 +110,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const prevItemsLengthRef = useRef(items.length);
   useEffect(() => {
 
-    if (items.length > prevItemsLengthRef.current && isAutoScrollEnabled) {
-      requestAnimationFrame(() => {
-        virtualizer?.scrollToOffset(virtualizer?.getTotalSize() + 9999); // because why not
-      });
+    if (items.length > prevItemsLengthRef.current) {
+      forceScrollToBottom();
     }
     prevItemsLengthRef.current = items.length;
   }, [items.length, virtualizer, isAutoScrollEnabled]);
@@ -108,12 +123,13 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   // making it feel like its alive
   const debouncedAutoScroll = useDebounce();
   const handleScroll = () => {
-
-    if (!scrollRef.current || isResizingRef.current) return;
+    // Ignore programmatic scrolls
+    if (isProgrammaticScrollRef.current || !scrollRef.current || isResizingRef.current) return;
+    
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight;
     
-    // Disable auto-scroll immediately on scroll
+    // Disable auto-scroll immediately on user scroll
     setIsAutoScrollEnabled(false);
 
     // Re-enable auto-scroll if scrolled back to bottom (with debouncing)
@@ -124,7 +140,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       } else {
         setRetainHistory(logType, true); // Keep all history
       }
-    }, 300);
+    }, 16);
   };
 
   // Resize handling
@@ -137,9 +153,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     const updateDimensions = () => {
       isResizingRef.current = true;
       setViewportHeight(Math.max(1, node.clientHeight));
-      if (isAutoScrollEnabled) {
-        virtualizer?.scrollToOffset(virtualizer.getTotalSize() + 9999); // because why not
-      }
+      forceScrollToBottom();
       // Reset the flag after a longer delay to account for measurement
       setTimeout(() => {
         isResizingRef.current = false;
@@ -187,9 +201,11 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
             className={`auto-scroll-button ${isAutoScrollEnabled ? 'active' : ''}`}
             onClick={() => {
               setIsAutoScrollEnabled(true);
-              requestAnimationFrame(() => {
-                virtualizer.scrollToOffset(virtualizer.getTotalSize() + 9999);
-              });
+              isProgrammaticScrollRef.current = true;
+              scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+              setTimeout(() => {
+                isProgrammaticScrollRef.current = false;
+              }, 0);
             }}
             title={isAutoScrollEnabled ? 'Auto-scroll enabled' : 'Click to enable auto-scroll'}
           >

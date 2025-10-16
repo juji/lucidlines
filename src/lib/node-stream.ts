@@ -38,6 +38,13 @@ export function start(commands: CommandInput[], dev?: boolean) {
 			const proc = spawn(command, args, {
 				stdio: ["ignore", "pipe", "pipe"],
 				shell: true, // Allow shell commands
+				env: {
+					...process.env,
+					// Force color output for commands that support it
+					FORCE_COLOR: "1",
+					CLICOLOR_FORCE: "1",
+					COLORTERM: "truecolor",
+				},
 			});
 
 			// Handle stdout

@@ -11,15 +11,7 @@ start({
 		// Data simulation commands
 		{
 			command: "tsx ./dev/weather.ts",
-			name: "WEATHER2",
-		},
-		{
-			command: "tsx ./dev/weather.ts",
 			name: "WEATHER",
-		},
-		{
-			command: "tsx ./dev/weather.ts",
-			name: "WEATHER3",
 		},
 		{
 			command: "tsx ./dev/stocks.ts",
@@ -37,6 +29,14 @@ start({
 		{
 			command: "tsx ./dev/server-logs.ts",
 			name: "SERVER",
+		},
+		{
+			command: "tsx ./dev/server-logs.ts",
+			name: "SERVER3",
+		},
+		{
+			command: "tsx ./dev/server-logs.ts",
+			name: "SERVER2",
 		},
 		// {
 		// 	command: "cd ./client && npm run dev",

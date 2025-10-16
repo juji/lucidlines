@@ -13,8 +13,6 @@ const App = function App() {
     useShallow(state => state.logTypes)
     // state => state.logTypes
   );
-
-  // console.log('Log Types:', new Date(), logTypes);
   
   // All terminals are active by default (can be toggled)
   const [activeTerminals, setActiveTerminals] = useState<Record<string, boolean>>({});
