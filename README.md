@@ -5,6 +5,7 @@
 [![npm version](https://badge.fury.io/js/lucidlines.svg)](https://badge.fury.io/js/lucidlines)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org/)
+[![Bun Version](https://img.shields.io/badge/bun-%3E%3D1.0.0-FFDF00)](https://bun.sh/)
 
 LucidLines is a powerful CLI tool that runs multiple terminal commands concurrently and streams their output to a modern web interface. Perfect for development workflows, monitoring multiple services, or any scenario where you need to watch multiple command outputs simultaneously.
 
@@ -146,8 +147,8 @@ Once LucidLines is running, open your browser to the displayed URL (e.g., `http:
 
 ### Prerequisites
 
-- Node.js >= 22.0.0
-- npm or yarn
+- Node.js >= 22.0.0 **or** [Bun](https://bun.sh/) >= 1.0.0
+- npm, yarn, or bun
 
 ### Setup
 
@@ -164,26 +165,6 @@ npm run build
 
 # Run in development mode
 npm run dev
-```
-
-### Project Structure
-
-```
-lucidlines/
-├── src/                    # Server-side TypeScript source
-│   ├── cli.ts             # CLI entry point
-│   ├── index.ts           # Main server logic
-│   ├── lib/
-│   │   ├── server.ts      # HTTP/WebSocket server
-│   │   ├── websocket.ts   # WebSocket handling
-│   │   └── create-config.ts # Configuration management
-├── client/                # React web client
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── store/         # State management
-│   │   └── hooks/         # Custom hooks
-├── dist/                  # Built output
-└── dev/                   # Development utilities
 ```
 
 ## 🤝 Contributing
@@ -205,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [TypeScript](https://www.typescriptlang.org/)
 - Web client powered by [React](https://reactjs.org/) and [Vite](https://vitejs.dev/)
 - Configuration parsing with [JSON5](https://json5.org/)
-- CLI built with [Node.js](https://nodejs.org/)
+- CLI built with [Node.js](https://nodejs.org/) or [Bun](https://bun.sh/)
 
 ---
 
