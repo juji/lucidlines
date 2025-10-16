@@ -23,6 +23,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const [viewportHeight, setViewportHeight] = useState(300);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -30,14 +31,6 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
 
   const setRetainHistory = useTerminalStore(
     useShallow(state => state.setRetainHistory)
-  );
-
-  const searchTerm = useTerminalStore(
-    useShallow(state => state.searchTerms[logType] || '')
-  );
-
-  const setSearchTerm = useTerminalStore(
-    useShallow(state => state.setSearchTerm)
   );
 
   // don't change!
@@ -172,7 +165,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           type="text"
           placeholder="Search logs..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(logType, e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
       </div>
