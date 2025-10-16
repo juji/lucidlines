@@ -31,7 +31,8 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build": "tsup",
+    "build:client": "cd client && npm install && npm run build && cp-cli dist ../dist/dash",
+    "build": "tsup && npm run build:client",
     "dev": "tsx watch --include src ./dev.ts",
     "test": "echo \"Error: no test specified\""
   },
@@ -51,6 +52,7 @@
   },
   "dependencies": {
     "@types/http-proxy": "^1.17.16",
+    "cp-cli": "^2.0.0",
     "execa": "^9.6.0",
     "http-proxy": "^1.18.1",
     "lokijs": "^1.5.12",

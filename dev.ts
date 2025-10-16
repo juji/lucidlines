@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 import { start } from "./src/index";
+// import { start } from "./dist/index";
 
 // Start the app using our own implementation
 start({
@@ -10,12 +11,21 @@ start({
 		// Data simulation commands
 		{
 			command: "tsx ./dev/weather.ts",
+			name: "WEATHER2",
+		},
+		{
+			command: "tsx ./dev/weather.ts",
 			name: "WEATHER",
+		},
+		{
+			command: "tsx ./dev/weather.ts",
+			name: "WEATHER3",
 		},
 		{
 			command: "tsx ./dev/stocks.ts",
 			name: "STOCKS",
 		},
+		
 		// {
 		// 	command: "tsx ./dev/stocks.ts wqer",
 		// 	name: "af-asf@lass",
