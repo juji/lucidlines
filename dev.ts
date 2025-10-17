@@ -1,12 +1,18 @@
 #!/usr/bin/env tsx
 
 import { start } from "./src/index";
+import path from "node:path";
 // import { start } from "./dist/index";
+
+const dir = __dirname
+
+console.log("Starting LucidLines Dev Server at", dir);
 
 // Start the app using our own implementation
 start({
 	serverPort: 8080,
-	frontEnd: 5173, // Vite's default port for the client
+	// frontEnd: 5173, // Vite's default port for the client
+	frontEnd: path.join(__dirname, "./dist"), // Serve static files from the client build directory
 	commands: [
 		// Data simulation commands
 		{
@@ -42,10 +48,10 @@ start({
 		// 	command: "cd ./client && npm run dev",
 		// 	name: "REACT",
 		// },
-		{
-			command: "cd ./client && npm run dev",
-			name: "REACT",
-		},
+		// {
+		// 	command: "cd ./client && npm run dev",
+		// 	name: "REACT",
+		// },
 	],
-	dev: true, // Enable dev mode for console logging
+	// dev: true, // Enable dev mode for console logging
 });
