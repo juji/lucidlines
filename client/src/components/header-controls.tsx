@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useUIStore } from '../store/uiStore';
+import { useUIStore } from '../store/ui-store';
 
 const HeaderControls: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

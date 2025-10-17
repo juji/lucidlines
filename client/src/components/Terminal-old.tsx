@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
-import { useTerminalStore } from '../store/terminalStore';
+import { useTerminalStore, type LogMessage } from '../store/terminal-store';
 
 type RowData = Array<{
   html: string;
@@ -67,11 +67,11 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
 
     // Filter logs based on search term
     const filteredLogs = searchTerm
-      ? logs.filter(log => log.data.toLowerCase().includes(searchTerm.toLowerCase()))
+      ? logs.filter((log: LogMessage) => log.data.toLowerCase().includes(searchTerm.toLowerCase()))
       : logs;
 
     // setting items to virtual scroller
-    setItems(filteredLogs.map(entry => {
+    setItems(filteredLogs.map((entry: LogMessage) => {
       const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const lines = raw.split('\n');
       const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));

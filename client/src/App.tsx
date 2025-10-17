@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import './app.css'
-import Terminal from './components/Terminal'
-import useWebSocket from './hooks/useWebSocket'
-import { useTerminalStore } from './store/terminalStore'
+import Terminal from './components/terminal'
+import useWebSocket from './hooks/use-web-socket'
+import { useTerminalStore } from './store/terminal-store'
 import { useShallow } from 'zustand/react/shallow'
-import HeaderControls from './components/HeaderControls'
+import HeaderControls from './components/header-controls'
 
 // Memoize the component to prevent unnecessary re-renders
 const App = function App() {

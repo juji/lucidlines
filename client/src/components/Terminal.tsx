@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnsiUp } from 'ansi_up';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { useShallow } from 'zustand/react/shallow';
-import { useTerminalStore } from '../store/terminalStore';
+import { useTerminalStore, type LogMessage } from '../store/terminal-store';
 
 type RowData = Array<{
   html: string;
@@ -74,7 +74,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     const filteredLogs = logs;
 
     // setting items to virtual scroller
-    setItems(filteredLogs.map(entry => {
+    setItems(filteredLogs.map((entry: LogMessage) => {
       const raw = (entry.data ?? '').toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const lines = raw.split('\n');
       const lineCount = Math.max(1, lines.length - (lines[lines.length - 1] === '' ? 1 : 0));

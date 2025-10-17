@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useTerminalStore } from '../store/terminalStore';
+import { useTerminalStore } from '../store/terminal-store';
 
 /**
  * A hook that connects to WebSocket and stores data to Zustand
