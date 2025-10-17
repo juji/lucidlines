@@ -35,7 +35,20 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
       - run: npm run build
-      - run: npm config set scope:@juji:registry https://npm.pkg.github.com/
-      - run: npm publish --scope=@juji --registry=https://npm.pkg.github.com/
+
+      ## update pacakge json name to include scope
+      - name: Update package name with scope
+        run: |
+          PACKAGE_JSON="package.json"
+          PACKAGE_NAME=$(jq -r '.name' $PACKAGE_JSON)
+          SCOPE="@juji"
+          if [[ $PACKAGE_NAME != $SCOPE/* ]]; then
+            NEW_PACKAGE_NAME="$SCOPE/$PACKAGE_NAME"
+            jq --arg name "$NEW_PACKAGE_NAME" '.name = $name' $PACKAGE_JSON > tmp.$$.json && mv tmp.$$.json $PACKAGE_JSON
+            echo "Updated package name to $NEW_PACKAGE_NAME"
+          else
+            echo "Package name already includes scope."
+          fi
+      - run: npm publish --registry=https://npm.pkg.github.com/
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
