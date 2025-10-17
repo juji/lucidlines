@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+import './app.css'
 import Terminal from './components/Terminal'
 import useWebSocket from './hooks/useWebSocket'
 import { useTerminalStore } from './store/terminalStore'
