@@ -141,28 +141,29 @@ export function start({
 
 // Utility function to serve static files
 async function serveStaticFile(
-	_req: IncomingMessage,
+	req: IncomingMessage,
 	res: ServerResponse,
 	rootDir: string,
 ): Promise<void> {
 	try {
 		// Get the requested file path
-		let filePath = rootDir;
+		const requestUrl = req.url || "/";
+		const filePath = rootDir + requestUrl;
 
-		// If path ends with '/', serve index.html
-		if (filePath.endsWith("/")) {
-			filePath = join(filePath, "index.html");
+		// if requesting root, redirect to /dash
+		if (requestUrl === "/") {
+			res.statusCode = 302;
+			res.setHeader("Location", `http://${req.headers.host}/dash`);
+			res.end("");
+			return;
 		}
 
 		// Check if file exists and is a regular file
 		if (!existsSync(filePath) || !statSync(filePath).isFile()) {
-			// Fallback to index.html for SPA routing
-			filePath = join(rootDir, "index.html");
-			if (!existsSync(filePath)) {
-				res.statusCode = 404;
-				res.end("Not found");
-				return;
-			}
+			res.statusCode = 302;
+			res.setHeader("Location", `http://${req.headers.host}/dash`);
+			res.end("");
+			return;
 		}
 
 		// Get file extension and set content type

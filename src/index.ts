@@ -59,7 +59,7 @@ export function start(options: {
 
 	const {
 		serverPort = 8080,
-		frontEnd = path.join(moduleDirname, "./dash"),
+		frontEnd = moduleDirname,
 		wsPath = "/ws",
 		commands = [],
 		dev = false,
