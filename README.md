@@ -10,7 +10,7 @@
 
 <p align="center">
   <img
-    src="https://cdn.jsdelivr.net/gh/juji/lucidlines@main/assets/readme/screenshot.png"
+    src="https://github.com/juji/lucidlines/blob/main/images/screenshot.png"
     alt="LucidLines screenshot"
     style="width:100%; max-width:1200px; margin:24px 0;"
   />
