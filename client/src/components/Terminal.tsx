@@ -23,7 +23,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const [viewportHeight, setViewportHeight] = useState(300);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Search temporarily disabled — keep the state commented out while hiding the UI
+  // const [searchTerm, setSearchTerm] = useState('');
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -69,10 +70,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     const parser = new AnsiUp();
     parser.use_classes = true;
 
-    // Filter logs based on search term
-    const filteredLogs = searchTerm
-      ? logs.filter(log => log.data.toLowerCase().includes(searchTerm.toLowerCase()))
-      : logs;
+    // Search is disabled for now — show all logs
+    const filteredLogs = logs;
 
     // setting items to virtual scroller
     setItems(filteredLogs.map(entry => {
@@ -89,7 +88,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
 
     forceScrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logs, searchTerm]);
+  }, [logs]);
 
   // Request history function
   const requestHistoryLocal = () => {
@@ -166,6 +165,8 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           )}
         </div>
       </div>
+      {/* Search input disabled for now */}
+      {/*
       <div className="terminal-search">
         <input
           type="text"
@@ -175,6 +176,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
           className="search-input"
         />
       </div>
+      */}
       <div ref={containerRef} className="terminal-viewer">
         {items.length === 0 ? (
           <div className="terminal-empty">Waiting for output…</div>
