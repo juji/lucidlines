@@ -141,14 +141,13 @@ export function start({
 
 // Utility function to serve static files
 async function serveStaticFile(
-	req: IncomingMessage,
+	_req: IncomingMessage,
 	res: ServerResponse,
 	rootDir: string,
 ): Promise<void> {
 	try {
 		// Get the requested file path
-		const url = new URL(req.url || "/", `http://${req.headers.host}`);
-		let filePath = join(rootDir, url.pathname);
+		let filePath = rootDir;
 
 		// If path ends with '/', serve index.html
 		if (filePath.endsWith("/")) {
