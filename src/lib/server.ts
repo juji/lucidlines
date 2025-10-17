@@ -166,7 +166,7 @@ async function serveStaticFile(
 			filePath += "index.html";
 		}
 
-		console.log("Serving static file:", filePath);
+		// console.log("Serving static file:", filePath);
 
 		// Check if file exists and is a regular file
 		if (!existsSync(filePath) || !statSync(filePath).isFile()) {
