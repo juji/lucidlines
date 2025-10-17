@@ -10,14 +10,14 @@
 
 <p align="center">
   <img
-    src="https://github.com/juji/lucidlines/blob/main/images/screenshot.png"
+    src="https://raw.githubusercontent.com/juji/lucidlines/refs/heads/main/images/screenshot.png"
     alt="LucidLines screenshot"
     style="width:100%; max-width:1200px; margin:24px 0;"
   />
 </p>
 
 
-LucidLines is a powerful CLI tool that runs multiple terminal commands concurrently and streams their output to a modern web interface. Perfect for development workflows, monitoring multiple services, or any scenario where you need to watch multiple command outputs simultaneously.
+LucidLines is a CLI tool that runs multiple terminal commands concurrently and streams their output to a modern web interface. Perfect for development workflows, monitoring multiple services, or any scenario where you need to watch multiple command outputs simultaneously.
 
 ## ✨ Features
 
