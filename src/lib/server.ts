@@ -147,15 +147,23 @@ async function serveStaticFile(
 ): Promise<void> {
 	try {
 		// Get the requested file path
-		const requestUrl = req.url || "/";
-		const filePath = rootDir + requestUrl;
+		const url = new URL(`http://${req.headers.host}` + (req.url || "/"));
+		let filePath = rootDir + url.pathname;
 
 		// if requesting root, redirect to /dash
-		if (requestUrl === "/") {
+		if (url.pathname === "/") {
 			res.statusCode = 302;
 			res.setHeader("Location", `http://${req.headers.host}/dash`);
 			res.end("");
 			return;
+		}
+
+		if (url.pathname === "/dash") {
+			filePath += "/index.html";
+		}
+
+		if (url.pathname === "/dash/") {
+			filePath += "index.html";
 		}
 
 		// Check if file exists and is a regular file
