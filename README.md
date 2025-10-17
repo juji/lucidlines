@@ -7,6 +7,16 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org/)
 [![Bun Version](https://img.shields.io/badge/bun-%3E%3D1.0.0-FFDF00)](https://bun.sh/)
 
+
+<p align="center">
+  <img
+    src="https://cdn.jsdelivr.net/gh/juji/lucidlines@main/assets/readme/screenshot.png"
+    alt="LucidLines screenshot"
+    style="width:100%; max-width:1200px; margin:24px 0;"
+  />
+</p>
+
+
 LucidLines is a powerful CLI tool that runs multiple terminal commands concurrently and streams their output to a modern web interface. Perfect for development workflows, monitoring multiple services, or any scenario where you need to watch multiple command outputs simultaneously.
 
 ## ✨ Features
