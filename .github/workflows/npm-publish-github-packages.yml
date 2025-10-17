@@ -46,6 +46,7 @@ jobs:
             NEW_PACKAGE_NAME="$SCOPE/$PACKAGE_NAME"
             jq --arg name "$NEW_PACKAGE_NAME" '.name = $name' $PACKAGE_JSON > tmp.$$.json && mv tmp.$$.json $PACKAGE_JSON
             echo "Updated package name to $NEW_PACKAGE_NAME"
+            cat $PACKAGE_JSON
           else
             echo "Package name already includes scope."
           fi
