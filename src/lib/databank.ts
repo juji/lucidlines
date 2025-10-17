@@ -23,7 +23,7 @@ export interface LogEntry {
 
 // Create the singleton databank object
 const databank = (() => {
-	const RECENT_MESSAGE_LIMIT = 10; // Max number of recent messages to give initially
+	const RECENT_MESSAGE_LIMIT = 1000; // Max number of recent messages to give initially
 
 	const emitter = new EventEmitter();
 	const availableTypes: Set<string> = new Set();
