@@ -59,6 +59,7 @@ lerna-debug.log*
 # Temporary folders
 tmp/
 temp/
+test/
 
 # Lock files (optional, depends on team preference)
 # package-lock.json

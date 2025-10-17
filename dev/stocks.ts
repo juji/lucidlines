@@ -116,5 +116,5 @@ class StockSimulator {
 }
 
 // Create and start the simulator with 5 second update interval
-const stockSimulator = new StockSimulator(5000);
+const stockSimulator = new StockSimulator(2000);
 stockSimulator.start();
