@@ -34,7 +34,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build:client": "cd client && npm install && npm run build && cpr dist ../dist/dash -d",
+    "build:client": "cd client && npm install && npm run build && cp-dir dist ../dist/dash",
     "build": "tsup && npm run build:client && chmod +x dist/cli.js",
     "dev": "tsx watch --include src ./dev.ts",
     "test": "echo \"Error: no test specified\""
@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "@types/http-proxy": "^1.17.16",
+    "cp-dir": "^1.0.3",
     "cpr": "^3.0.1",
     "http-proxy": "^1.18.1",
     "json5": "^2.2.3",
