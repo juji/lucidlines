@@ -3,7 +3,7 @@ node_modules/
 jspm_packages/
 
 # TypeScript build output
-dist/
+# dist/
 *.tsbuildinfo
 
 # Test coverage output
