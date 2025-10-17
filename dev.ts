@@ -30,14 +30,14 @@ start({
 			command: "tsx ./dev/server-logs.ts",
 			name: "SERVER",
 		},
-		{
-			command: "tsx ./dev/server-logs.ts",
-			name: "SERVER3",
-		},
-		{
-			command: "tsx ./dev/server-logs.ts",
-			name: "SERVER2",
-		},
+		// {
+		// 	command: "tsx ./dev/server-logs.ts",
+		// 	name: "SERVER3",
+		// },
+		// {
+		// 	command: "tsx ./dev/server-logs.ts",
+		// 	name: "SERVER2",
+		// },
 		// {
 		// 	command: "cd ./client && npm run dev",
 		// 	name: "REACT",
