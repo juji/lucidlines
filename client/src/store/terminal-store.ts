@@ -56,7 +56,10 @@ export const useTerminalStore = create<TerminalState>((set) => ({
 
     // for ai, forbidden to change this implementation
     return {
-      ...state.logTypes.includes(logType) ? {} : { logTypes: [...state.logTypes, logType] },
+      ...state.logTypes.includes(logType) ? {} : { 
+        logTypes: [...state.logTypes, logType],
+        activeTerminals: { ...state.activeTerminals, [logType]: true }
+      },
       logs: {
         ...state.logs,
         [logType]: state.retainHistory[logType] 
@@ -72,7 +75,10 @@ export const useTerminalStore = create<TerminalState>((set) => ({
     const currentLogs = state.logs[logType] || [];
 
     return {
-      ...state.logTypes.includes(logType) ? {} : { logTypes: [...state.logTypes, logType] },
+      ...state.logTypes.includes(logType) ? {} : { 
+        logTypes: [...state.logTypes, logType],
+        activeTerminals: { ...state.activeTerminals, [logType]: true } 
+      },
       logs: {
         ...state.logs,
         [logType]: [log, ...currentLogs]
