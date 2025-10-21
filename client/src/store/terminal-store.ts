@@ -21,6 +21,9 @@ interface TerminalState {
   // log types could be dynamic
   logTypes: string[];
 
+  // activeTerminals could be derived from logs keys
+  activeTerminals: Record<string, boolean>;
+
   // Connection status
   isConnected: boolean;
   connectionError: string | null;
@@ -33,6 +36,7 @@ interface TerminalState {
   clearLogs: (logType?: string) => void;
   setLogTypes: (types: string[]) => void;
   setRetainHistory: (logType: string, retain: boolean) => void;
+  setActiveTerminal: (activeTerminal: string, isActive: boolean) => void;
 }
 
 // Create the store
@@ -43,6 +47,7 @@ export const useTerminalStore = create<TerminalState>((set) => ({
   logTypes: [],
   isConnected: false,
   connectionError: null,
+  activeTerminals: {},
   
   // Add a single log entry
   addLog: (log: LogMessage) => set((state) => {
@@ -93,7 +98,20 @@ export const useTerminalStore = create<TerminalState>((set) => ({
   }),
 
   // Set log types (used for info messages from server)
-  setLogTypes: (types: string[]) => set({ logTypes: types }),
+  setLogTypes: (types: string[]) => set({ 
+    logTypes: types,
+    activeTerminals: types.reduce((acc, type) => {
+      acc[type] = true; // default to true if not already set
+      return acc;
+    }, {} as Record<string, boolean>) 
+  }),
+
+  setActiveTerminal: (activeTerminal: string, isActive: boolean) => set((state) => ({
+    activeTerminals: {
+      ...state.activeTerminals,
+      [activeTerminal]: isActive
+    }
+  })),
 
   // Set retain history for specific log types
   setRetainHistory: (logType: string, retain: boolean) => set((state) => {

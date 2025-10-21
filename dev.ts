@@ -48,10 +48,10 @@ start({
 		// 	command: "cd ./client && npm run dev",
 		// 	name: "REACT",
 		// },
-		// {
-		// 	command: "cd ./client && npm run dev",
-		// 	name: "REACT",
-		// },
+		{
+			command: "cd ./client && npm run dev",
+			name: "REACT",
+		},
 	],
-	// dev: true, // Enable dev mode for console logging
+	dev: true, // Enable dev mode for console logging
 });
