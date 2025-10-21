@@ -90,10 +90,12 @@ export function start(commands: CommandInput[], dev?: boolean) {
 				process: proc,
 				kill: () => {
 					try {
+						console.log(`Killing process "${cmd.name}"...`);
 						proc.kill("SIGTERM");
 						// Give it a moment, then force kill if needed
 						setTimeout(() => {
 							if (!proc.killed) {
+								console.log(`Force killing process "${cmd.name}"...`);
 								proc.kill("SIGKILL");
 							}
 						}, 5000);
