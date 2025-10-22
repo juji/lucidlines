@@ -40,7 +40,7 @@ interface TerminalState {
 }
 
 // Create the store
-export const useTerminalStore = create<TerminalState>((set) => ({
+export const useTerminalStore = create<TerminalState>()((set) => ({
   // Initial state
   logs: {},
   retainHistory: {},
