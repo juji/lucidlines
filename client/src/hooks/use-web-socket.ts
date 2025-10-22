@@ -110,16 +110,15 @@ export function useWebSocket(url: string) {
       });
 
       // Connection closed
-      socket.addEventListener('close', (event) => {
-        const connectionDuration = connectionStartTime ? Date.now() - connectionStartTime : 0;
+      socket.addEventListener('close', () => {
         setConnected(false);
         isConnecting = false;
-        console.warn(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}, Duration: ${connectionDuration}ms`);
         
         // Attempt to reconnect if under max attempts, not a normal closure, and connection lasted at least 1 second
-        if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts && connectionDuration >= 1000) {
+        if (reconnectAttempts < maxReconnectAttempts) {
           reconnectAttempts += 1;
           reconnectTimeout = setTimeout(() => {
+            setConnectionError(`WebSocket connection closed. Attempting to reconnect (${reconnectAttempts}). Close this page if you're done.. Good job!`);
             connect();
           }, reconnectDelay);
         }
