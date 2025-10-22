@@ -33,7 +33,7 @@
     "nodejs"
   ],
   "scripts": {
-    "prepare": "husky",
+    "prepare": "cd client && npm install && husky || true",
     "build:client": "cd client && npm install && npm run build && cp-dir dist ../dist/dash",
     "build": "tsup && npm run build:client && chmod +x dist/cli.js",
     "dev": "tsx watch --include src ./dev.ts",
