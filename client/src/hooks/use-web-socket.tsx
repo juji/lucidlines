@@ -25,10 +25,8 @@ export function useWebSocket(url: string) {
   useEffect(() => {
     let reconnectTimeout: number | null = null;
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = Infinity;
     let reconnectDelay = 1000;
     let isConnecting = false;
-    let connectionStartTime: number | null = null;
 
     const connect = () => {
       if (isConnecting) return; // Prevent multiple simultaneous connections
@@ -51,7 +49,6 @@ export function useWebSocket(url: string) {
 
       // Connection opened
       socket.addEventListener('open', () => {
-        connectionStartTime = Date.now();
         setConnected(true);
         connectionCount.current += 1;
 
@@ -114,11 +111,14 @@ export function useWebSocket(url: string) {
         setConnected(false);
         isConnecting = false;
         
-        // Attempt to reconnect if under max attempts, not a normal closure, and connection lasted at least 1 second
-        if (reconnectAttempts < maxReconnectAttempts) {
+        // Attempt to reconnect last connection was a success
+        if (connectionCount.current) {
           reconnectAttempts += 1;
+          setConnectionError(<>
+            WebSocket connection closed. Attempting to reconnect ({reconnectAttempts}).<br />
+            Close this page if you're done.. Good job!
+          </>);
           reconnectTimeout = setTimeout(() => {
-            setConnectionError(`WebSocket connection closed. Attempting to reconnect (${reconnectAttempts}). Close this page if you're done.. Good job!`);
             connect();
           }, reconnectDelay);
         }
@@ -126,9 +126,10 @@ export function useWebSocket(url: string) {
       
       // Handle errors
       socket.addEventListener('error', () => {
-        setConnectionError('WebSocket error occurred');
+        if(!connectionCount.current) return;
+        // setConnectionError('WebSocket error occurred');
         isConnecting = false;
-        console.error('WebSocket error occurred');
+        // console.error('WebSocket error occurred');
       });
     };
 

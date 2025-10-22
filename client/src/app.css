@@ -283,3 +283,17 @@ main.multi-terminal .terminal-container {
 .auto-scroll-button:focus {
   outline: none;
 }
+
+.connection-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background-color: #dc3545;
+  color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  z-index: 1000;
+  box-sizing: border-box;
+}

@@ -7,6 +7,22 @@ import { useTerminalStore } from './store/terminal-store'
 import HeaderControls from './components/header-controls'
 
 
+const ConnectionError = () => {
+
+  const connectionError = useTerminalStore(state => state.connectionError);
+
+  if(!connectionError){
+    return null;
+  }
+
+  return (
+    <div className="connection-error">
+      {connectionError}
+    </div>
+  )
+
+}
+
 const ActiveTerminals = () => {
 
   const logTypes = useTerminalStore(state => state.logTypes);
@@ -67,6 +83,7 @@ const App = function App() {
         <HeaderControls />
       </header>
       <ActiveTerminals />
+      <ConnectionError />
     </div>
   )
 };

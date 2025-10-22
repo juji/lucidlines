@@ -1,3 +1,4 @@
+import type React from 'react';
 import { create } from 'zustand';
 
 // Types for terminal log messages based on the actual data structure from the server
@@ -26,13 +27,13 @@ interface TerminalState {
 
   // Connection status
   isConnected: boolean;
-  connectionError: string | null;
+  connectionError: string | null | React.ReactNode;
   
   // Actions to modify state
   addLog: (log: LogMessage) => void;
   prependLog: (log: LogMessage) => void;
   setConnected: (connected: boolean) => void;
-  setConnectionError: (error: string | null) => void;
+  setConnectionError: (error: string | null | React.ReactNode) => void;
   clearLogs: (logType?: string) => void;
   setLogTypes: (types: string[]) => void;
   setRetainHistory: (logType: string, retain: boolean) => void;
@@ -90,7 +91,7 @@ export const useTerminalStore = create<TerminalState>()((set) => ({
   setConnected: (connected: boolean) => set({ isConnected: connected }),
   
   // Update connection error
-  setConnectionError: (error: string | null) => set({ connectionError: error }),
+  setConnectionError: (error: string | null | React.ReactNode) => set({ connectionError: error }),
   
   // Clear logs for a specific type or all logs
   clearLogs: (logType?: string) => set((state) => {
