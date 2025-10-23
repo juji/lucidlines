@@ -53,5 +53,5 @@ start({
 		// 	name: "REACT",
 		// },
 	],
-	dev: true, // Enable dev mode for console logging
+	// dev: true, // Enable dev mode for console logging
 });

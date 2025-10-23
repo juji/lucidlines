@@ -32,7 +32,7 @@ export class WebSocketManager {
 	}
 
 	private handleConnection(ws: WebSocket): void {
-		console.log("WebSocket client connected");
+		// console.log("WebSocket client connected");
 
 		// get total length of messages in databank
 		// this includes data in loki and in-memory
@@ -113,7 +113,7 @@ export class WebSocketManager {
 
 		// Handle disconnection
 		ws.on("close", () => {
-			console.log("WebSocket client disconnected");
+			// console.log("WebSocket client disconnected");
 			unsubscribe(); // Clean up databank subscription
 		});
 
