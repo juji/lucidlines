@@ -30,7 +30,7 @@ const ActiveTerminals = () => {
   const setActiveTerminal = useTerminalStore(state => state.setActiveTerminal);
 
   // Initialize WebSocket connection
-  const { requestHistory } = useWebSocket('ws://localhost:8080/ws');
+  const { requestHistory } = useWebSocket(`${window.location.origin.replace(/^http/, 'ws')}/ws`);
 
   return (
   <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
