@@ -14,7 +14,7 @@ LucidLines is a CLI tool that runs multiple terminal commands concurrently and s
 
 <p align="center">
   <img
-    src="https://raw.githubusercontent.com/juji/lucidlines/refs/heads/main/images/screenshot.png"
+    src="https://lucidlines.jujiplay.com/screenshot.png"
     alt="LucidLines screenshot"
     style="width:100%; max-width:1200px; margin:24px 0;"
   />
