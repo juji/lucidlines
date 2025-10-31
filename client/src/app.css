@@ -1,0 +1,299 @@
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbar at root level */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent scrollbar at container level */
+  position: fixed; /* Ensure it covers the full viewport */
+  top: 0;
+  left: 0;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1f1f1f;
+  color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+  border-bottom: 1px solid #333333;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.header-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  color: #b0b0b0;
+}
+
+
+.controls-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2a2a2a;
+  border: 1px solid #5a5a5a;
+  color: #f0f0f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.95rem;
+  line-height: 1;
+  padding: 0.2rem 1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.controls-toggle:hover,
+.controls-toggle:focus-visible {
+  background-color: #3a3a3a;
+  border-color: #6b6b6b;
+}
+
+.controls-dropdown {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 220px;
+  display: grid;
+  grid-template-columns: max-content minmax(150px, 1fr);
+  grid-auto-rows: auto;
+  row-gap: 1rem;
+  column-gap: 0.6rem;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #151515;
+  border: 1px solid #606060;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.control-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: bold;;
+  color: #b0b0b0;
+  justify-self: end;
+}
+
+.font-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.35rem;
+}
+
+.font-button {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2a2a2a;
+  border: 1px solid #454545;
+  color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.font-button:hover {
+  background-color: #3a3a3a;
+}
+
+.control-slider {
+  width: 100%;
+  accent-color: #888888;
+  justify-self: stretch;
+}
+
+.tabs button {
+  background-color: #2a2a2a;
+  color: #b0b0b0;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  outline: none; /* Remove outline */
+  position: relative;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button:focus {
+  outline: none; /* Remove focus outline */
+}
+
+.tabs button:hover {
+  border-color: #444444;
+}
+
+.tabs button.active {
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border-bottom: 2px solid #2b83ff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  margin-bottom: -1px; /* Pull active tab border over header divider */
+}
+
+main {
+  flex: 1;
+  background-color: #111111;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Don't show scrollbars */
+  height: calc(100% - 48px); /* Adjust based on header height */
+}
+
+/* For multiple terminals, use a grid layout */
+main.multi-terminal {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Fixed 2 columns for better sizing */
+  /* dynamic rows, filling the space. keeping this as a reminder */
+  /* grid-template-rows: 1fr 1fr;  */
+  gap: 8px;
+  padding: 8px;
+  height: calc(100vh - 48px); /* Full viewport height minus header */
+  overflow: hidden; /* No scrolling needed as we're filling the space */
+}
+
+.terminal-container {
+  width: 100%;
+  flex: 1;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid #2e2e2e;
+}
+
+/* In multi-terminal layout, have terminals fill their grid cells */
+main.multi-terminal .terminal-container {
+  width: 100%;
+  height: 100%; /* Fill the grid cell completely */
+  min-height: 0; /* Override the min-height from general styles */
+  overflow: hidden;
+  margin: 0;
+}
+
+/* Terminal header with title and close button */
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f1f1f;
+  padding: 4px 10px;
+}
+
+.terminal-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #f0f0f0;
+}
+
+.terminal-search {
+  background-color: #1f1f1f;
+  padding: 4px 10px;
+  border-bottom: 1px solid #2e2e2e;
+}
+
+.search-input {
+  width: 100%;
+  background-color: #2a2a2a;
+  border: 1px solid #555555;
+  color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #777777;
+}
+
+.search-input::placeholder {
+  color: #888888;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #888888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 5px;
+  outline: none; /* Remove outline */
+}
+
+.close-button:focus {
+  outline: none; /* Remove focus outline */
+}
+
+.terminal-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.auto-scroll-button {
+  background: none;
+  border: 1px solid #555555;
+  color: #888888;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.auto-scroll-button:hover {
+  border-color: #777777;
+  color: #aaaaaa;
+}
+
+.auto-scroll-button.active {
+  background-color: #2b83ff;
+  border-color: #2b83ff;
+  color: #ffffff;
+}
+
+.auto-scroll-button:focus {
+  outline: none;
+}
+
+.connection-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background-color: #dc3545;
+  color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  z-index: 1000;
+  box-sizing: border-box;
+}

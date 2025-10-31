@@ -1,0 +1,65 @@
+{
+  "name": "lucidlines",
+  "version": "1.3.4",
+  "description": "Concurently: with browser",
+  "bin": {
+    "lucidlines": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juji/lucidlines.git"
+  },
+  "author": "him@jujiyangasli.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juji/lucidlines/issues"
+  },
+  "homepage": "https://github.com/juji/lucidlines#readme",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": [
+    "typescript",
+    "library",
+    "nodejs"
+  ],
+  "scripts": {
+    "prepare": "cd client && npm install && cd ../ && husky || true",
+    "build:client": "cd client && npm install && npm run build && cp-dir dist ../dist/dash",
+    "build": "tsup && npm run build:client && chmod +x dist/cli.js",
+    "dev": "tsx --watch ./dev.ts",
+    "test": "echo \"Error: no test specified\""
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.5",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/lokijs": "^1.5.14",
+    "@types/node": "^24.7.2",
+    "@types/tmp": "^0.2.6",
+    "@types/ws": "^8.18.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/http-proxy": "^1.17.16",
+    "cp-dir": "^1.0.3",
+    "http-proxy": "^1.18.1",
+    "json5": "^2.2.3",
+    "lokijs": "^1.5.12",
+    "object-code": "^1.3.4",
+    "tmp": "^0.2.5",
+    "ws": "^8.18.3"
+  }
+}

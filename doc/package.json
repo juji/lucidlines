@@ -1,0 +1,21 @@
+{
+  "name": "lucidlines-docs",
+  "version": "1.0.0",
+  "description": "Documentation for LucidLines - Terminal streaming server",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "deploy": "wrangler pages deploy .vitepress/dist"
+  },
+  "devDependencies": {
+    "@red-asuka/vitepress-plugin-tabs": "^0.0.4",
+    "vitepress": "^1.0.0",
+    "vitepress-plugin-tabs": "^0.7.3",
+    "vue3-tabs-component": "^1.3.7"
+  },
+  "dependencies": {
+    "@miletorix/vitepress-image-viewer": "^1.1.4"
+  }
+}

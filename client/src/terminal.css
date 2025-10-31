@@ -1,0 +1,201 @@
+
+.terminal-container {
+	width: 100%;
+	flex: 1;
+	background-color: #1a1a1a;
+	border-radius: 4px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	border: 1px solid #2e2e2e;
+}
+
+/* Terminal header with title and close button */
+.terminal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #1f1f1f;
+	padding: 4px 10px;
+}
+
+.terminal-header h3 {
+	margin: 0;
+	font-size: 14px;
+	color: #f0f0f0;
+}
+
+.close-button {
+	background: none;
+	border: none;
+	color: #888888;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 0 5px;
+	outline: none;
+}
+
+.close-button:focus {
+	outline: none;
+}
+
+.terminal-controls {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.auto-scroll-button {
+	background: none;
+	border: 1px solid #555555;
+	color: #888888;
+	font-size: 14px;
+	cursor: pointer;
+	padding: 2px 6px;
+	border-radius: 3px;
+	outline: none;
+	transition: all 0.2s ease;
+}
+
+.auto-scroll-button:hover {
+	border-color: #777777;
+	color: #aaaaaa;
+}
+
+.auto-scroll-button.active {
+	background-color: #2b83ff;
+	border-color: #2b83ff;
+	color: #ffffff;
+}
+
+.auto-scroll-button:focus {
+	outline: none;
+}
+
+.history-button {
+	background: none;
+	border: 1px solid #555555;
+	color: #888888;
+	font-size: 14px;
+	cursor: pointer;
+	padding: 2px 6px;
+	border-radius: 3px;
+	outline: none;
+	transition: all 0.2s ease;
+}
+
+.history-button:hover {
+	border-color: #777777;
+	color: #aaaaaa;
+}
+
+.history-button:focus {
+	outline: none;
+}
+
+.history-button:active {
+	opacity: 0.7;
+}
+
+.terminal-viewer {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	overflow: hidden;
+	background: var(--terminal-bg, #111111);
+	color: var(--terminal-fg, #d6d6d6);
+	font-family: monospace;
+	font-size: var(--terminal-font-size, 14px);
+	line-height: 1.2;
+	padding: 0;
+	box-sizing: border-box;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.terminal-list {
+	flex: 1;
+}
+
+.scroll-container {
+	overflow-y: auto;
+}
+
+.terminal-list-inner {
+	padding: 0.75rem;
+	box-sizing: border-box;
+}
+
+.terminal-row {
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+	color: inherit;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.terminal-search {
+  background-color: #1f1f1f;
+  border-bottom: 1px solid #2e2e2e;
+}
+
+.search-input {
+  width: 100%;
+  padding: 4px 10px;
+  background-color: #2a2a2a;
+  border: 1px solid #555555;
+  border-radius: 3px;
+  color: #f0f0f0;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: #777777;
+  color: #ffffff;
+}
+
+.search-input::placeholder {
+  color: #888888;
+}
+
+.ansi-black-fg { color: hsl(from rgb(42 42 42) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-red-fg { color: hsl(from rgb(255 85 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-green-fg { color: hsl(from rgb(85 255 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-yellow-fg { color: hsl(from rgb(255 255 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-blue-fg { color: hsl(from rgb(85 85 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-magenta-fg { color: hsl(from rgb(255 85 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-cyan-fg { color: hsl(from rgb(85 255 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-white-fg { color: hsl(from rgb(200 200 200) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+
+.ansi-bright-black-fg { color: hsl(from rgb(112 112 112) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-red-fg { color: hsl(from rgb(255 136 136) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-green-fg { color: hsl(from rgb(136 255 136) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-yellow-fg { color: hsl(from rgb(255 255 136) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-blue-fg { color: hsl(from rgb(136 136 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-magenta-fg { color: hsl(from rgb(255 136 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-cyan-fg { color: hsl(from rgb(136 255 255) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-white-fg { color: hsl(from rgb(220 220 220) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+
+.ansi-black-bg { background-color: hsl(from rgb(34 34 34) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-red-bg { background-color: hsl(from rgb(51 0 0) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-green-bg { background-color: hsl(from rgb(0 51 0) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-yellow-bg { background-color: hsl(from rgb(51 51 0) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-blue-bg { background-color: hsl(from rgb(0 0 51) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-magenta-bg { background-color: hsl(from rgb(51 0 51) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-cyan-bg { background-color: hsl(from rgb(0 51 51) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-white-bg { background-color: hsl(from rgb(200 200 200) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+
+.ansi-bright-black-bg { background-color: hsl(from rgb(112 112 112) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-red-bg { background-color: hsl(from rgb(85 17 17) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-green-bg { background-color: hsl(from rgb(17 85 17) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-yellow-bg { background-color: hsl(from rgb(85 85 17) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-blue-bg { background-color: hsl(from rgb(17 17 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-magenta-bg { background-color: hsl(from rgb(85 17 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-cyan-bg { background-color: hsl(from rgb(17 85 85) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }
+.ansi-bright-white-bg { background-color: hsl(from rgb(220 220 220) calc(h * var(--terminal-hue, 1)) calc(s * var(--terminal-saturation, 1)) calc(l * var(--terminal-lightness, 1))); }

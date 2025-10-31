@@ -1,0 +1,10 @@
+doc/public/lucidlines-cli.png filter=lfs diff=lfs merge=lfs -text
+doc/public/screenshot.png filter=lfs diff=lfs merge=lfs -text
+doc/public/site.webmanifest filter=lfs diff=lfs merge=lfs -text
+doc/public/apple-touch-icon.png filter=lfs diff=lfs merge=lfs -text
+doc/public/favicon-16x16.png filter=lfs diff=lfs merge=lfs -text
+doc/public/favicon-32x32.png filter=lfs diff=lfs merge=lfs -text
+doc/public/android-chrome-192x192.png filter=lfs diff=lfs merge=lfs -text
+doc/public/android-chrome-512x512.png filter=lfs diff=lfs merge=lfs -text
+doc/public/favicon.ico filter=lfs diff=lfs merge=lfs -text
+images/screenshot.png filter=lfs diff=lfs merge=lfs -text
