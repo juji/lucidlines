@@ -6,7 +6,7 @@ next:
 
 # LucidLines
 
-A terminal streaming server for developers to monitor and control multiple local processes in real-time through a web interface.
+LucidLines is a CLI tool that runs multiple terminal commands concurrently and streams their output to a modern web interface. Perfect for development workflows, monitoring multiple services, or any scenario where you need to watch multiple command outputs simultaneously.
 
 ![LucidLines Web Interface](/screenshot.png)
 
