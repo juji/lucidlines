@@ -140,7 +140,7 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   return (
     <div className="terminal-container">
       <div className="terminal-header">
-        <h3>{title}</h3>
+        <h3 data-swapy-handle>{title}</h3>
         <div className="terminal-controls">
           <button
             className="history-button"
