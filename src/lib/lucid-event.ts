@@ -56,6 +56,8 @@ export class LucidEvent extends EventEmitter {
 }
 
 /**
- * Global instance of LucidEvent for application-wide event handling
+ * Factory function to create a new LucidEvent instance
  */
-export const lucidEvent = new LucidEvent();
+export function createLucidEvent(): LucidEvent {
+	return new LucidEvent();
+}

@@ -1,7 +1,7 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { Transform } from "node:stream";
 import databank from "./databank";
-import { lucidEvent } from "./lucid-event";
+import type { LucidEvent } from "./lucid-event";
 
 type CommandInput = {
 	command: string;
@@ -12,7 +12,11 @@ function wait(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function nodeStream(commands: CommandInput[], dev?: boolean) {
+export function nodeStream(
+	commands: CommandInput[],
+	dev?: boolean,
+	lucidEvent?: LucidEvent,
+) {
 	// Store running processes for cleanup
 	const processes: Array<{
 		name: string;
@@ -44,7 +48,7 @@ export function nodeStream(commands: CommandInput[], dev?: boolean) {
 
 		// Function to start a single process
 		const startProcess = (cmd: CommandInput, index: number) => {
-			lucidEvent.emit("start", { index, name: cmd.name });
+			lucidEvent?.emit("start", { index, name: cmd.name });
 			try {
 				// Parse command and arguments
 				const [command, ...args] = cmd.command.split(" ");
@@ -101,12 +105,12 @@ export function nodeStream(commands: CommandInput[], dev?: boolean) {
 
 				const kill = async () => {
 					try {
-						lucidEvent.emit("kill", { index, name: cmd.name });
+						lucidEvent?.emit("kill", { index, name: cmd.name });
 						proc.kill("SIGTERM");
 						// Give it a moment, then force kill if needed
 						await wait(1000);
 						if (!proc.killed) {
-							lucidEvent.emit("forcekill", { index, name: cmd.name });
+							lucidEvent?.emit("forcekill", { index, name: cmd.name });
 							proc.kill("SIGKILL");
 						}
 					} catch (_error) {
