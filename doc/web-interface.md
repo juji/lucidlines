@@ -12,64 +12,53 @@ http://localhost:8080
 
 (or your configured port)
 
+# Web Interface
+
+LucidLines provides a modern web dashboard for monitoring and controlling your processes in real-time.
+
+## Accessing the Dashboard
+
+Once LucidLines is running, open your browser and navigate to:
+
+```
+http://localhost:8080
+```
+
+(or your configured port)
+
 ## Interface Overview
 
-### Header Controls
+### Basic Terminal Display
+The web interface displays your configured processes in individual terminal windows, showing real-time output as it streams from each process.
 
-- **Theme Toggle** - Switch between light/dark themes
-- **Connection Status** - Shows WebSocket connection state
-- **Process Count** - Displays number of active processes
+<p style="text-align: center;">
+  <img src="/basic.gif" alt="LucidLines Web Interface Basics" style="display: block; margin: 0 auto;">
+</p>
 
-### Terminal Area
+### Terminal Selection
+You can toggle individual terminals on and off without affecting the underlying processes. This allows you to focus on specific outputs while keeping processes running in the background.
 
-- **Tabbed Interface** - Each process has its own tab
-- **Real-time Output** - Live streaming of process output
-- **Scrollable History** - Full output history with search
-- **Color Preservation** - Terminal colors are maintained
+<p style="text-align: center;">
+  <img src="/select.gif" alt="LucidLines Web Interface Selection" style="display: block; margin: 0 auto;">
+</p>
 
-### Status Indicators
+### Interface Customization
+The dashboard offers several customization options:
+- **Text Size**: Adjust the font size for better readability
+- **Color Customization**: Apply HSL color schemes to all terminal outputs
 
-- **Process Status** - Running/stopped indicators
-- **Connection Status** - WebSocket connection health
-- **Error Notifications** - Process failure alerts
+<p style="text-align: center;">
+  <img src="/option.gif" alt="LucidLines Web Interface Options" style="display: block; margin: 0 auto;">
+</p>
 
-## Features
+### Terminal Reordering
+Terminals can be rearranged using drag-and-drop functionality, allowing you to organize your workspace according to your preferences.
 
-### Real-time Updates
+<p style="text-align: center;">
+  <img src="/dnd.gif" alt="LucidLines Web Interface Drag and Drop" style="display: block; margin: 0 auto;">
+</p>
 
-- Instant output streaming via WebSocket
-- Live status updates
-- Automatic reconnection on connection loss
 
-### Responsive Design
-
-- **Desktop Only** - Currently optimized for desktop browsers
-- **Large Screen Recommended** - Best experience on screens 1024px and wider
-- **Not Supported** - Mobile devices and small screens are not supported
-
-### Keyboard Shortcuts
-
-The web interface supports keyboard navigation:
-
-- **Tab** - Switch between process tabs
-- **Arrow Keys** - Navigate within terminal output
-- **Ctrl+F** - Search in terminal output
-
-## Customization
-
-### Themes
-
-LucidLines supports multiple themes:
-
-- **Light Theme** - Clean, bright interface
-- **Dark Theme** - Easy on the eyes for long sessions
-- **Auto Theme** - Follows system preference
-
-### Layout Options
-
-- **Compact Mode** - More processes visible
-- **Expanded Mode** - Larger terminal areas
-- **Split View** - Side-by-side process comparison
 
 ## Browser Support
 
@@ -86,30 +75,30 @@ LucidLines works in modern desktop browsers:
 
 ### Connection Issues
 
-If the dashboard doesn't load:
+If the dashboard fails to load:
 
-1. Check that LucidLines is running
-2. Verify the correct port number
-3. Check browser console for errors
-4. Ensure WebSocket connections are allowed
+1. Verify that LucidLines is running and accessible
+2. Confirm you're using the correct port number
+3. Check the browser's developer console for error messages
+4. Ensure WebSocket connections are permitted by your network/firewall
 
 ### Performance Issues
 
-For better performance with many processes:
+For optimal performance with multiple processes:
 
-1. Use the compact layout
-2. Limit output history size
-3. Close unused tabs
-4. Use a modern browser
+1. Switch to the compact layout when monitoring many terminals
+2. Reduce the output history buffer size
+3. Close unused terminal tabs
+4. Use a modern, up-to-date browser
 
-### Mobile Issues
+### Mobile Device Limitations
 
-**Small screens are not supported.** 
+**Mobile browsers are not supported.**
 
-LucidLines is designed for desktop development environments. For the best experience:
+LucidLines is designed specifically for desktop development environments. For the best experience:
 
 - Use a desktop or laptop computer
-- Ensure screen width is at least 1024px
+- Ensure your screen width is at least 1024px
 - Use a modern desktop browser
 
-Mobile browsers are not supported due to the complex terminal interface requirements.
+The complex terminal interface requirements make mobile browser support impractical.
