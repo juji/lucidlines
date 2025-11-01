@@ -11,7 +11,7 @@ interface Command {
 
 function parseArgs(): {
 	subcommand?: string;
-	serverPort: number;
+	serverPort?: number;
 	commands: Command[];
 	dev: boolean;
 	configFile?: string;
@@ -156,9 +156,8 @@ if (options.subcommand !== "help") {
 	if (config) {
 		configLoaded = true;
 		// Merge config with command line options (command line takes precedence)
-		if (config.port !== undefined && options.serverPort === 8080) {
-			options.serverPort = config.port;
-		}
+		options.serverPort = config.port || undefined;
+
 		if (config.commands && options.commands.length === 0) {
 			options.commands = config.commands;
 		}
