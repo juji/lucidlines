@@ -174,14 +174,7 @@ const databank = (() => {
 		/**
 		 * Subscribe to data events
 		 */
-		subscribe(
-			callback: (data: {
-				type: string;
-				data: string;
-				timestamp: number;
-				hash: number;
-			}) => void,
-		): () => void {
+		subscribe(callback: (data: LogEntry) => void): () => void {
 			emitter.on("data", callback);
 			return () => emitter.off("data", callback);
 		},
