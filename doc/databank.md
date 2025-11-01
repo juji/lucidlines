@@ -187,7 +187,6 @@ databank.cleanup();
 interface LogEntry {
   type: string;      // Data type/category
   data: string;      // The actual data content
-  hash: number;      // Content hash for indexing
   timestamp: number; // Unix timestamp
 }
 ```

@@ -62,8 +62,8 @@ Processes can be controlled programmatically through the API.
 
 Process output is stored using the **DataBank** system:
 
-- **In-memory storage** with <a href="http://techfort.github.io/LokiJS/" target="_blank" rel="noopener noreferrer">LokiJS</a> database
-- **Temporary file persistence** for large datasets
+- **Persistent storage** with <a href="https://github.com/WiseLibs/better-sqlite3" target="_blank" rel="noopener noreferrer">better-sqlite3</a> database
+- **Temporary file persistence** for data retention
 - **Event-driven architecture** for real-time updates
 - **Automatic cleanup** on application exit
 
@@ -72,7 +72,7 @@ The DataBank decouples process output from web interface consumption, allowing:
 - **Buffering** of recent messages for new clients
 - **Efficient querying** by process type and timestamp
 - **Memory management** with configurable limits
-- **Data integrity** with hash-based deduplication
+- **Data persistence** with SQLite reliability
 
 ### Process Health
 
@@ -90,15 +90,14 @@ LucidLines uses a data management system called **DataBank**:
 interface LogEntry {
   type: string;      // Process name (e.g., "web-server")
   data: string;      // Output line
-  hash: number;      // Content hash for deduplication
   timestamp: number; // Unix timestamp
 }
 ```
 
 ### Storage Strategy
 
-- **Primary**: In-memory LokiJS database for fast access
-- **Secondary**: Temporary file storage for persistence
+- **Primary**: SQLite database for reliable persistence
+- **Temporary file**: Auto-deleted on process exit
 - **Cleanup**: Automatic removal when process exits
 - **Performance**: Optimized indices on timestamp and type
 
