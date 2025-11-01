@@ -38,7 +38,7 @@ The dashboard offers several customization options:
 </p>
 
 ### Terminal Reordering
-Terminals can be rearranged using drag-and-drop functionality, allowing you to organize your workspace according to your preferences.
+Terminals can be rearranged using drag-and-drop functionality, allowing you to organize your workspace according to your preferences. This feature is powered by the <a href="https://swapy.tahazsh.com/" target="_blank" rel="noopener noreferrer">Swapy</a> library.
 
 <p style="text-align: center;">
   <img src="/dnd.gif" alt="LucidLines Web Interface Drag and Drop" style="display: block; margin: 0 auto; max-width: 100%;">
