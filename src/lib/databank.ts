@@ -1,6 +1,5 @@
 import { EventEmitter } from "node:events";
-import Loki from "lokijs";
-import { hash } from "object-code";
+import Database from "better-sqlite3";
 import * as tmp from "tmp";
 
 /**
@@ -8,16 +7,15 @@ import * as tmp from "tmp";
  * data producers from consumers (WebSocket clients).
  *
  * - Stores and manages data with a simple API
- * - Buffers recent messages for new clients using LokiJS (in-memory DB)
+ * - Buffers recent messages for new clients using SQLite (persistent DB)
  * - Provides a clean event-based API for consumers
- * - Uses temporary file storage for large datasets that's cleaned up on exit
+ * - Uses temporary file storage that's cleaned up on exit
  */
 
 // Define the type for log entries
 export interface LogEntry {
 	type: string;
 	data: string;
-	hash: number;
 	timestamp: number;
 }
 
@@ -30,43 +28,63 @@ export function createDatabank() {
 	const emitter = new EventEmitter();
 	const availableTypes: Set<string> = new Set();
 
-	// Create temp file for LokiJS that will be auto-deleted when the process exits
+	// Create temp file for SQLite that will be auto-deleted when the process exits
 	const tempFile = tmp.fileSync({
 		prefix: "lucidlines-db-",
-		postfix: ".json",
+		postfix: ".db",
 		keep: false,
 	});
 
-	// Initialize LokiJS with the temp file
-	const db = new Loki(tempFile.name, {
-		autoload: false,
-		autosave: true,
-		autosaveInterval: 5000, // Save every 5 seconds
-		verbose: false,
-	});
+	// Initialize SQLite database
+	const db = new Database(tempFile.name);
 
-	// Create a collection for log entries
-	const collection = db.addCollection<LogEntry>("logs", {
-		indices: ["timestamp", "type"],
-		disableMeta: true, // Disable metadata for better performance
-	});
+	// Enable WAL mode for better concurrent performance
+	db.pragma("journal_mode = WAL");
+
+	// Create table for log entries
+	db.exec(`
+		CREATE TABLE IF NOT EXISTS logs (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			type TEXT NOT NULL,
+			data TEXT NOT NULL,
+			timestamp INTEGER NOT NULL
+		);
+		CREATE INDEX IF NOT EXISTS idx_timestamp ON logs(timestamp);
+		CREATE INDEX IF NOT EXISTS idx_type_timestamp ON logs(type, timestamp);
+	`);
+
+	// Prepare statements for better performance
+	const insertStmt = db.prepare(
+		"INSERT INTO logs (type, data, timestamp) VALUES (?, ?, ?)",
+	);
+	const countAllStmt = db.prepare("SELECT COUNT(*) as count FROM logs");
+	const countByTypeStmt = db.prepare(
+		"SELECT COUNT(*) as count FROM logs WHERE type = ?",
+	);
+	const getRecentStmt = db.prepare(
+		"SELECT type, data, timestamp FROM logs ORDER BY timestamp DESC LIMIT ?",
+	);
+	const getAllStmt = db.prepare(
+		"SELECT type, data, timestamp FROM logs ORDER BY timestamp DESC",
+	);
+	const getByTypeStmt = db.prepare(
+		"SELECT type, data, timestamp FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?",
+	);
+	const getByTypeWithTimestampStmt = db.prepare(
+		"SELECT type, data, timestamp FROM logs WHERE type = ? AND timestamp < ? ORDER BY timestamp DESC LIMIT ?",
+	);
 
 	/**
 	 * Add data to the databank
 	 */
-	const addEntry = (
-		type: string,
-		data: string,
-		timestamp: number,
-		hash: number,
-	): void => {
-		const entry: LogEntry = { type, data, timestamp, hash };
+	const addEntry = (type: string, data: string, timestamp: number): void => {
+		const entry: LogEntry = { type, data, timestamp };
 
 		// Track this type
 		availableTypes.add(type);
 
-		// Insert into LokiJS collection for storage
-		collection.insert(entry);
+		// Insert into SQLite database
+		insertStmt.run(type, data, timestamp);
 
 		emitter.emit("data", entry);
 	};
@@ -78,7 +96,7 @@ export function createDatabank() {
 		 */
 		cleanup(): void {
 			try {
-				// Save any pending changes to disk before closing
+				// Close the database connection
 				if (db) {
 					db.close();
 				}
@@ -93,19 +111,13 @@ export function createDatabank() {
 
 		/**
 		 * Get recent messages for a newly connected client
-		 * @param limit Optional limit of messages to return (defaults to 20)
+		 * @param limit Optional limit of messages to return (defaults to 1000)
 		 */
 		getRecentMessages(limit?: number): Array<LogEntry> {
 			const requestedLimit = limit || RECENT_MESSAGE_LIMIT;
-
-			// Query the LokiJS collection
-			return collection
-				.chain()
-				.find()
-				.simplesort("timestamp", true) // Sort by timestamp in descending order
-				.limit(requestedLimit)
-				.data()
-				.sort((a, b) => a.timestamp - b.timestamp); // Return in ascending order;
+			const rows = getRecentStmt.all(requestedLimit) as Array<LogEntry>;
+			// Reverse to return in ascending order (oldest to newest)
+			return rows.reverse();
 		},
 
 		/**
@@ -113,21 +125,23 @@ export function createDatabank() {
 		 * Use with caution!
 		 */
 		getAllMessages(): Array<LogEntry> {
-			return collection.chain().find().simplesort("timestamp", true).data();
+			return getAllStmt.all() as Array<LogEntry>;
 		},
 
 		/**
 		 * Get the total count of all messages stored
 		 */
 		getTotalMessageCount(): number {
-			return collection.count();
+			const result = countAllStmt.get() as { count: number };
+			return result.count;
 		},
 
 		/**
 		 * Get the count of messages for a specific type
 		 */
 		getMessageCountByType(type: string): number {
-			return collection.chain().find({ type }).count();
+			const result = countByTypeStmt.get(type) as { count: number };
+			return result.count;
 		},
 
 		/**
@@ -146,17 +160,20 @@ export function createDatabank() {
 			limit?: number,
 		): Array<LogEntry> {
 			const requestedLimit = limit || 20;
-			const query = collection.chain().find({ type });
 
+			let rows: Array<LogEntry>;
 			if (lastTimestamp) {
-				query.where((obj) => obj.timestamp < lastTimestamp);
+				rows = getByTypeWithTimestampStmt.all(
+					type,
+					lastTimestamp,
+					requestedLimit,
+				) as Array<LogEntry>;
+			} else {
+				rows = getByTypeStmt.all(type, requestedLimit) as Array<LogEntry>;
 			}
 
-			return query
-				.simplesort("timestamp", true) // Sort by timestamp in descending order (newest first)
-				.limit(requestedLimit)
-				.data()
-				.sort((a, b) => a.timestamp - b.timestamp); // Return in ascending order
+			// Reverse to return in ascending order (oldest to newest)
+			return rows.reverse();
 		},
 
 		/**
@@ -164,8 +181,7 @@ export function createDatabank() {
 		 */
 		addData(type: string, data: string): void {
 			const timestamp = Date.now();
-			const entryHash = hash({ type, data, timestamp });
-			addEntry(type, data, timestamp, entryHash);
+			addEntry(type, data, timestamp);
 		},
 
 		/**
