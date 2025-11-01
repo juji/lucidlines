@@ -152,7 +152,18 @@ Once LucidLines is running, open your browser to the displayed URL (e.g., `http:
 - **Auto-scroll**: Automatically follows new output
 - **History**: View previous output with manual history loading
 
-## 🔧 Development
+## � API
+
+For programmatic integration and advanced usage, LucidLines provides a comprehensive API. This allows you to:
+
+- Control processes programmatically
+- Stream output to custom applications
+- Integrate with monitoring systems
+- Build custom dashboards
+
+**API Documentation**: [https://lucidlines.jujiplay.com/core.html](https://lucidlines.jujiplay.com/core.html)
+
+## �🔧 Development
 
 ### Prerequisites
 
