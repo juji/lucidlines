@@ -32,14 +32,14 @@ http://localhost:8080
 The web interface displays your configured processes in individual terminal windows, showing real-time output as it streams from each process.
 
 <p style="text-align: center;">
-  <img src="/basic.gif" alt="LucidLines Web Interface Basics" style="display: block; margin: 0 auto;">
+  <img src="/basic.gif" alt="LucidLines Web Interface Basics" style="display: block; margin: 0 auto; max-width: 100%;">
 </p>
 
 ### Terminal Selection
 You can toggle individual terminals on and off without affecting the underlying processes. This allows you to focus on specific outputs while keeping processes running in the background.
 
 <p style="text-align: center;">
-  <img src="/select.gif" alt="LucidLines Web Interface Selection" style="display: block; margin: 0 auto;">
+  <img src="/select.gif" alt="LucidLines Web Interface Selection" style="display: block; margin: 0 auto; max-width: 100%;">
 </p>
 
 ### Interface Customization
@@ -48,14 +48,14 @@ The dashboard offers several customization options:
 - **Color Customization**: Apply HSL color schemes to all terminal outputs
 
 <p style="text-align: center;">
-  <img src="/option.gif" alt="LucidLines Web Interface Options" style="display: block; margin: 0 auto;">
+  <img src="/option.gif" alt="LucidLines Web Interface Options" style="display: block; margin: 0 auto; max-width: 100%;">
 </p>
 
 ### Terminal Reordering
 Terminals can be rearranged using drag-and-drop functionality, allowing you to organize your workspace according to your preferences.
 
 <p style="text-align: center;">
-  <img src="/dnd.gif" alt="LucidLines Web Interface Drag and Drop" style="display: block; margin: 0 auto;">
+  <img src="/dnd.gif" alt="LucidLines Web Interface Drag and Drop" style="display: block; margin: 0 auto; max-width: 100%;">
 </p>
 
 
