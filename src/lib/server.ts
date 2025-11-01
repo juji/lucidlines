@@ -7,6 +7,7 @@ import {
 } from "node:http";
 import { extname, join } from "node:path";
 import { createProxyServer } from "http-proxy";
+import type { createDatabank } from "./databank";
 import { createWebSocketManager, type WebSocketManager } from "./websocket";
 
 // MIME types for common file extensions
@@ -33,6 +34,7 @@ export interface ServerOptions {
 	frontEnd?: string | number;
 	wsPath?: string;
 	dev?: boolean;
+	databank: ReturnType<typeof createDatabank>;
 }
 
 export function start({
@@ -40,6 +42,7 @@ export function start({
 	frontEnd,
 	wsPath = "/ws",
 	dev,
+	databank,
 }: ServerOptions) {
 	// Create HTTP server
 	const server = createServer();
@@ -59,6 +62,7 @@ export function start({
 	const wsManager = createWebSocketManager({
 		httpServer: server,
 		wsPath,
+		databank,
 	});
 
 	// Handle HTTP requests

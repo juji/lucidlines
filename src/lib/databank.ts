@@ -21,8 +21,10 @@ export interface LogEntry {
 	timestamp: number;
 }
 
-// Create the singleton databank object
-const databank = (() => {
+/**
+ * Factory function to create a new DataBank instance
+ */
+export function createDatabank() {
 	const RECENT_MESSAGE_LIMIT = 1000; // Max number of recent messages to give initially
 
 	const emitter = new EventEmitter();
@@ -174,6 +176,4 @@ const databank = (() => {
 			return () => emitter.off("data", callback);
 		},
 	};
-})();
-
-export default databank;
+}

@@ -1,6 +1,6 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { Transform } from "node:stream";
-import databank from "./databank";
+import type { LogEntry } from "./databank";
 import type { LucidEvent } from "./lucid-event";
 
 type CommandInput = {
@@ -16,6 +16,7 @@ export function nodeStream(
 	commands: CommandInput[],
 	dev?: boolean,
 	lucidEvent?: LucidEvent,
+	databank?: ReturnType<typeof import("./databank").createDatabank>,
 ) {
 	// Store running processes for cleanup
 	const processes: Array<{
@@ -149,7 +150,7 @@ export function nodeStream(
 		// Set up the handling for object mode transform stream
 		transformStream.on("data", (data: any) => {
 			// Use the name as the type and output as the data for databank
-			databank.addData(data.name, data.output);
+			databank?.addData(data.name, data.output);
 
 			// In dev mode, also log to console
 			if (dev) {

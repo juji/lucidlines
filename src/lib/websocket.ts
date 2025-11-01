@@ -1,6 +1,6 @@
 import type { Server as HttpServer } from "node:http";
 import { type WebSocket, WebSocketServer } from "ws";
-import databank from "./databank";
+import type { createDatabank } from "./databank";
 
 /**
  * WebSocket manager for LucidLines
@@ -9,13 +9,17 @@ import databank from "./databank";
 export interface WebSocketManagerOptions {
 	httpServer: HttpServer;
 	wsPath: string;
+	databank: ReturnType<typeof createDatabank>;
 }
 
 export class WebSocketManager {
 	private wss: WebSocketServer;
+	private databank: ReturnType<typeof createDatabank>;
 
 	constructor(options: WebSocketManagerOptions) {
-		const { httpServer, wsPath } = options;
+		const { httpServer, wsPath, databank } = options;
+
+		this.databank = databank;
 
 		// Create WebSocket server with specific path
 		this.wss = new WebSocketServer({
@@ -36,11 +40,11 @@ export class WebSocketManager {
 
 		// get total length of messages in databank
 		// this includes data in loki and in-memory
-		const totalMessages = databank.getTotalMessageCount();
-		const types = databank.getAvailableTypes();
+		const totalMessages = this.databank.getTotalMessageCount();
+		const types = this.databank.getAvailableTypes();
 		const totalByTypes = types.map((type) => ({
 			type,
-			count: databank.getMessageCountByType(type),
+			count: this.databank.getMessageCountByType(type),
 		}));
 
 		// send those to the client
@@ -56,7 +60,7 @@ export class WebSocketManager {
 		);
 
 		// Send recent messages from the databank to new client
-		const recentMessages = databank.getRecentMessages();
+		const recentMessages = this.databank.getRecentMessages();
 		if (recentMessages.length > 0) {
 			ws.send(
 				JSON.stringify({
@@ -67,7 +71,7 @@ export class WebSocketManager {
 		}
 
 		// Subscribe this client to databank events
-		const unsubscribe = databank.subscribe(
+		const unsubscribe = this.databank.subscribe(
 			(data: { type: string; data: string; timestamp: number }) => {
 				if (ws.readyState === ws.OPEN) {
 					ws.send(
@@ -89,7 +93,11 @@ export class WebSocketManager {
 				if (message.type === "history") {
 					const lastTimestamp = message.lastTimestamp;
 					const type = message.logType;
-					const history = databank.getMessageByType(type, lastTimestamp, 100);
+					const history = this.databank.getMessageByType(
+						type,
+						lastTimestamp,
+						100,
+					);
 					ws.send(
 						JSON.stringify({
 							type: "history",

@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import databank from "./lib/databank";
+import { createDatabank } from "./lib/databank";
 import { createLucidEvent } from "./lib/lucid-event";
 import { nodeStream } from "./lib/node-stream";
 import { start as startServer } from "./lib/server";
@@ -68,8 +68,9 @@ export function start(options: {
 		dev = false,
 	} = options;
 
-	// Create instance-specific lucidEvent
+	// Create instance-specific resources
 	const lucidEvent = createLucidEvent();
+	const databank = createDatabank();
 
 	// Start the server
 	const server = serverPort
@@ -78,11 +79,12 @@ export function start(options: {
 				frontEnd,
 				wsPath: "/ws",
 				dev,
+				databank,
 			})
 		: null;
 
 	// If commands are provided, start node-stream
-	const currentNodeStream = nodeStream(commands, dev, lucidEvent);
+	const currentNodeStream = nodeStream(commands, dev, lucidEvent, databank);
 
 	// wait so that it doesn't hog down the cli
 	// this also let the log events be listened by the user after the start() call
