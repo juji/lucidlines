@@ -84,7 +84,7 @@ The DataBank decouples process output from web interface consumption, allowing:
 
 ### DataBank Architecture
 
-LucidLines uses a sophisticated data management system called **DataBank**:
+LucidLines uses a data management system called **DataBank**:
 
 ```typescript
 interface LogEntry {
