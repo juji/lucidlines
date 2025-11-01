@@ -27,63 +27,81 @@ const ConnectionError = () => {
 
 const ActiveTerminals = () => {
 
-  const logTypes = useTerminalStore(state => state.logTypes);
   const activeTerminals = useTerminalStore(state => state.activeTerminals);
   const setActiveTerminal = useTerminalStore(state => state.setActiveTerminal);
 
   // Local state for terminal ordering
-  const [terminalOrder, setTerminalOrder] = useState<string[]>([]);
+  const terminalOrderRef = useRef<string[]>(activeTerminals ? Object.keys(activeTerminals).filter(type => activeTerminals[type]) : []);
+  const [ terminalOrder, setTerminalOrder ] = useState<string[]>(activeTerminals ? Object.keys(activeTerminals).filter(type => activeTerminals[type]) : []);
 
   // Initialize WebSocket connection
   const { requestHistory } = useWebSocket(`${window.location.origin.replace(/^http/, 'ws')}/ws`);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const swapyRef = useRef<any>(null);
-  const logTypesRef = useRef(logTypes);
-
-  // Initialize terminal order when logTypes change
-  useEffect(() => {
-    const nonExistingTypes = logTypes.filter(type => !terminalOrder.includes(type));
-    if (nonExistingTypes.length > 0) {
-      const newOrder = [...terminalOrder, ...nonExistingTypes];
-      setTerminalOrder(newOrder);
-      logTypesRef.current = newOrder;
-    }
-  }, [logTypes]);
 
   useEffect(() => {
+
+    // const current Terminal
+    const currentTerminal = Object.keys(activeTerminals).filter(type => activeTerminals[type]);
+
+    // Find non-existing log types
+    const newTypes = currentTerminal.filter(type => !terminalOrderRef.current.includes(type));
+
+    // remove non existing from terminal order
+    const filteredTerminalOrderRef = terminalOrderRef.current.filter(type => currentTerminal.includes(type));
+
+    // this is the order
+    const termOrder = [...filteredTerminalOrderRef, ...newTypes];
+    terminalOrderRef.current = termOrder;
+    setTerminalOrder(termOrder);
+
+  }, [ activeTerminals ]);
+
+  useEffect(() => {
+
     const activeCount = Object.values(activeTerminals).filter(Boolean).length;
     if (activeCount > 1 && containerRef.current) {
-      swapyRef.current = createSwapy(containerRef.current, {
-        animation: 'dynamic'
-      });
 
-      swapyRef.current.onSwap((event: any) => {
-        const newOrder = event.newSlotItemMap.asArray.map((slotItem: any) => slotItem.item);
-        const reorderedTypes = newOrder
-          .map((itemId: string) => logTypesRef.current.find(type => type.toLowerCase() === itemId))
-          .filter(Boolean) as string[];
+      try{
+
+        swapyRef.current = createSwapy(containerRef.current, {
+          animation: 'dynamic'
+        });
         
-        setTerminalOrder(reorderedTypes);
-      });
+        swapyRef.current.onSwapEnd((event: any) => {
+          if(!event.hasChanged) return;
+          const newOrder = event.slotItemMap.asArray.map((slotItem: any) => slotItem.item);
+          terminalOrderRef.current = newOrder;
+
+          // let animation run first
+          setTimeout(() => {
+            setTerminalOrder(newOrder);
+          }, 333);
+        });
+
+      }catch(e){
+        console.error('Error initializing Swapy:', e);
+      }
+
     }
+
+      // setTerminalOrderRef(() => termOrder);
 
     return () => {
       if (swapyRef.current) {
         swapyRef.current.destroy();
       }
     };
-  }, [activeTerminals]);
-
-  // Use terminalOrder for rendering, fallback to logTypes
-  const displayOrder = terminalOrder.length > 0 ? terminalOrder : logTypes;
+  }, [terminalOrder]);
 
   return (
-  <main 
+  <main
+    key={JSON.stringify(terminalOrder)}
     ref={containerRef}
     className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}
   >
-    {displayOrder.map((type) => (
+    {terminalOrder.map((type) => (
       activeTerminals[type] && (
         <div key={type.toLowerCase()} data-swapy-slot={`${type}`}>
           <div className="terminal-wrapper" data-swapy-item={type}>
