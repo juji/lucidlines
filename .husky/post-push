@@ -1,5 +1,4 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+
 
 # Only run on main branch
 current_branch=$(git branch --show-current)
