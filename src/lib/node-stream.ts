@@ -1,6 +1,5 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { Transform } from "node:stream";
-import type { LogEntry } from "./databank";
 import type { LucidEvent } from "./lucid-event";
 
 type CommandInput = {
