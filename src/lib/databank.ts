@@ -66,12 +66,7 @@ const databank = (() => {
 		// Insert into LokiJS collection for storage
 		collection.insert(entry);
 
-		emitter.emit("data", {
-			type,
-			data,
-			timestamp,
-			hash,
-		});
+		emitter.emit("data", entry);
 	};
 
 	return {

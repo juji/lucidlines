@@ -62,19 +62,21 @@ export function start(options: {
 	}
 
 	const {
-		serverPort = 8080,
+		serverPort,
 		frontEnd = moduleDirname,
 		commands = [],
 		dev = false,
 	} = options;
 
 	// Start the server
-	const server = startServer({
-		port: serverPort,
-		frontEnd,
-		wsPath: "/ws",
-		dev,
-	});
+	const server = serverPort
+		? startServer({
+				port: serverPort,
+				frontEnd,
+				wsPath: "/ws",
+				dev,
+			})
+		: null;
 
 	// If commands are provided, start node-stream
 	const currentNodeStream = nodeStream(commands, dev);
@@ -93,7 +95,7 @@ export function start(options: {
 		stopping = true;
 
 		await currentNodeStream.stop();
-		server.stop();
+		server?.stop();
 		databank.cleanup();
 	}
 

@@ -15,12 +15,12 @@ const { databank } = start({
 ```
 
 ::: warning
-Data storage is typically handled automatically by LucidLines. The DataBank API is primarily intended for advanced users who need direct access to the data layer. Most applications won't need to interact with DataBank directly.
+Data storage is typically handled automatically by LucidLines, when `serverPort` option is used. The DataBank API is primarily intended for advanced users who need direct access to the data layer. Most users won't need to interact with DataBank directly.
 :::
 
 ## `addData(type, data)`
 
-Adds data to the DataBank storage.
+Adds data to the DataBank storage. This is done internally by the internal library `node-stream.ts`. Users typically don't use this.
 
 #### Parameters
 
@@ -30,7 +30,12 @@ Adds data to the DataBank storage.
 #### Example
 
 ```typescript
-databank.addData('custom', 'Custom log message');
+/* with:
+commands: [
+  { name: 'web', command: 'npm run dev' }
+]
+*/
+databank.addData('web', 'log message');
 ```
 
 ## `getRecentMessages(limit?)`
@@ -68,7 +73,12 @@ Gets messages for a specific type.
 #### Example
 
 ```typescript
-const appLogs = databank.getMessageByType('app', undefined, 100);
+/* with:
+commands: [
+  { name: 'web', command: 'npm run dev' }
+]
+*/
+const appLogs = databank.getMessageByType('web', undefined, 100);
 ```
 
 ## `getAllMessages()`
@@ -114,7 +124,12 @@ Gets the count of messages for a specific type.
 #### Example
 
 ```typescript
-const appCount = databank.getMessageCountByType('app');
+/* with:
+commands: [
+  { name: 'web', command: 'npm run dev' }
+]
+*/
+const appCount = databank.getMessageCountByType('web');
 ```
 
 ## `getAvailableTypes()`
@@ -146,7 +161,7 @@ Subscribes to real-time data updates.
 #### Example
 
 ```typescript
-const unsubscribe = databank.subscribe((entry) => {
+const unsubscribe = databank.subscribe((entry: LogEntry) => {
   console.log(`${entry.type}: ${entry.data}`);
 });
 
@@ -172,7 +187,7 @@ databank.cleanup();
 interface LogEntry {
   type: string;      // Data type/category
   data: string;      // The actual data content
-  hash: number;      // Content hash for deduplication
+  hash: number;      // Content hash for indexing
   timestamp: number; // Unix timestamp
 }
 ```

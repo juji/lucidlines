@@ -10,12 +10,16 @@ Starts the LucidLines server and processes.
 import { start } from 'lucidlines';
 
 const { lucidEvent, stop, server, nodeStream, databank } = start({
-  serverPort: 3000,
   commands: [
     { name: 'web', command: 'npm run dev' },
     { name: 'api', command: 'npm run server' }
   ],
-  dev: false
+
+  // nullable, the server won't start if this is falsy
+  // if that is the case, 
+  // you can listen to events using databank.subscribe
+  serverPort: 3000, 
+
 });
 
 // Listen to process lifecycle events
