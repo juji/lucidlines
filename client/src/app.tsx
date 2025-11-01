@@ -36,14 +36,15 @@ const ActiveTerminals = () => {
   <main className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}>
     {logTypes.map((type) => (
       activeTerminals[type] && (
-        <Terminal
-          key={type.toLowerCase()}
-          logType={type}
-          // log={type === 'REACT'}
-          title={type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
-          onClose={() => setActiveTerminal(type, false)}
-          requestHistory={requestHistory}
-        />
+        <div key={type.toLowerCase()} className="terminal-wrapper">
+          <Terminal
+            logType={type}
+            // log={type === 'REACT'}
+            title={type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+            onClose={() => setActiveTerminal(type, false)}
+            requestHistory={requestHistory}
+          />
+        </div>
       )
     ))}
   </main>

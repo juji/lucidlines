@@ -176,6 +176,13 @@ main.multi-terminal {
   overflow: hidden; /* No scrolling needed as we're filling the space */
 }
 
+/* In multi-terminal layout, terminal wrappers fill their grid cells */
+main.multi-terminal .terminal-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .terminal-container {
   width: 100%;
   flex: 1;
@@ -191,7 +198,7 @@ main.multi-terminal {
 /* In multi-terminal layout, have terminals fill their grid cells */
 main.multi-terminal .terminal-container {
   width: 100%;
-  height: 100%; /* Fill the grid cell completely */
+  height: 100%; /* Fill the wrapper completely */
   min-height: 0; /* Override the min-height from general styles */
   overflow: hidden;
   margin: 0;
@@ -210,6 +217,12 @@ main.multi-terminal .terminal-container {
   margin: 0;
   font-size: 14px;
   color: #f0f0f0;
+  flex: 1;
+  cursor: grab;
+}
+
+.terminal-header h3:active {
+  cursor: grabbing;
 }
 
 .terminal-search {
