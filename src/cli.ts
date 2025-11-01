@@ -179,9 +179,9 @@ console.log("\n🚀 Starting LucidLines!");
 console.log("");
 
 const {
-	server: _server,
+	// server,
+	// databank,
 	nodeStream,
-	databank: _databank,
 	lucidEvent,
 	stop,
 } = start({
