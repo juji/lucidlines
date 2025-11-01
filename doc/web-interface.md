@@ -12,10 +12,6 @@ http://localhost:8080
 
 (or your configured port)
 
-# Web Interface
-
-LucidLines provides a modern web dashboard for monitoring and controlling your processes in real-time.
-
 ## Interface Overview
 
 ### Basic Terminal Display
