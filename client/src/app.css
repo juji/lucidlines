@@ -183,6 +183,11 @@ main.multi-terminal .terminal-wrapper {
   overflow: hidden;
 }
 
+/* When there are odd number of terminals, make the last one span full width */
+main.multi-terminal.odd-terminals > div:last-child {
+  grid-column: span 2;
+}
+
 .terminal-container {
   width: 100%;
   flex: 1;

@@ -99,7 +99,7 @@ const ActiveTerminals = () => {
   <main
     key={JSON.stringify(terminalOrder)}
     ref={containerRef}
-    className={Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''}
+    className={`${Object.values(activeTerminals).filter(Boolean).length > 1 ? 'multi-terminal' : ''} ${terminalOrder.length % 2 === 1 ? 'odd-terminals' : ''}`}
   >
     {terminalOrder.map((type) => (
       activeTerminals[type] && (
