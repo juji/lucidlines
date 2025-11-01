@@ -16,16 +16,6 @@ http://localhost:8080
 
 LucidLines provides a modern web dashboard for monitoring and controlling your processes in real-time.
 
-## Accessing the Dashboard
-
-Once LucidLines is running, open your browser and navigate to:
-
-```
-http://localhost:8080
-```
-
-(or your configured port)
-
 ## Interface Overview
 
 ### Basic Terminal Display
