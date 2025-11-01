@@ -68,15 +68,6 @@ If the dashboard fails to load:
 3. Check the browser's developer console for error messages
 4. Ensure WebSocket connections are permitted by your network/firewall
 
-### Performance Issues
-
-For optimal performance with multiple processes:
-
-1. Switch to the compact layout when monitoring many terminals
-2. Reduce the output history buffer size
-3. Close unused terminal tabs
-4. Use a modern, up-to-date browser
-
 ### Mobile Device Limitations
 
 **Mobile browsers are not supported.**
