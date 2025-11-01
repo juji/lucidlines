@@ -1,9 +1,8 @@
-// import { useState, useEffect } from 'react'
+
 import './app.css'
 import Terminal from './components/terminal'
 import useWebSocket from './hooks/use-web-socket'
 import { useTerminalStore } from './store/terminal-store'
-// import { useShallow } from 'zustand/react/shallow'
 import HeaderControls from './components/header-controls'
 import { createSwapy } from 'swapy'
 import { useEffect, useRef, useState } from 'react'
@@ -85,8 +84,6 @@ const ActiveTerminals = () => {
       }
 
     }
-
-      // setTerminalOrderRef(() => termOrder);
 
     return () => {
       if (swapyRef.current) {
