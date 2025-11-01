@@ -11,6 +11,7 @@ const { nodeStream } = start({
     { name: 'api', command: 'npm run server' },
     { name: 'worker', command: 'npm run worker' }
   ]
+  serverPort: 8080
 });
 
 // Restart a specific process by index

@@ -15,7 +15,9 @@ const { databank } = start({
 ```
 
 ::: warning
-Data storage is typically handled automatically by LucidLines, when `serverPort` option is used. The DataBank API is primarily intended for advanced users who need direct access to the data layer. Most users won't need to interact with DataBank directly.
+DataBank is automatically created and managed by LucidLines regardless of configuration. The API documented here is for advanced use cases where you need direct access to log data programmatically. Most users won't need to interact with DataBank directly.
+
+**Note:** In the example above, `serverPort` is not set, meaning the web interface isn't running. While databank still collects and stores all command output, nothing is consuming or displaying it. Add `serverPort` to enable the web dashboard, or use `databank.subscribe()` to process logs programmatically.
 :::
 
 ## `addData(type, data)`
