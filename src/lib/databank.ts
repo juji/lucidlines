@@ -179,6 +179,7 @@ const databank = (() => {
 				type: string;
 				data: string;
 				timestamp: number;
+				hash: number;
 			}) => void,
 		): () => void {
 			emitter.on("data", callback);
