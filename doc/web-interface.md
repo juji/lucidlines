@@ -1,6 +1,6 @@
 # Web Interface
 
-LucidLines provides a modern web dashboard for monitoring and controlling your processes.
+LucidLines provides a modern web dashboard for monitoring and controlling your processes in real-time. The interface is built using <a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer">Vite</a> and <a href="https://reactjs.org/" target="_blank" rel="noopener noreferrer">React</a> for optimal performance and developer experience.
 
 ## Accessing the Dashboard
 
