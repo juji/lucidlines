@@ -76,7 +76,7 @@ LucidLines uses JSON5 format for configuration files, allowing comments and a mo
       // Display name for this command
       name: "Frontend",
       // Shell command to execute
-      command: "npm run dev"
+      command: "cd ./client && npm run dev"
     },
     {
       name: "Backend",

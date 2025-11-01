@@ -71,7 +71,7 @@ The `.lucidlines.json5` file contains your process definitions and settings. Aft
 
 ```json5
 {
-  // Server port (default: 8080)
+  // Server port
   port: 8080,
 
   // Enable development mode with console logging
