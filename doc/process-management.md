@@ -62,7 +62,7 @@ Processes can be controlled programmatically through the API.
 
 Process output is stored using the **DataBank** system:
 
-- **In-memory storage** with LokiJS database
+- **In-memory storage** with <a href="http://techfort.github.io/LokiJS/" target="_blank" rel="noopener noreferrer">LokiJS</a> database
 - **Temporary file persistence** for large datasets
 - **Event-driven architecture** for real-time updates
 - **Automatic cleanup** on application exit
@@ -99,7 +99,7 @@ interface LogEntry {
 
 - **Primary**: In-memory LokiJS database for fast access
 - **Secondary**: Temporary file storage for persistence
-- **Cleanup**: Automatic removal on application exit
+- **Cleanup**: Automatic removal when process exits
 - **Performance**: Optimized indices on timestamp and type
 
 ### Data Flow
@@ -121,6 +121,6 @@ The DataBank provides rich querying for different use cases:
 ### Memory Management
 
 - **Configurable Limits**: Default 1000 recent messages
-- **Automatic Cleanup**: Old data removal
+- **Automatic Cleanup**: Triggered when process terminates
 - **Resource Monitoring**: Memory usage tracking
 - **Graceful Degradation**: Performance under load
