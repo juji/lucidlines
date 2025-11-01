@@ -84,7 +84,7 @@ export function createConfig(): void {
 	// This file configures the LucidLines terminal streaming server
 	// See https://github.com/juji/lucidlines for documentation
 
-	// Port to run the server on (default: 8080)
+	// Port to run the server on
 	port: ${defaultConfig.port},
 
 	// Commands to run when the server starts
