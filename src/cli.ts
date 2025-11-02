@@ -223,9 +223,14 @@ async function handleShutdown(signal?: string) {
 }
 
 function logControls() {
-	console.log(
-		`\nURL: \u001b[36m\u001b[4mhttp://localhost:${options.serverPort}\u001b[0m`,
-	);
+	if (options.serverPort) {
+		console.log(
+			`\nURL: \u001b[36m\u001b[4mhttp://localhost:${options.serverPort}\u001b[0m`,
+		);
+	} else {
+		console.log(`\nServer is not running (no port specified)`);
+	}
+
 	console.log("");
 	console.log(`Process restart controls:`);
 	options.commands.forEach((cmd, index) => {
