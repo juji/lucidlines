@@ -1,5 +1,3 @@
-### Basic Usage
-
 ```bash
 # Start with two processes
 lucidlines -c "frontend:npm run dev" -c "backend:npm run server"

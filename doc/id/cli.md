@@ -18,6 +18,10 @@ Referensi lengkap untuk perintah dan opsi CLI LucidLines.
 
 ## Contoh
 
+### Penggunaan Dasar
+
 <!--@include: ../.vitepress/includes/cli-basic-usage.md-->
+
+### Contoh Lanjutan
 
 <!--@include: ../.vitepress/includes/cli-advanced-examples.md-->

@@ -1,5 +1,3 @@
-### Advanced Examples
-
 ```bash
 # Multiple services
 lucidlines \
