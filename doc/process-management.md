@@ -53,7 +53,7 @@ Processes can be controlled programmatically through the API.
 
 Process output is stored using the **DataBank** system:
 
-- **Persistent storage** with <a href="https://github.com/WiseLibs/better-sqlite3" target="_blank" rel="noopener noreferrer">better-sqlite3</a> database
+- **Persistent storage** with <a href="https://github.com/Level/level" target="_blank" rel="noopener noreferrer">LevelDB</a> (pure JavaScript, no native dependencies)
 - **Temporary file persistence** for data retention
 - **Event-driven architecture** for real-time updates
 - **Automatic cleanup** on application exit
@@ -63,7 +63,7 @@ The DataBank decouples process output from web interface consumption, allowing:
 - **Buffering** of recent messages for new clients
 - **Efficient querying** by process type and timestamp
 - **Memory management** with configurable limits
-- **Data persistence** with SQLite reliability
+- **Data persistence** with LevelDB reliability
 
 ### Process Health
 
@@ -81,10 +81,10 @@ LucidLines uses a data management system called **DataBank**:
 
 ### Storage Strategy
 
-- **Primary**: SQLite database for reliable persistence
-- **Temporary file**: Auto-deleted on process exit
+- **Primary**: LevelDB for reliable persistence (pure JavaScript, no native dependencies)
+- **Temporary directory**: Auto-deleted on process exit
 - **Cleanup**: Automatic removal when process exits
-- **Performance**: Optimized indices on timestamp and type
+- **Performance**: Timestamp-based key ordering for efficient queries
 
 ### Data Flow
 

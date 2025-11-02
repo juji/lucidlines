@@ -62,7 +62,7 @@ Proses dapat dikontrol secara programatik melalui API.
 
 Output proses disimpan menggunakan sistem **DataBank**:
 
-- **Penyimpanan persisten** dengan database <a href="https://github.com/WiseLibs/better-sqlite3" target="_blank" rel="noopener noreferrer">better-sqlite3</a>
+- **Penyimpanan persisten** dengan <a href="https://github.com/Level/level" target="_blank" rel="noopener noreferrer">LevelDB</a> (JavaScript murni, tanpa dependensi native)
 - **Persistensi file sementara** untuk retensi data
 - **Arsitektur berbasis event** untuk pembaruan real-time
 - **Pembersihan otomatis** saat keluar aplikasi
@@ -72,7 +72,7 @@ DataBank memisahkan output proses dari konsumsi antarmuka web, memungkinkan:
 - **Buffering** pesan terbaru untuk klien baru
 - **Query efisien** berdasarkan tipe proses dan timestamp
 - **Manajemen memori** dengan batas yang dapat dikonfigurasi
-- **Persistensi data** dengan keandalan SQLite
+- **Persistensi data** dengan keandalan LevelDB
 
 ### Kesehatan Proses
 
@@ -90,10 +90,10 @@ LucidLines menggunakan sistem manajemen data yang disebut **DataBank**:
 
 ### Strategi Penyimpanan
 
-- **Utama**: Database SQLite untuk persistensi yang andal
-- **File sementara**: Dihapus otomatis saat proses keluar
+- **Utama**: LevelDB untuk persistensi yang andal (JavaScript murni, tanpa dependensi native)
+- **Direktori sementara**: Dihapus otomatis saat proses keluar
 - **Pembersihan**: Penghapusan otomatis saat proses keluar
-- **Performa**: Indeks yang dioptimalkan pada timestamp dan tipe
+- **Performa**: Pengurutan key berbasis timestamp untuk query yang efisien
 
 ### Alur Data
 

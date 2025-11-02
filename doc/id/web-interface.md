@@ -38,7 +38,7 @@ Anda dapat menyalakan dan mematikan terminal individual tanpa memengaruhi proses
 </p>
 
 ### Riwayat
-Akses log historis dari sesi saat ini. Semua output terminal disimpan ke SQLite, memungkinkan Anda menggulir kembali melalui log masa lalu bahkan setelah menutup dan membuka kembali browser Anda.
+Akses log historis dari sesi saat ini. Semua output terminal disimpan ke LevelDB, memungkinkan Anda menggulir kembali melalui log masa lalu bahkan setelah menutup dan membuka kembali browser Anda.
 
 <p style="text-align: center;">
   <img src="/history.gif" alt="Riwayat Antarmuka Web LucidLines" style="display: block; margin: 0 auto; max-width: 100%;">
