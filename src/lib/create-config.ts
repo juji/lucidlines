@@ -72,27 +72,27 @@ export function createConfig(): void {
 
 	// Convert config to JSON5 format with comments
 	const configContent = `{
-	// LucidLines configuration file
-	// This file configures the LucidLines terminal streaming server
-	// See https://github.com/juji/lucidlines for documentation
+  // LucidLines configuration file
+  // This file configures the LucidLines terminal streaming server
+  // See https://github.com/juji/lucidlines for documentation
 
-	// Port to run the server on
-	port: ${defaultConfig.port},
+  // Port to run the server on
+  port: ${defaultConfig.port},
 
-	// Commands to run when the server starts
-	commands: [
-		${defaultConfig.commands
+  // Commands to run when the server starts
+  commands: [
+    ${defaultConfig.commands
 			?.map(
 				(cmd) => `{
-			// Display name for this command (shown in UI)
-			name: "${cmd.name}",
+      // Display name for this command (shown in UI)
+      name: "${cmd.name}",
 
-			// Shell command to execute
-			command: "${cmd.command.replace(/"/g, '\\"')}",
-		}`,
+      // Shell command to execute
+      command: "${cmd.command.replace(/"/g, '\\"')}",
+    }`,
 			)
-			.join(",\n\t\t")}
-	],
+			.join(",\n    ")}
+  ],
 
 	// Enable development mode
 	// true: will output logs to console
