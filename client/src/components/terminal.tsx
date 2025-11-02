@@ -23,8 +23,9 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const [viewportHeight, setViewportHeight] = useState(300);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const requestingHistoryRef = useRef(false);
-  // Search temporarily disabled — keep the state commented out while hiding the UI
-  // const [searchTerm, setSearchTerm] = useState('');
+  const requestTimestampRef = useRef<number | null>(null);
+  const logsBeforeHistoryRef = useRef(0);
+  const [historyLoadedCount, setHistoryLoadedCount] = useState<number | null>(null);
 
   const logs = useTerminalStore(
     useShallow(state => state.logs[logType] || [])
@@ -48,6 +49,10 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
     }
   }, [isAutoScrollEnabled, items.length]);
 
+  const scrollToTop = useCallback(() => {
+    virtuosoRef.current?.scrollToIndex(0);
+  }, []);
+
   useEffect(() => {
     setRetainHistory(logType, !isAutoScrollEnabled);
   },[isAutoScrollEnabled])
@@ -58,8 +63,19 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
 
   // new data arrived
   useEffect(() => {
+    let historyJustLoaded = false;
+    
     if(requestingHistoryRef.current && logs.length > 0) {
-      requestingHistoryRef.current = false;
+      const newOldestLog = logs[0];
+      if (newOldestLog && requestTimestampRef.current && newOldestLog.timestamp < requestTimestampRef.current) {
+        const loadedCount = logs.length - logsBeforeHistoryRef.current;
+        setHistoryLoadedCount(loadedCount);
+        requestingHistoryRef.current = false;
+        requestTimestampRef.current = null;
+        historyJustLoaded = true;
+        // Clear the count after 3 seconds
+        setTimeout(() => setHistoryLoadedCount(null), 3000);
+      }
     }
 
     if (!logs.length) {
@@ -86,7 +102,12 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       } satisfies RowData[number];
     }));
 
-    forceScrollToBottom();
+    // Scroll to top if history was just loaded, otherwise scroll to bottom if auto-scroll is enabled
+    if (historyJustLoaded) {
+      scrollToTop();
+    } else {
+      forceScrollToBottom();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs]);
 
@@ -94,9 +115,12 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
   const requestHistoryLocal = () => {
     if (requestingHistoryRef.current || !requestHistory) return;
     requestingHistoryRef.current = true;
+    logsBeforeHistoryRef.current = logs.length;
+    setIsAutoScrollEnabled(false); // Disable auto-scroll when loading history
     
     const oldestLog = logs[0];
     if (oldestLog) {
+      requestTimestampRef.current = oldestLog.timestamp;
       requestHistory(logType, oldestLog.timestamp);
     }
   };
@@ -142,6 +166,11 @@ const Terminal: React.FC<TerminalProps> = ({ logType, log, title, onClose, reque
       <div className="terminal-header">
         <h3 data-swapy-handle>{title}</h3>
         <div className="terminal-controls">
+          {historyLoadedCount !== null && (
+            <span className="history-loaded-indicator">
+              +{historyLoadedCount} loaded
+            </span>
+          )}
           <button
             className="history-button"
             onClick={requestHistoryLocal}
