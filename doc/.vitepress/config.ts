@@ -8,7 +8,7 @@ export default defineConfig({
     },
     theme: {
       light: 'kanagawa-lotus',
-      dark: 'ayu-dark'
+      dark: 'github-dark-default'
     }
   },
   vite: {
