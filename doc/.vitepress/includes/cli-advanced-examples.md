@@ -6,9 +6,6 @@ lucidlines \
   -c "db:docker run -p 5432:5432 postgres" \
   -c "redis:redis-server"
 
-# Production setup
-lucidlines -C production.json5
-
 # Development with custom port
 lucidlines -p 3001 --dev -c "app:npm run dev"
 ```
