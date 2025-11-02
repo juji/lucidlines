@@ -40,6 +40,32 @@ function synchronizeCodeGroups() {
     // @ts-ignore
     label.addEventListener('click', handleLabelClick)
   })
+
+  // Restore selection from localStorage
+  // @ts-ignore
+  const savedSelection = localStorage.getItem('vitepress-code-group-selection')
+  if (savedSelection) {
+    // Apply the saved selection to all code groups
+    setTimeout(() => {
+      applySelection(savedSelection)
+    }, 50) // Small delay to ensure DOM is ready
+  }
+}
+
+// @ts-ignore
+function applySelection(selectedTitle) {
+  // @ts-ignore
+  document.querySelectorAll(`label[data-title="${selectedTitle}"]`).forEach(label => {
+    // @ts-ignore
+    const input = document.getElementById(label.htmlFor)
+    if (input && input.type === 'radio' && !input.checked) {
+      // Check the radio button
+      input.checked = true
+
+      // Find the corresponding content block and activate it
+      activateContentBlock(input)
+    }
+  })
 }
 
 // @ts-ignore
@@ -47,6 +73,10 @@ function handleLabelClick(e) {
   // @ts-ignore
   const clickedTitle = e.target.getAttribute('data-title')
   if (!clickedTitle) return
+
+  // Save the selected package manager to localStorage
+  // @ts-ignore
+  localStorage.setItem('vitepress-code-group-selection', clickedTitle)
 
   // Let the original click proceed, then synchronize the others
   setTimeout(() => {
