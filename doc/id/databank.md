@@ -16,12 +16,12 @@ Sistem penyimpanan data pusat yang memisahkan produsen data dari konsumen.
 ::: warning
 DataBank secara otomatis dibuat dan dikelola oleh LucidLines terlepas dari konfigurasi. API yang didokumentasikan di sini untuk kasus penggunaan lanjutan di mana Anda memerlukan akses langsung ke data log secara programatik. Kebanyakan pengguna tidak perlu berinteraksi dengan DataBank secara langsung.
 
-**Catatan:** Dalam contoh di atas, `serverPort` tidak disetel, yang berarti antarmuka web tidak berjalan. Meskipun databank masih mengumpulkan dan menyimpan semua output perintah, tidak ada yang mengkonsumsi atau menampilkannya. Tambahkan `serverPort` untuk mengaktifkan dasbor web, atau gunakan `databank.subscribe()` untuk memproses log secara programatik.
+**Catatan:** Dalam contoh di atas, `serverPort` tidak disetel, yang berarti antarmuka web tidak berjalan. Meskipun DataBank masih mengumpulkan dan menyimpan semua output perintah, tidak ada yang mengkonsumsi atau menampilkannya. Tambahkan `serverPort` untuk mengaktifkan dasbor web, atau gunakan `databank.subscribe()` untuk memproses log secara programatik.
 :::
 
 ## `addData(type, data)`
 
-Menambahkan data ke penyimpanan DataBank. Ini dilakukan secara internal oleh pustaka internal `node-stream.ts`. Pengguna biasanya tidak menggunakan ini.
+Menambahkan data ke penyimpanan DataBank. Ini dilakukan secara internal oleh pustaka `node-stream.ts`. Pengguna biasanya tidak menggunakan ini.
 
 #### Parameter
 
