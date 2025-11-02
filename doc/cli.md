@@ -12,10 +12,4 @@ Complete reference for LucidLines CLI commands and options.
 
 ## Examples
 
-### Basic Usage
-
 <!--@include: ./.vitepress/includes/cli-basic-usage.md-->
-
-### Advanced Examples
-
-<!--@include: ./.vitepress/includes/cli-advanced-examples.md-->
