@@ -28,6 +28,13 @@ You can toggle individual terminals on and off without affecting the underlying 
   <img src="/select.gif" alt="LucidLines Web Interface Selection" style="display: block; margin: 0 auto; max-width: 100%;">
 </p>
 
+### History
+Access historical logs from the current session. All terminal output is persisted to SQLite, allowing you to scroll back through past logs even after closing and reopening your browser.
+
+<p style="text-align: center;">
+  <img src="/history.gif" alt="LucidLines Web Interface History" style="display: block; margin: 0 auto; max-width: 100%;">
+</p>
+
 ### Interface Customization
 The dashboard offers several customization options:
 - **Text Size**: Adjust the font size for better readability
