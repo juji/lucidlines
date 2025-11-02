@@ -12,10 +12,9 @@ LucidLines is a CLI tool that runs multiple terminal commands concurrently and s
 
 ## Installation & Setup
 
-:::tabs
-== npm
+::: code-group
 
-```bash
+```bash [npm]
 # Install LucidLines
 npm install -D lucidlines
 
@@ -23,9 +22,7 @@ npm install -D lucidlines
 npx lucidlines init
 ```
 
-== pnpm
-
-```bash
+```bash [pnpm]
 # Install LucidLines
 pnpm add -D lucidlines
 
@@ -33,9 +30,7 @@ pnpm add -D lucidlines
 pnpx lucidlines init
 ```
 
-== bun
-
-```bash
+```bash [bun]
 # Install LucidLines
 bun add -D lucidlines
 
@@ -43,9 +38,7 @@ bun add -D lucidlines
 bunx lucidlines init
 ```
 
-== yarn
-
-```bash
+```bash [yarn]
 # Install LucidLines
 yarn add -D lucidlines
 
@@ -98,34 +91,27 @@ The `.lucidlines.json5` file contains your process definitions and settings. Aft
 
 Once your configuration is set up, start LucidLines using one of these methods:
 
-:::tabs
-== npm
+::: code-group
 
-```bash
+```bash [npm]
 npx lucidlines
 # or
 npm run lucidlines
 ```
 
-== pnpm
-
-```bash
+```bash [pnpm]
 pnpx lucidlines
 # or
 pnpm run lucidlines
 ```
 
-== bun
-
-```bash
+```bash [bun]
 bunx lucidlines
 # or
 bun run lucidlines
 ```
 
-== yarn
-
-```bash
+```bash [yarn]
 yarn dlx lucidlines
 # or
 yarn run lucidlines

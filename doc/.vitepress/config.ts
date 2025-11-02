@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitepress'
-import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
 export default defineConfig({
   lastUpdated: true,
@@ -14,11 +13,6 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/android-chrome-512x512.png' }],
     ['link', { rel: 'manifest', href: '/site.webmanifest' }]
   ],
-  markdown: {
-    config(md) {
-      md.use(tabsMarkdownPlugin)
-    }
-  },
   themeConfig: {
     logo: '/apple-touch-icon.png',
     editLink: {
