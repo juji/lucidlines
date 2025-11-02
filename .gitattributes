@@ -11,3 +11,4 @@ doc/public/basic.gif filter=lfs diff=lfs merge=lfs -text
 doc/public/option.gif filter=lfs diff=lfs merge=lfs -text
 doc/public/select.gif filter=lfs diff=lfs merge=lfs -text
 doc/public/site.webmanifest filter=lfs diff=lfs merge=lfs -text
+doc/public/history.gif filter=lfs diff=lfs merge=lfs -text
