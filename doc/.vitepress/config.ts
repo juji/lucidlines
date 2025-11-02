@@ -6,6 +6,10 @@ export default defineConfig({
     config(md) {
       md.use(groupIconMdPlugin)
     },
+    theme: {
+      light: 'kanagawa-lotus',
+      dark: 'ayu-dark'
+    }
   },
   vite: {
     plugins: [
