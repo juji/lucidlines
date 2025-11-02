@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const inputSvg = join(__dirname, 'logo.svg');
-const outputDir = join(__dirname, 'favicons');
+const inputSvg = join(__dirname, '../client/public/logo.svg');
+const outputDir = join(__dirname, '../doc/public');
 
 // Create output directory
 mkdirSync(outputDir, { recursive: true });
