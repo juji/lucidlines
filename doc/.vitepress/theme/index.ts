@@ -54,17 +54,24 @@ function synchronizeCodeGroups() {
 
 // @ts-ignore
 function applySelection(selectedTitle) {
+  // Find all sync group containers and apply selection within each group
   // @ts-ignore
-  document.querySelectorAll(`label[data-title="${selectedTitle}"]`).forEach(label => {
+  document.querySelectorAll('[data-sync-group]').forEach(syncGroupDiv => {
+    const selector = `label[data-title="${selectedTitle}"]`
     // @ts-ignore
-    const input = document.getElementById(label.htmlFor)
-    if (input && input.type === 'radio' && !input.checked) {
-      // Check the radio button
-      input.checked = true
+    const labels = syncGroupDiv.querySelectorAll(selector)
 
-      // Find the corresponding content block and activate it
-      activateContentBlock(input)
-    }
+    labels.forEach((label: any) => {
+      // @ts-ignore
+      const input = document.getElementById(label.htmlFor)
+      if (input && input.type === 'radio' && !input.checked) {
+        // Check the radio button
+        input.checked = true
+
+        // Find the corresponding content block and activate it
+        activateContentBlock(input)
+      }
+    })
   })
 }
 
@@ -74,14 +81,25 @@ function handleLabelClick(e) {
   const clickedTitle = e.target.getAttribute('data-title')
   if (!clickedTitle) return
 
+  // Find the sync group from the wrapper div
+  // @ts-ignore
+  const syncGroupDiv = e.target.closest('[data-sync-group]')
+  // @ts-ignore
+  const syncGroup = syncGroupDiv ? syncGroupDiv.getAttribute('data-sync-group') : null
+
   // Save the selected package manager to localStorage
   // @ts-ignore
   localStorage.setItem('vitepress-code-group-selection', clickedTitle)
 
   // Let the original click proceed, then synchronize the others
   setTimeout(() => {
+    // If we have a sync group, only synchronize within that group
+    const selector = syncGroup
+      ? `[data-sync-group="${syncGroup}"] label[data-title="${clickedTitle}"]`
+      : `label[data-title="${clickedTitle}"]`
+
     // @ts-ignore
-    document.querySelectorAll(`label[data-title="${clickedTitle}"]`).forEach(label => {
+    document.querySelectorAll(selector).forEach(label => {
       // @ts-ignore
       if (label !== e.target) {
         // @ts-ignore
