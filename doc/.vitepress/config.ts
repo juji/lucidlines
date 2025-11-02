@@ -2,6 +2,92 @@ import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 export default defineConfig({
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+      title: 'LucidLines',
+      description: 'Terminal streaming server with real-time process monitoring',
+      themeConfig: {
+        sidebar: {
+          '/': [
+            { 
+              text: 'Home',
+              items: [
+                { text: 'Installation & Setup', link: '/#installation-setup' },
+                { text: 'Configuration', link: '/#configuration' },
+                { text: 'Starting LucidLines', link: '/#starting-lucidlines' },
+                { text: 'Keyboard Controls', link: '/#keyboard-controls' },
+              ]
+            },
+            {
+              text: 'Guide',
+              items: [
+                { text: 'Configuration Options', link: '/configuration' },
+                { text: 'Command Line Interface', link: '/cli' },
+                { text: 'Process Management', link: '/process-management' },
+                { text: 'Web Interface', link: '/web-interface' }
+              ]
+            },
+            {
+              text: 'API',
+              items: [
+                { text: 'Core API', link: '/core' },
+                { text: 'NodeStream API', link: '/nodestream' },
+                { text: 'DataBank API', link: '/databank' }
+              ]
+            }
+          ]
+        },
+        socialLinks: [
+          { icon: 'github', link: 'https://github.com/juji/lucidlines' },
+          { icon: 'npm', link: 'https://www.npmjs.com/package/lucidlines' }
+        ]
+      }
+    },
+    id: {
+      label: 'Bahasa Indonesia',
+      lang: 'id',
+      title: 'LucidLines',
+      description: 'Server streaming terminal dengan pemantauan proses real-time',
+      themeConfig: {
+        sidebar: {
+          '/id/': [
+            { 
+              text: 'Beranda',
+              items: [
+                { text: 'Instalasi & Setup', link: '/id/#instalasi-setup' },
+                { text: 'Konfigurasi', link: '/id/#konfigurasi' },
+                { text: 'Memulai LucidLines', link: '/id/#memulai-lucidlines' },
+                { text: 'Kontrol Keyboard', link: '/id/#kontrol-keyboard' },
+              ]
+            },
+            {
+              text: 'Panduan',
+              items: [
+                { text: 'Opsi Konfigurasi', link: '/id/configuration' },
+                { text: 'Antarmuka Baris Perintah', link: '/id/cli' },
+                { text: 'Manajemen Proses', link: '/id/process-management' },
+                { text: 'Antarmuka Web', link: '/id/web-interface' }
+              ]
+            },
+            {
+              text: 'API',
+              items: [
+                { text: 'API Inti', link: '/id/core' },
+                { text: 'API NodeStream', link: '/id/nodestream' },
+                { text: 'API DataBank', link: '/id/databank' }
+              ]
+            }
+          ]
+        },
+        socialLinks: [
+          { icon: 'github', link: 'https://github.com/juji/lucidlines' },
+          { icon: 'npm', link: 'https://www.npmjs.com/package/lucidlines' }
+        ]
+      }
+    }
+  },
   markdown: {
     config(md) {
       md.use(groupIconMdPlugin)
@@ -17,8 +103,6 @@ export default defineConfig({
     ],
   },
   lastUpdated: true,
-  title: 'LucidLines',
-  description: 'Terminal streaming server with real-time process monitoring',
   head: [
     ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],

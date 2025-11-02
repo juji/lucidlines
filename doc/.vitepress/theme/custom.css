@@ -8,7 +8,6 @@
   /* Soften light mode background */
   --vp-c-bg: #f4f4f2;
   --vp-c-bg-soft: #ebebea;
-  --vp-c-bg-mute: #dddcd9;
 }
 
 .dark {
@@ -17,7 +16,6 @@
   --vp-c-brand-3: #10b981;
   --vp-c-brand-soft: rgba(52, 211, 153, 0.16);
 
-  --vp-c-bg: unset;
-  --vp-c-bg-soft: unset;
-  --vp-c-bg-mute: unset;
+  --vp-c-bg: #1b1b1f;
+  --vp-c-bg-soft: #202127;
 }
