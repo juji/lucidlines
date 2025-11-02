@@ -1,21 +1,33 @@
 ```json5
 {
-  // Server port (default: 8080)
-  port: 3000,
+	// Port to run the server on
+	port: 8080,
 
-  // Enable development mode (default: false)
-  dev: true,
+	// Commands to run when the server starts
+	commands: [
+		{
+			// Display name for this command (shown in UI)
+			name: "ECHO",
 
-  // Commands to run
-  commands: [
-    {
-      name: "web",
-      command: "npm run dev"
-    },
-    {
-      name: "api",
-      command: "python -m flask run"
-    }
-  ]
+			// Shell command to execute
+			command: "echo 'Hello, World!'",
+		},
+		{
+			name: "COUNT",
+			command: 'for i in {5..1}; do echo "$i..."; sleep 1; done; echo "BOOM!"',
+		},
+		{
+			name: "YESLOOP",
+			command: 'while true; do yes "Are we there yet?"; done',
+		},
+		{
+			name: "YOU",
+			command: "npm run dev",
+		},
+	],
+
+	// Enable development mode
+	// true: will output logs to console
+	dev: false,
 }
 ```
