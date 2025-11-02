@@ -1,6 +1,17 @@
 import { defineConfig } from 'vitepress'
+import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 export default defineConfig({
+  markdown: {
+    config(md) {
+      md.use(groupIconMdPlugin)
+    },
+  },
+  vite: {
+    plugins: [
+      groupIconVitePlugin()
+    ],
+  },
   lastUpdated: true,
   title: 'LucidLines',
   description: 'Terminal streaming server with real-time process monitoring',
