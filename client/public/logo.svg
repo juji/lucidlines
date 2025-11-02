@@ -24,20 +24,10 @@
 
   <!-- transparent background -->
 
-  <!-- 15 thin lines, top/bottom gaps = x/y padding = 10.375px, randomized colors -->
-  <rect x="10.375" y="10.375" width="235.25" height="6" rx="3" fill="url(#line3)"/>
-  <rect x="10.375" y="26.75" width="192" height="6" rx="3" fill="url(#line5)"/>
-  <rect x="10.375" y="43.125" width="208" height="6" rx="3" fill="url(#line1)"/>
-  <rect x="10.375" y="59.5" width="180" height="6" rx="3" fill="url(#line4)"/>
-  <rect x="10.375" y="75.875" width="224" height="6" rx="3" fill="url(#line2)"/>
-  <rect x="10.375" y="92.25" width="176" height="6" rx="3" fill="url(#line5)"/>
-  <rect x="10.375" y="108.625" width="200" height="6" rx="3" fill="url(#line3)"/>
-  <rect x="10.375" y="125" width="192" height="6" rx="3" fill="url(#line1)"/>
-  <rect x="10.375" y="141.375" width="180" height="6" rx="3" fill="url(#line4)"/>
-  <rect x="10.375" y="157.75" width="224" height="6" rx="3" fill="url(#line2)"/>
-  <rect x="10.375" y="174.125" width="208" height="6" rx="3" fill="url(#line5)"/>
-  <rect x="10.375" y="190.5" width="192" height="6" rx="3" fill="url(#line1)"/>
-  <rect x="10.375" y="206.875" width="224" height="6" rx="3" fill="url(#line3)"/>
-  <rect x="10.375" y="223.25" width="180" height="6" rx="3" fill="url(#line4)"/>
-  <rect x="10.375" y="239.625" width="200" height="6" rx="3" fill="url(#line2)"/>
+  <!-- 5 thick lines, second & fourth significantly shorter -->
+  <rect x="24" y="24" width="208" height="22.4" rx="5" fill="url(#line3)"/>
+  <rect x="24" y="70.4" width="140" height="22.4" rx="5" fill="url(#line1)"/> <!-- much shorter -->
+  <rect x="24" y="116.8" width="208" height="22.4" rx="5" fill="url(#line5)"/>
+  <rect x="24" y="163.2" width="100" height="22.4" rx="5" fill="url(#line4)"/> <!-- very short -->
+  <rect x="24" y="209.6" width="180" height="22.4" rx="5" fill="url(#line2)"/>
 </svg>
