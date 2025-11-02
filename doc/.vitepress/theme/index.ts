@@ -1,6 +1,7 @@
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import 'virtual:group-icons.css'
+import './custom.css'
 
 // ts-ignoreing to ignore missing types
 // @ts-ignore
