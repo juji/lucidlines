@@ -8,7 +8,7 @@ Subcommands:
   init                    Create a .lucidlines.json5 configuration file
 
 Options:
-  -p, --port <port>          Server port (default: 8080)
+  -p, --port <port>          Server port
   -c, --command <name:cmd>   Add command to run (can be used multiple times)
   -C, --config <file>        Path to JSON5 config file (default: .lucidlines.json5)
   -d, --dev                  Enable development mode (console logging)
