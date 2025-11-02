@@ -41,37 +41,40 @@ function synchronizeCodeGroups() {
     label.addEventListener('click', handleLabelClick)
   })
 
-  // Restore selection from localStorage
-  // @ts-ignore
-  const savedSelection = localStorage.getItem('vitepress-code-group-selection')
-  if (savedSelection) {
-    // Apply the saved selection to all code groups
-    setTimeout(() => {
-      applySelection(savedSelection)
-    }, 50) // Small delay to ensure DOM is ready
-  }
+  // Restore selection from localStorage for each sync group
+  setTimeout(() => {
+    applySelection()
+  }, 50) // Small delay to ensure DOM is ready
 }
 
 // @ts-ignore
-function applySelection(selectedTitle) {
+function applySelection() {
   // Find all sync group containers and apply selection within each group
   // @ts-ignore
   document.querySelectorAll('[data-sync-group]').forEach(syncGroupDiv => {
-    const selector = `label[data-title="${selectedTitle}"]`
     // @ts-ignore
-    const labels = syncGroupDiv.querySelectorAll(selector)
+    const syncGroup = syncGroupDiv.getAttribute('data-sync-group') || 'default'
+    const storageKey = `vitepress-code-group-selection-${syncGroup}`
+    // @ts-ignore
+    const savedSelection = localStorage.getItem(storageKey)
 
-    labels.forEach((label: any) => {
+    if (savedSelection) {
+      const selector = `label[data-title="${savedSelection}"]`
       // @ts-ignore
-      const input = document.getElementById(label.htmlFor)
-      if (input && input.type === 'radio' && !input.checked) {
-        // Check the radio button
-        input.checked = true
+      const labels = syncGroupDiv.querySelectorAll(selector)
 
-        // Find the corresponding content block and activate it
-        activateContentBlock(input)
-      }
-    })
+      labels.forEach((label: any) => {
+        // @ts-ignore
+        const input = document.getElementById(label.htmlFor)
+        if (input && input.type === 'radio' && !input.checked) {
+          // Check the radio button
+          input.checked = true
+
+          // Find the corresponding content block and activate it
+          activateContentBlock(input)
+        }
+      })
+    }
   })
 }
 
@@ -85,11 +88,12 @@ function handleLabelClick(e) {
   // @ts-ignore
   const syncGroupDiv = e.target.closest('[data-sync-group]')
   // @ts-ignore
-  const syncGroup = syncGroupDiv ? syncGroupDiv.getAttribute('data-sync-group') : null
+  const syncGroup = syncGroupDiv ? syncGroupDiv.getAttribute('data-sync-group') : 'default'
 
-  // Save the selected package manager to localStorage
+  // Save the selected package manager to localStorage with sync group scope
+  const storageKey = `vitepress-code-group-selection-${syncGroup}`
   // @ts-ignore
-  localStorage.setItem('vitepress-code-group-selection', clickedTitle)
+  localStorage.setItem(storageKey, clickedTitle)
 
   // Let the original click proceed, then synchronize the others
   setTimeout(() => {
