@@ -24,7 +24,7 @@ export interface LogEntry {
  * Factory function to create a new DataBank instance
  */
 export function createDatabank() {
-	const RECENT_MESSAGE_LIMIT = 1000; // Max number of recent messages to give initially
+	const RECENT_MESSAGE_LIMIT = 100; // Max number of recent messages to give initially
 
 	const emitter = new EventEmitter();
 	const availableTypes: Set<string> = new Set();

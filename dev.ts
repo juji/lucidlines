@@ -7,12 +7,12 @@ import { start } from "./src/index";
 const dir = __dirname
 
 console.log("Starting LucidLines Dev Server at", dir);
-console.log("go to http://localhost:8080 to view the client");
+console.log("go to http://localhost:8181 to view the client");
 console.log("");
 
 // Start the app using our own implementation
 const { stop, lucidEvent } = start({
-	serverPort: 8080,
+	serverPort: 8181,
 	frontEnd: 5173, // Vite's default port for the client
 	// frontEnd: path.join(__dirname, "./dist"), // Serve static files from the client build directory
 	commands: [
