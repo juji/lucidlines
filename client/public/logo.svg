@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="line1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00bfff"/>
+      <stop offset="100%" stop-color="#00ffea"/>
+    </linearGradient>
+    <linearGradient id="line2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff5f6d"/>
+      <stop offset="100%" stop-color="#ffc371"/>
+    </linearGradient>
+    <linearGradient id="line3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a1ffce"/>
+      <stop offset="100%" stop-color="#faffd1"/>
+    </linearGradient>
+    <linearGradient id="line4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b6fbff"/>
+      <stop offset="100%" stop-color="#83a4d4"/>
+    </linearGradient>
+    <linearGradient id="line5" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f7971e"/>
+      <stop offset="100%" stop-color="#ffd200"/>
+    </linearGradient>
+  </defs>
+
+  <!-- transparent background -->
+
+  <!-- 15 thin lines, top/bottom gaps = x/y padding = 10.375px, randomized colors -->
+  <rect x="10.375" y="10.375" width="235.25" height="6" rx="3" fill="url(#line3)"/>
+  <rect x="10.375" y="26.75" width="192" height="6" rx="3" fill="url(#line5)"/>
+  <rect x="10.375" y="43.125" width="208" height="6" rx="3" fill="url(#line1)"/>
+  <rect x="10.375" y="59.5" width="180" height="6" rx="3" fill="url(#line4)"/>
+  <rect x="10.375" y="75.875" width="224" height="6" rx="3" fill="url(#line2)"/>
+  <rect x="10.375" y="92.25" width="176" height="6" rx="3" fill="url(#line5)"/>
+  <rect x="10.375" y="108.625" width="200" height="6" rx="3" fill="url(#line3)"/>
+  <rect x="10.375" y="125" width="192" height="6" rx="3" fill="url(#line1)"/>
+  <rect x="10.375" y="141.375" width="180" height="6" rx="3" fill="url(#line4)"/>
+  <rect x="10.375" y="157.75" width="224" height="6" rx="3" fill="url(#line2)"/>
+  <rect x="10.375" y="174.125" width="208" height="6" rx="3" fill="url(#line5)"/>
+  <rect x="10.375" y="190.5" width="192" height="6" rx="3" fill="url(#line1)"/>
+  <rect x="10.375" y="206.875" width="224" height="6" rx="3" fill="url(#line3)"/>
+  <rect x="10.375" y="223.25" width="180" height="6" rx="3" fill="url(#line4)"/>
+  <rect x="10.375" y="239.625" width="200" height="6" rx="3" fill="url(#line2)"/>
+</svg>
