@@ -35,7 +35,7 @@ const { stop, lucidEvent } = start({
 		// 	name: "[][][]@)_+!~!~@#$%^&*()_+{}[]:\";'<>?,./",
 		// },
 		{
-			command: "tsx ./dev/server-logs.ts",
+			command: "tsx --watch ./dev/server-logs.ts",
 			name: "SERVER",
 		},
 		// {

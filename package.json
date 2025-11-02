@@ -42,7 +42,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
     "@tsconfig/node22": "^22.0.2",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.7.2",
     "@types/tmp": "^0.2.6",
     "@types/ws": "^8.18.1",
@@ -54,10 +53,10 @@
   },
   "dependencies": {
     "@types/http-proxy": "^1.17.16",
-    "better-sqlite3": "^12.4.1",
     "cp-dir": "^1.0.3",
     "http-proxy": "^1.18.1",
     "json5": "^2.2.3",
+    "level": "^10.0.0",
     "tmp": "^0.2.5",
     "ws": "^8.18.3"
   }

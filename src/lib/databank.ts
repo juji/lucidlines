@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
-import Database from "better-sqlite3";
+import { rmSync } from "node:fs";
+import { Level } from "level";
 import * as tmp from "tmp";
 
 /**
@@ -7,7 +8,7 @@ import * as tmp from "tmp";
  * data producers from consumers (WebSocket clients).
  *
  * - Stores and manages data with a simple API
- * - Buffers recent messages for new clients using SQLite (persistent DB)
+ * - Buffers recent messages for new clients using LevelDB (persistent DB)
  * - Provides a clean event-based API for consumers
  * - Uses temporary file storage that's cleaned up on exit
  */
@@ -28,63 +29,44 @@ export function createDatabank() {
 	const emitter = new EventEmitter();
 	const availableTypes: Set<string> = new Set();
 
-	// Create temp file for SQLite that will be auto-deleted when the process exits
-	const tempFile = tmp.fileSync({
+	// Create temp directory for LevelDB that will be cleaned up when the process exits
+	const tempDir = tmp.dirSync({
 		prefix: "lucidlines-db-",
-		postfix: ".db",
-		keep: false,
+		unsafeCleanup: true,
 	});
 
-	// Initialize SQLite database
-	const db = new Database(tempFile.name);
+	// Initialize LevelDB database
+	const db = new Level<string, LogEntry>(tempDir.name, {
+		valueEncoding: "json",
+	});
 
-	// Enable WAL mode for better concurrent performance
-	db.pragma("journal_mode = WAL");
+	// Counter for generating sequential IDs
+	let idCounter = 0;
 
-	// Create table for log entries
-	db.exec(`
-		CREATE TABLE IF NOT EXISTS logs (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			type TEXT NOT NULL,
-			data TEXT NOT NULL,
-			timestamp INTEGER NOT NULL
-		);
-		CREATE INDEX IF NOT EXISTS idx_timestamp ON logs(timestamp);
-		CREATE INDEX IF NOT EXISTS idx_type_timestamp ON logs(type, timestamp);
-	`);
-
-	// Prepare statements for better performance
-	const insertStmt = db.prepare(
-		"INSERT INTO logs (type, data, timestamp) VALUES (?, ?, ?)",
-	);
-	const countAllStmt = db.prepare("SELECT COUNT(*) as count FROM logs");
-	const countByTypeStmt = db.prepare(
-		"SELECT COUNT(*) as count FROM logs WHERE type = ?",
-	);
-	const getRecentStmt = db.prepare(
-		"SELECT type, data, timestamp FROM logs ORDER BY timestamp DESC LIMIT ?",
-	);
-	const getAllStmt = db.prepare(
-		"SELECT type, data, timestamp FROM logs ORDER BY timestamp DESC",
-	);
-	const getByTypeStmt = db.prepare(
-		"SELECT type, data, timestamp FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?",
-	);
-	const getByTypeWithTimestampStmt = db.prepare(
-		"SELECT type, data, timestamp FROM logs WHERE type = ? AND timestamp < ? ORDER BY timestamp DESC LIMIT ?",
-	);
+	/**
+	 * Generate a sortable key for timestamp-based ordering
+	 * Format: timestamp-paddedId to ensure chronological order
+	 */
+	const generateKey = (timestamp: number, id: number): string => {
+		return `${timestamp.toString().padStart(20, "0")}-${id.toString().padStart(10, "0")}`;
+	};
 
 	/**
 	 * Add data to the databank
 	 */
-	const addEntry = (type: string, data: string, timestamp: number): void => {
+	const addEntry = async (
+		type: string,
+		data: string,
+		timestamp: number,
+	): Promise<void> => {
 		const entry: LogEntry = { type, data, timestamp };
 
 		// Track this type
 		availableTypes.add(type);
 
-		// Insert into SQLite database
-		insertStmt.run(type, data, timestamp);
+		// Store in LevelDB with timestamp-based key for ordering
+		const key = generateKey(timestamp, idCounter++);
+		await db.put(key, entry);
 
 		emitter.emit("data", entry);
 	};
@@ -94,16 +76,19 @@ export function createDatabank() {
 		 * Clean up resources - should be called by the user of this instance when shutting down
 		 * This ensures all data is saved and resources are properly released
 		 */
-		cleanup(): void {
+		async cleanup(): Promise<void> {
 			try {
 				// Close the database connection
-				if (db) {
-					db.close();
-				}
+				await db.close();
 				// Clear in-memory data
 				availableTypes.clear();
-				// The tmp package automatically removes the temp file when the process exits
-				console.log("DataBank cleanup. Temporary files will be removed.");
+				// Remove the temporary directory
+				try {
+					rmSync(tempDir.name, { recursive: true, force: true });
+				} catch (e) {
+					// Ignore errors during cleanup
+				}
+				console.log("DataBank cleanup completed.");
 			} catch (error) {
 				console.error("Error cleaning up DataBank resources:", error);
 			}
@@ -113,35 +98,58 @@ export function createDatabank() {
 		 * Get recent messages for a newly connected client
 		 * @param limit Optional limit of messages to return (defaults to 1000)
 		 */
-		getRecentMessages(limit?: number): Array<LogEntry> {
+		async getRecentMessages(limit?: number): Promise<Array<LogEntry>> {
 			const requestedLimit = limit || RECENT_MESSAGE_LIMIT;
-			const rows = getRecentStmt.all(requestedLimit) as Array<LogEntry>;
+			const entries: Array<LogEntry> = [];
+
+			// Read entries in reverse order (newest first)
+			for await (const [_, entry] of db.iterator({
+				reverse: true,
+				limit: requestedLimit,
+			})) {
+				entries.push(entry);
+			}
+
 			// Reverse to return in ascending order (oldest to newest)
-			return rows.reverse();
+			return entries.reverse();
 		},
 
 		/**
 		 * Get all available messages (may be a very large dataset)
 		 * Use with caution!
 		 */
-		getAllMessages(): Array<LogEntry> {
-			return getAllStmt.all() as Array<LogEntry>;
+		async getAllMessages(): Promise<Array<LogEntry>> {
+			const entries: Array<LogEntry> = [];
+
+			for await (const [_, entry] of db.iterator({ reverse: true })) {
+				entries.push(entry);
+			}
+
+			return entries.reverse();
 		},
 
 		/**
 		 * Get the total count of all messages stored
 		 */
-		getTotalMessageCount(): number {
-			const result = countAllStmt.get() as { count: number };
-			return result.count;
+		async getTotalMessageCount(): Promise<number> {
+			let count = 0;
+			for await (const _ of db.keys()) {
+				count++;
+			}
+			return count;
 		},
 
 		/**
 		 * Get the count of messages for a specific type
 		 */
-		getMessageCountByType(type: string): number {
-			const result = countByTypeStmt.get(type) as { count: number };
-			return result.count;
+		async getMessageCountByType(type: string): Promise<number> {
+			let count = 0;
+			for await (const [_, entry] of db.iterator()) {
+				if (entry.type === type) {
+					count++;
+				}
+			}
+			return count;
 		},
 
 		/**
@@ -154,26 +162,30 @@ export function createDatabank() {
 		/**
 		 * Get messages by type with an optional limit
 		 */
-		getMessageByType(
+		async getMessageByType(
 			type: string,
 			lastTimestamp?: number,
 			limit?: number,
-		): Array<LogEntry> {
+		): Promise<Array<LogEntry>> {
 			const requestedLimit = limit || 20;
+			const entries: Array<LogEntry> = [];
 
-			let rows: Array<LogEntry>;
-			if (lastTimestamp) {
-				rows = getByTypeWithTimestampStmt.all(
-					type,
-					lastTimestamp,
-					requestedLimit,
-				) as Array<LogEntry>;
-			} else {
-				rows = getByTypeStmt.all(type, requestedLimit) as Array<LogEntry>;
+			// Iterate in reverse order (newest first)
+			for await (const [_, entry] of db.iterator({ reverse: true })) {
+				// Filter by type
+				if (entry.type !== type) continue;
+
+				// Filter by timestamp if provided
+				if (lastTimestamp && entry.timestamp >= lastTimestamp) continue;
+
+				entries.push(entry);
+
+				// Stop when we reach the limit
+				if (entries.length >= requestedLimit) break;
 			}
 
 			// Reverse to return in ascending order (oldest to newest)
-			return rows.reverse();
+			return entries.reverse();
 		},
 
 		/**
@@ -181,7 +193,10 @@ export function createDatabank() {
 		 */
 		addData(type: string, data: string): void {
 			const timestamp = Date.now();
-			addEntry(type, data, timestamp);
+			// Fire and forget - we don't await here to maintain sync behavior
+			addEntry(type, data, timestamp).catch((err) =>
+				console.error("Error adding data to databank:", err),
+			);
 		},
 
 		/**

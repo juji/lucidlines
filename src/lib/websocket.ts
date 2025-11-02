@@ -35,17 +35,19 @@ export class WebSocketManager {
 		this.wss.on("connection", (ws, _req) => this.handleConnection(ws));
 	}
 
-	private handleConnection(ws: WebSocket): void {
+	private async handleConnection(ws: WebSocket): Promise<void> {
 		// console.log("WebSocket client connected");
 
 		// get total length of messages in databank
 		// this includes data in loki and in-memory
-		const totalMessages = this.databank.getTotalMessageCount();
+		const totalMessages = await this.databank.getTotalMessageCount();
 		const types = this.databank.getAvailableTypes();
-		const totalByTypes = types.map((type) => ({
-			type,
-			count: this.databank.getMessageCountByType(type),
-		}));
+		const totalByTypes = await Promise.all(
+			types.map(async (type) => ({
+				type,
+				count: await this.databank.getMessageCountByType(type),
+			})),
+		);
 
 		// send those to the client
 		ws.send(
@@ -60,7 +62,7 @@ export class WebSocketManager {
 		);
 
 		// Send recent messages from the databank to new client
-		const recentMessages = this.databank.getRecentMessages();
+		const recentMessages = await this.databank.getRecentMessages();
 		if (recentMessages.length > 0) {
 			ws.send(
 				JSON.stringify({
@@ -85,15 +87,15 @@ export class WebSocketManager {
 		);
 
 		// Handle incoming messages
-		ws.on("message", (data) => {
+		ws.on("message", async (data) => {
 			try {
-				console.log("Received: %s", data);
+				// console.log("Received: %s", data);
 
 				const message = JSON.parse(data.toString());
 				if (message.type === "history") {
 					const lastTimestamp = message.lastTimestamp;
 					const type = message.logType;
-					const history = this.databank.getMessageByType(
+					const history = await this.databank.getMessageByType(
 						type,
 						lastTimestamp,
 						33,

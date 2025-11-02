@@ -8,7 +8,7 @@ export interface LogMessage {
   timestamp: number; // When the log was created
 }
 
-const MAX_LOGS = 1000; // Maximum number of logs to keep per type
+const MAX_LOGS = 500; // Maximum number of logs to keep per type
 
 // Interface for the terminal store
 interface TerminalState {

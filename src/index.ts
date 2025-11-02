@@ -101,7 +101,7 @@ export function start(options: {
 
 		await currentNodeStream.stop();
 		server?.stop();
-		databank.cleanup();
+		await databank.cleanup();
 	}
 
 	return {
