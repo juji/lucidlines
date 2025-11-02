@@ -11,17 +11,7 @@ next:
 
 Sistem penyimpanan data pusat yang memisahkan produsen data dari konsumen.
 
-```typescript
-import { start } from 'lucidlines';
-
-const { databank } = start({
-  commands: [
-    { name: 'web', command: 'npm run dev' }
-  ]
-});
-
-// lihat metode databank di bawah
-```
+<!--@include: ../.vitepress/includes/databank-usage.md-->
 
 ::: warning
 DataBank secara otomatis dibuat dan dikelola oleh LucidLines terlepas dari konfigurasi. API yang didokumentasikan di sini untuk kasus penggunaan lanjutan di mana Anda memerlukan akses langsung ke data log secara programatik. Kebanyakan pengguna tidak perlu berinteraksi dengan DataBank secara langsung.
@@ -194,10 +184,4 @@ databank.cleanup();
 
 ### LogEntry
 
-```typescript
-interface LogEntry {
-  type: string;      // Tipe/kategori data
-  data: string;      // Konten data aktual
-  timestamp: number; // Timestamp Unix
-}
-```
+<!--@include: ../.vitepress/includes/log-entry-interface.md-->

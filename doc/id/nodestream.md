@@ -11,27 +11,7 @@ next:
 
 Manajemen dan kontrol proses untuk menjalankan beberapa perintah.
 
-```typescript
-import { start } from 'lucidlines';
-
-const { nodeStream } = start({
-  commands: [
-    { name: 'web', command: 'npm run dev' },
-    { name: 'api', command: 'npm run server' },
-    { name: 'worker', command: 'npm run worker' }
-  ]
-  serverPort: 8080
-});
-
-// Mulai ulang proses tertentu berdasarkan indeks
-await nodeStream.restartProcess(0); // Mulai ulang web server
-
-// Mulai ulang semua proses
-await nodeStream.restartAll();
-
-// Hentikan semua proses
-await nodeStream.stop();
-```
+<!--@include: ../.vitepress/includes/nodestream-usage.md-->
 
 ## `restartProcess(index)`
 
@@ -65,12 +45,4 @@ Menghentikan semua proses.
 
 ### ProcessInfo
 
-```typescript
-interface ProcessInfo {
-  name: string;
-  command: string;
-  process: ChildProcess;
-  kill: () => void;
-  restart: () => Promise<void>;
-}
-```
+<!--@include: ../.vitepress/includes/process-info-interface.md-->

@@ -1,0 +1,7 @@
+```json
+{
+  "scripts": {
+    "lucidlines": "lucidlines"
+  }
+}
+```

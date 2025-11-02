@@ -26,16 +26,7 @@ Ketika LucidLines dimulai, ia:
 
 Setiap proses didefinisikan dengan nama dan perintah:
 
-```json5
-{
-  commands: [
-    {
-      name: "web-server",
-      command: "npm run dev"
-    }
-  ]
-}
-```
+<!--@include: ../.vitepress/includes/process-config-example.md-->
 
 ### Setup Lingkungan
 
@@ -95,13 +86,7 @@ DataBank memisahkan output proses dari konsumsi antarmuka web, memungkinkan:
 
 LucidLines menggunakan sistem manajemen data yang disebut **DataBank**:
 
-```typescript
-interface LogEntry {
-  type: string;      // Nama proses (misalnya "web-server")
-  data: string;      // Baris output
-  timestamp: number; // Timestamp Unix
-}
-```
+<!--@include: ../.vitepress/includes/log-entry-interface.md-->
 
 ### Strategi Penyimpanan
 

@@ -2,17 +2,7 @@
 
 Central data storage system that decouples data producers from consumers.
 
-```typescript
-import { start } from 'lucidlines';
-
-const { databank } = start({
-  commands: [
-    { name: 'web', command: 'npm run dev' }
-  ]
-});
-
-// see databank methods below
-```
+<!--@include: ./.vitepress/includes/databank-usage.md-->
 
 ::: warning
 DataBank is automatically created and managed by LucidLines regardless of configuration. The API documented here is for advanced use cases where you need direct access to log data programmatically. Most users won't need to interact with DataBank directly.
@@ -185,10 +175,4 @@ databank.cleanup();
 
 ### LogEntry
 
-```typescript
-interface LogEntry {
-  type: string;      // Data type/category
-  data: string;      // The actual data content
-  timestamp: number; // Unix timestamp
-}
-```
+<!--@include: ./.vitepress/includes/log-entry-interface.md-->

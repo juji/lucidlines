@@ -6,87 +6,16 @@ The main entry point for starting LucidLines programmatically.
 
 Starts the LucidLines server and processes.
 
-```typescript
-import { start } from 'lucidlines';
-
-const { lucidEvent, stop, server, nodeStream, databank } = start({
-  commands: [
-    { name: 'web', command: 'npm run dev' },
-    { name: 'api', command: 'npm run server' }
-  ],
-
-  // nullable, the server won't start if this is falsy
-  // if that is the case, 
-  // you can listen to events using databank.subscribe
-  serverPort: 3000, 
-
-});
-
-// Listen to process lifecycle events
-lucidEvent.on('start', (data) => {
-  console.log(`[${data.index}] ${data.name} started`);
-  // example: [0] web started
-});
-
-lucidEvent.on('kill', (data) => {
-  console.log(`[${data.index}] ${data.name} killed`);
-});
-
-lucidEvent.on('forcekill', (data) => {
-  console.log(`[${data.index}] ${data.name} force killed`);
-});
-
-// Handle graceful shutdown
-process.on('SIGINT', () => handleShutdown('SIGINT'));
-process.on('SIGTERM', () => handleShutdown('SIGTERM'));
-process.on('SIGHUP', () => handleShutdown('SIGHUP'));
-process.on('SIGQUIT', () => handleShutdown('SIGQUIT'));
-
-async function handleShutdown(signal?: string) {
-  try {
-    await stop();
-    process.exit(0);
-  } catch (error) {
-    console.error(
-      `Error during shutdown${signal ? ` (${signal})` : ""}:`,
-      error,
-    );
-    process.exit(1);
-  }
-}
-```
+<!--@include: ./.vitepress/includes/core-start-example.md-->
 
 #### Parameters
 
-```typescript
-interface StartOptions {
-  serverPort?: number;        // Server port (default: 8080)
-  frontEnd?: string | number; // Frontend path or port
-  commands?: Array<{          // Commands to run
-    command: string;
-    name: string;
-  }>;
-  dev?: boolean;              // Development mode
-}
-```
+<!--@include: ./.vitepress/includes/core-start-options.md-->
 
 #### Returns
 
-```typescript
-interface StartResult {
-  server?: Server;           // HTTP server instance
-  nodeStream: NodeStream;    // Process manager
-  databank: DataBank;        // Data storage and retrieval system, you might not need this
-  lucidEvent: LucidEvent;    // Event emitter for process lifecycle events
-  stop: () => Promise<void>; // Cleanup function
-}
-```
+<!--@include: ./.vitepress/includes/core-start-result.md-->
 
 #### Types
 
-```typescript
-interface Command {
-  name: string;    // Process name
-  command: string; // Shell command to run
-}
-```
+<!--@include: ./.vitepress/includes/core-command-interface.md-->

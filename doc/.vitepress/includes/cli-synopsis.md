@@ -1,0 +1,3 @@
+```bash
+lucidlines [subcommand] [options]
+```

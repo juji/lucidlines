@@ -12,124 +12,23 @@ LucidLines is a CLI tool that runs multiple terminal commands concurrently and s
 
 ## Installation & Setup
 
-::: code-group
-
-```bash [npm]
-# Install LucidLines
-npm install -D lucidlines
-
-# Initialize configuration
-npx lucidlines init
-```
-
-```bash [pnpm]
-# Install LucidLines
-pnpm add -D lucidlines
-
-# Initialize configuration
-pnpx lucidlines init
-```
-
-```bash [bun]
-# Install LucidLines
-bun add -D lucidlines
-
-# Initialize configuration
-bunx lucidlines init
-```
-
-```bash [yarn]
-# Install LucidLines
-yarn add -D lucidlines
-
-# Initialize configuration
-yarn dlx lucidlines init
-```
-
-```bash [deno]
-# Install LucidLines
-deno install -D npm:lucidlines
-
-# Initialize configuration
-deno run npm:lucidlines init
-```
-
-:::
+<!--@include: ./.vitepress/includes/installation-code-group.md-->
 
 This will create a `.lucidlines.json5` configuration file in your project and add a script to your `package.json`:
 
-```json
-{
-  "scripts": {
-    "lucidlines": "lucidlines"
-  }
-}
-```
+<!--@include: ./.vitepress/includes/package-json-script.md-->
 
 ## Configuration
 
 The `.lucidlines.json5` file contains your process definitions and settings. After initialization, edit this file to add your commands:
 
-```json5
-{
-  // Server port
-  port: 8080,
-
-  // Enable development mode with console logging
-  dev: true,
-
-  // List of commands to run
-  commands: [
-    {
-      // Display name for the process
-      name: "frontend",
-
-      // Command to execute
-      command: "npm run dev"
-    },
-    {
-      name: "backend",
-      command: "npm run server"
-    }
-  ]
-}
-```
+<!--@include: ./.vitepress/includes/configuration-example.md-->
 
 ## Starting LucidLines
 
 Once your configuration is set up, start LucidLines using one of these methods:
 
-::: code-group
-
-```bash [npm]
-npx lucidlines
-# or
-npm run lucidlines
-```
-
-```bash [pnpm]
-pnpx lucidlines
-# or
-pnpm run lucidlines
-```
-
-```bash [bun]
-bunx lucidlines
-# or
-bun run lucidlines
-```
-
-```bash [yarn]
-yarn dlx lucidlines
-# or
-yarn run lucidlines
-```
-
-```bash [deno]
-deno run npm:lucidlines
-```
-
-:::
+<!--@include: ./.vitepress/includes/starting-commands.md-->
 
 This will start all the processes defined in your `.lucidlines.json5` file, example output:
 

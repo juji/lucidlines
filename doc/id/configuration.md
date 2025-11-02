@@ -17,40 +17,13 @@ LucidLines mencari file `.lucidlines.json5` di direktori saat ini. Anda juga dap
 
 ### Konfigurasi Dasar
 
-```json5
-{
-  // Port server (default: 8080)
-  port: 3000,
-
-  // Aktifkan mode pengembangan (default: false)
-  dev: true,
-
-  // Perintah untuk dijalankan
-  commands: [
-    {
-      name: "web",
-      command: "npm run dev"
-    },
-    {
-      name: "api",
-      command: "python -m flask run"
-    }
-  ]
-}
-```
+<!--@include: ../.vitepress/includes/configuration-basic.md-->
 
 ## Format Perintah
 
 Perintah ditentukan dengan nama dan perintah:
 
-```json5
-commands: [
-  {
-    name: "web",
-    command: "npm run dev"
-  }
-]
-```
+<!--@include: ../.vitepress/includes/configuration-command-format.md-->
 
 ### Nama Perintah
 
@@ -60,25 +33,7 @@ commands: [
 
 ### Contoh Perintah
 
-```json5
-commands: [
-  // Aplikasi Node.js
-  { name: "frontend", command: "npm run dev" },
-  { name: "backend", command: "npm run server" },
-
-  // Aplikasi Python
-  { name: "api", command: "python -m flask run" },
-  { name: "worker", command: "python worker.py" },
-
-  // Database
-  { name: "postgres", command: "docker run -p 5432:5432 postgres" },
-  { name: "redis", command: "redis-server" },
-
-  // Pemantauan log
-  { name: "logs", command: "tail -f /var/log/app.log" },
-  { name: "errors", command: "tail -f /var/log/error.log" }
-]
-```
+<!--@include: ../.vitepress/includes/configuration-command-examples.md-->
 
 ## Variabel Lingkungan
 

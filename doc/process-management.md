@@ -17,16 +17,7 @@ When LucidLines starts, it:
 
 Each process is defined with a name and command:
 
-```json5
-{
-  commands: [
-    {
-      name: "web-server",
-      command: "npm run dev"
-    }
-  ]
-}
-```
+<!--@include: ./.vitepress/includes/process-config-example.md-->
 
 ### Environment Setup
 
@@ -86,13 +77,7 @@ The DataBank decouples process output from web interface consumption, allowing:
 
 LucidLines uses a data management system called **DataBank**:
 
-```typescript
-interface LogEntry {
-  type: string;      // Process name (e.g., "web-server")
-  data: string;      // Output line
-  timestamp: number; // Unix timestamp
-}
-```
+<!--@include: ./.vitepress/includes/log-entry-interface.md-->
 
 ### Storage Strategy
 

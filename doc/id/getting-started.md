@@ -34,27 +34,13 @@ Untuk opsi konfigurasi yang lebih lanjutan, lihat [Panduan Konfigurasi](./config
 
 ### Menjalankan dalam Mode Pengembangan
 
-```bash
-# Aktifkan mode pengembangan dengan logging konsol
-npx lucidlines --dev
-```
+<!--@include: ../.vitepress/includes/getting-started-dev-mode.md-->
 
 ### Menambahkan Lebih Banyak Proses
 
 Anda dapat menambahkan sebanyak proses yang diperlukan ke `.lucidlines.json5` Anda:
 
-```json5
-{
-  port: 8080,
-  dev: true,
-  commands: [
-    { name: "frontend", command: "npm run dev" },
-    { name: "backend", command: "npm run server" },
-    { name: "database", command: "docker-compose up db" },
-    { name: "tests", command: "npm run test:watch" }
-  ]
-}
-```
+<!--@include: ../.vitepress/includes/getting-started-advanced-config.md-->
 
 ## Kontrol Keyboard
 

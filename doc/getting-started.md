@@ -28,27 +28,13 @@ For more advanced configuration options, see the [Configuration Guide](./configu
 
 ### Running in Development Mode
 
-```bash
-# Enable development mode with console logging
-npx lucidlines --dev
-```
+<!--@include: ./.vitepress/includes/getting-started-dev-mode.md-->
 
 ### Adding More Processes
 
 You can add as many processes as needed to your `.lucidlines.json5`:
 
-```json5
-{
-  port: 8080,
-  dev: true,
-  commands: [
-    { name: "frontend", command: "npm run dev" },
-    { name: "backend", command: "npm run server" },
-    { name: "database", command: "docker-compose up db" },
-    { name: "tests", command: "npm run test:watch" }
-  ]
-}
-```
+<!--@include: ./.vitepress/includes/getting-started-advanced-config.md-->
 
 ## Keyboard Controls
 
