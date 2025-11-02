@@ -96,7 +96,7 @@ export class WebSocketManager {
 					const history = this.databank.getMessageByType(
 						type,
 						lastTimestamp,
-						100,
+						33,
 					);
 					ws.send(
 						JSON.stringify({
