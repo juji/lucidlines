@@ -16,47 +16,100 @@ export default {
     // Synchronize code group tabs
     // @ts-ignore
     if (typeof window !== 'undefined') {
-      // Run synchronization after route changes
+      // Run on initial load and after route changes
+      const initSync = () => setTimeout(synchronizeCodeGroups, 100)
+      initSync()
       // @ts-ignore
-      router.onAfterRouteChanged = () => {
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-          synchronizeCodeGroups()
-        }, 100)
-      }
-
-      // Also run on initial load
-      setTimeout(() => {
-        synchronizeCodeGroups()
-      }, 100)
+      router.onAfterRouteChanged = initSync
     }
   },
 } satisfies Theme
 
 // @ts-ignore
 function synchronizeCodeGroups() {
+  // Remove existing listeners to prevent duplicates
   // @ts-ignore
-  const labels = document.querySelectorAll('label[data-title]')
+  document.querySelectorAll('label[data-title]').forEach(label => {
+    // @ts-ignore
+    label.removeEventListener('click', handleLabelClick)
+  })
 
-  labels.forEach((label: any) => {
-    label.addEventListener('click', (e: any) => {
+  // Add listeners to all code group labels
+  // @ts-ignore
+  document.querySelectorAll('label[data-title]').forEach(label => {
+    // @ts-ignore
+    label.addEventListener('click', handleLabelClick)
+  })
+}
+
+// @ts-ignore
+function handleLabelClick(e) {
+  // @ts-ignore
+  const clickedTitle = e.target.getAttribute('data-title')
+  if (!clickedTitle) return
+
+  // Let the original click proceed, then synchronize the others
+  setTimeout(() => {
+    // @ts-ignore
+    document.querySelectorAll(`label[data-title="${clickedTitle}"]`).forEach(label => {
       // @ts-ignore
-      const title = e.target.getAttribute('data-title')
-      if (title) {
-        // Find all labels with the same data-title and click them
+      if (label !== e.target) {
         // @ts-ignore
-        const matchingLabels = document.querySelectorAll(`label[data-title="${title}"]`)
-        matchingLabels.forEach((matchingLabel: any) => {
-          // @ts-ignore
-          const input = document.getElementById(matchingLabel.htmlFor)
-          if (input && input.type === 'radio') {
-            input.checked = true
-            // Trigger change event
-            // @ts-ignore
-            input.dispatchEvent(new Event('change', { bubbles: true }))
-          }
-        })
+        const input = document.getElementById(label.htmlFor)
+        if (input && input.type === 'radio' && !input.checked) {
+          // Check the radio button
+          input.checked = true
+
+          // Find the corresponding content block and activate it
+          activateContentBlock(input)
+        }
       }
     })
+  }, 0)
+}
+
+// @ts-ignore
+function activateContentBlock(input) {
+  // Find the tabs container (parent of input)
+  // @ts-ignore
+  const tabsContainer = input.closest('.tabs')
+  if (!tabsContainer) return
+
+  // Go up one level to find the main container (parent of .tabs)
+  // @ts-ignore
+  const mainContainer = tabsContainer.parentElement
+  if (!mainContainer) return
+
+  // Find the blocks container
+  // @ts-ignore
+  const blocksContainer = mainContainer.querySelector('.blocks')
+  if (!blocksContainer) return
+
+  // Find the index of the input among its siblings
+  // @ts-ignore
+  const inputs = tabsContainer.querySelectorAll('input[type="radio"]')
+  let inputIndex = -1
+  inputs.forEach((inp: any, index: number) => {
+    // @ts-ignore
+    if (inp === input) {
+      inputIndex = index
+    }
   })
+
+  if (inputIndex === -1) return
+
+  // Remove active class from all blocks in this container
+  // @ts-ignore
+  blocksContainer.querySelectorAll('*').forEach((element: any) => {
+    // @ts-ignore
+    element.classList.remove('active')
+  })
+
+  // Add active class to the corresponding block
+  // @ts-ignore
+  const targetBlock = blocksContainer.children[inputIndex]
+  if (targetBlock) {
+    // @ts-ignore
+    targetBlock.classList.add('active')
+  }
 }
