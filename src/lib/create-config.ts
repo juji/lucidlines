@@ -28,14 +28,6 @@ const defaultConfig: LucidLinesConfig = {
 			command: "echo 'Hello, World!'",
 		},
 		{
-			name: "COUNT",
-			command: 'for i in {5..1}; do echo "$i..."; sleep 1; done; echo "BOOM!"',
-		},
-		{
-			name: "YESLOOP",
-			command: 'while true; do yes "Are we there yet?"; done',
-		},
-		{
 			name: "YOU",
 			command: "npm run dev",
 		},
@@ -102,7 +94,8 @@ export function createConfig(): void {
 			.join(",\n\t\t")}
 	],
 
-	// Enable development mode (default: false)
+	// Enable development mode
+	// true: will output logs to console
 	dev: ${defaultConfig.dev},
 }`;
 

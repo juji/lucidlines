@@ -1,6 +1,6 @@
 ```typescript
 interface StartOptions {
-  serverPort?: number;        // Server port (default: 8080)
+  serverPort?: number;        // Server port
   frontEnd?: string | number; // Frontend path or port
   commands?: Array<{          // Commands to run
     command: string;
