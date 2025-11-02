@@ -7,12 +7,12 @@ Central data storage system that decouples data producers from consumers.
 ::: warning
 DataBank is automatically created and managed by LucidLines regardless of configuration. The API documented here is for advanced use cases where you need direct access to log data programmatically. Most users won't need to interact with DataBank directly.
 
-**Note:** In the example above, `serverPort` is not set, meaning the web interface isn't running. While databank still collects and stores all command output, nothing is consuming or displaying it. Add `serverPort` to enable the web dashboard, or use `databank.subscribe()` to process logs programmatically.
+**Note:** In the example above, `serverPort` is not set, meaning the web interface isn't running. While DataBank still collects and stores all command output, nothing is consuming or displaying it. Add `serverPort` to enable the web dashboard, or use `databank.subscribe()` to process logs programmatically. We invite those who are adventurous to create their own interface.
 :::
 
 ## `addData(type, data)`
 
-Adds data to the DataBank storage. This is done internally by the internal library `node-stream.ts`. Users typically don't use this.
+Adds data to the DataBank storage. This is done internally by the `node-stream.ts` library. Users typically don't use this.
 
 #### Parameters
 
