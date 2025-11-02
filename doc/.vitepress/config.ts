@@ -38,11 +38,7 @@ export default defineConfig({
               ]
             }
           ]
-        },
-        socialLinks: [
-          { icon: 'github', link: 'https://github.com/juji/lucidlines' },
-          { icon: 'npm', link: 'https://www.npmjs.com/package/lucidlines' }
-        ]
+        }
       }
     },
     id: {
@@ -80,11 +76,7 @@ export default defineConfig({
               ]
             }
           ]
-        },
-        socialLinks: [
-          { icon: 'github', link: 'https://github.com/juji/lucidlines' },
-          { icon: 'npm', link: 'https://www.npmjs.com/package/lucidlines' }
-        ]
+        }
       }
     }
   },
@@ -120,37 +112,6 @@ export default defineConfig({
     search: {
       provider: 'local'
     },
-    sidebar: {
-      '/': [
-        { 
-          text: 'Home',
-          items: [
-            { text: 'Installation & Setup', link: '/#installation-setup' },
-            { text: 'Configuration', link: '/#configuration' },
-            { text: 'Starting LucidLines', link: '/#starting-lucidlines' },
-            { text: 'Keyboard Controls', link: '/#keyboard-controls' },
-          ]
-        },
-        {
-          text: 'Guide',
-          items: [
-            { text: 'Configuration Options', link: '/configuration' },
-            { text: 'Command Line Interface', link: '/cli' },
-            { text: 'Process Management', link: '/process-management' },
-            { text: 'Web Interface', link: '/web-interface' }
-          ]
-        },
-        {
-          text: 'API',
-          items: [
-            { text: 'Core API', link: '/core' },
-            { text: 'NodeStream API', link: '/nodestream' },
-            { text: 'DataBank API', link: '/databank' }
-          ]
-        }
-      ]
-    },
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/juji/lucidlines' },
       { icon: 'npm', link: 'https://www.npmjs.com/package/lucidlines' }

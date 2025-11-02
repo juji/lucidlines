@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@miletorix/vitepress-image-viewer": "^1.1.4",
+    "markdown-it-container": "^4.0.0",
     "vitepress-plugin-group-icons": "^1.6.5"
   }
 }

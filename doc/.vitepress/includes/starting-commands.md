@@ -1,3 +1,5 @@
+<div data-sync-group="package-manager">
+
 ::: code-group
 
 ```bash [npm]
@@ -29,3 +31,5 @@ deno run npm:lucidlines
 ```
 
 :::
+
+</div>
