@@ -22,7 +22,7 @@ Ini akan membuat file konfigurasi `.lucidlines.json5` di proyek Anda dan menamba
 
 File `.lucidlines.json5` berisi definisi proses dan pengaturan Anda. Setelah inisialisasi, edit file ini untuk menambahkan perintah Anda:
 
-<!--@include: ../.vitepress/includes/configuration-example.md-->
+<!--@include: ../.vitepress/includes/configuration-basic.md-->
 
 ## Memulai LucidLines
 
