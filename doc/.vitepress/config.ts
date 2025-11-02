@@ -7,7 +7,7 @@ export default defineConfig({
       md.use(groupIconMdPlugin)
     },
     theme: {
-      light: 'kanagawa-lotus',
+      light: 'min-light',
       dark: 'github-dark'
     }
   },
