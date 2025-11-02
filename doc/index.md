@@ -46,6 +46,14 @@ yarn add -D lucidlines
 yarn dlx lucidlines init
 ```
 
+```bash [deno]
+# Install LucidLines
+deno install -D npm:lucidlines
+
+# Initialize configuration
+deno run npm:lucidlines init
+```
+
 :::
 
 This will create a `.lucidlines.json5` configuration file in your project and add a script to your `package.json`:
@@ -115,6 +123,10 @@ bun run lucidlines
 yarn dlx lucidlines
 # or
 yarn run lucidlines
+```
+
+```bash [deno]
+deno run npm:lucidlines
 ```
 
 :::
